@@ -59,6 +59,7 @@
 #include "Gameplay/Components/MorphAnimator.h"
 #include "Gameplay/Components/BoomerangBehavior.h"
 #include "Gameplay/Components/HealthManager.h"
+#include "Gameplay/Components/ScoreCounter.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -438,9 +439,9 @@ void CreateScene() {
 
 		std::vector<MeshResource::Sptr> mainIdle = LoadTargets(3, "MainCharacterAnims/Idle/Char_Idle_00");
 
-		std::vector<MeshResource::Sptr> mainWalk = LoadTargets(4, "MainCharacterAnims/Walk/Char_Walk_00");
+		std::vector<MeshResource::Sptr> mainWalk = LoadTargets(5, "MainCharacterAnims/Walk/Char_Walk_00");
 
-		std::vector<MeshResource::Sptr> mainRun = LoadTargets(4, "MainCharacterAnims/Run/Char_Run_00");
+		std::vector<MeshResource::Sptr> mainRun = LoadTargets(5, "MainCharacterAnims/Run/Char_Run_00");
 
 		std::vector<MeshResource::Sptr> mainJump = LoadTargets(3, "MainCharacterAnims/Jump/Char_Jump_00");
 
@@ -788,6 +789,8 @@ void CreateScene() {
 			animator->ActivateAnim("Idle");
 
 			player1->Add<HealthManager>();
+
+			player1->Add<ScoreCounter>();
 		}
 
 		GameObject::Sptr detachedCam2 = scene->CreateGameObject("Detached Camera 2");
@@ -842,6 +845,8 @@ void CreateScene() {
 			animator->ActivateAnim("Idle");
 
 			player2->Add<HealthManager>();
+
+			player2->Add<ScoreCounter>();
 		}
 
 		//Stage Mesh - center floor
@@ -1992,6 +1997,7 @@ int main() {
 	ComponentManager::RegisterType<MorphAnimator>();
 	ComponentManager::RegisterType<BoomerangBehavior>();
 	ComponentManager::RegisterType<HealthManager>();
+	ComponentManager::RegisterType<ScoreCounter>();
 
 	ComponentManager::RegisterType<RectTransform>();
 	ComponentManager::RegisterType<GuiPanel>();
@@ -2242,16 +2248,20 @@ int main() {
 		{
 			if (player1->Get<HealthManager>()->IsDead() && !p1Dying)
 			{
+				std::string enemyNum = std::to_string(player1->Get<HealthManager>()->GotHitBy());
+				scene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->AddScore();
+				std::cout << "Player " << enemyNum << "'s score: "
+					<< scene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
 				player1->Get<MorphAnimator>()->ActivateAnim("Die");
 				p1Dying = true;
 			}
-
 
 			else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
 			{
 				Respawn(player1, glm::vec3(0.0f, 0.0f, 3.0f));
 				p1Dying = false;
 			}
+
 			else if (!p1Dying)
 			{
 				//If the player is pressing the throw button and is in a the appropriate state, activate the throw anim
@@ -2306,6 +2316,12 @@ int main() {
 
 			if (player2->Get<HealthManager>()->IsDead() && !p2Dying)
 			{
+				std::string enemyNum = std::to_string(player2->Get<HealthManager>()->GotHitBy());
+
+				scene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->AddScore();
+				std::cout << "Player " << enemyNum << "'s score: "
+					<< scene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
+
 				player2->Get<MorphAnimator>()->ActivateAnim("Die");
 				p2Dying = true;
 			}
