@@ -26,6 +26,8 @@ public:
 
 	bool GetButtonDown(int ID);
 
+	//bool GetButtonJustPressed(int ID);
+
 	float GetAxisValue(int ID);
 
 protected:
@@ -34,8 +36,12 @@ protected:
 	int _buttonCount;
 	int _axesCount;
 
-	unsigned char* buttonList;
+	/*
+	std::vector<unsigned char*> _currentStates;
+	std::vector<unsigned char*> _previousStates;
 
+	unsigned char* buttonList;
+	*/
 	GLFWwindow* _window;
 };
 

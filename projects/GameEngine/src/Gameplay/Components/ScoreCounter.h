@@ -16,6 +16,7 @@ public:
 
 	void AddScore();
 	int GetScore();
+	void ResetScore();
 
 	bool ReachedMaxScore();
 

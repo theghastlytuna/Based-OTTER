@@ -140,9 +140,13 @@ void GlfwWindowResizedCallback(GLFWwindow* window, int width, int height) {
 	}
 	GuiBatcher::SetWindowSize({ width, height });
 
-	GameObject::Sptr crossHair = scene->FindObjectByName("Crosshairs");
+	GameObject::Sptr crossHair = scene->FindObjectByName("Crosshairs1");
 	crossHair->Get<RectTransform>()->SetMin({ windowSize.x / 2 - 50, windowSize.y / 4 - 50 });
 	crossHair->Get<RectTransform>()->SetMax({ windowSize.x / 2 + 50, windowSize.y / 4 + 50 });
+
+	GameObject::Sptr crossHair2 = scene->FindObjectByName("Crosshairs2");
+	crossHair2->Get<RectTransform>()->SetMin({ windowSize.x / 2 - 50, windowSize.y / 4 - 50 });
+	crossHair2->Get<RectTransform>()->SetMax({ windowSize.x / 2 + 50, windowSize.y / 4 + 50 });
 }
 
 /// <summary>
@@ -1894,7 +1898,7 @@ void CreateScene() {
 			canPanel->SetColor(glm::vec4(1.f, 1.f, 1.f, 0.f));
 		}
 		
-		GameObject::Sptr crosshairs = scene->CreateGameObject("Crosshairs");
+		GameObject::Sptr crosshairs = scene->CreateGameObject("Crosshairs1");
 		{
 			//crosshairs->SetRenderFlag(1);//this is how you would set this ui object to ONLY render for player 1
 
@@ -1905,6 +1909,134 @@ void CreateScene() {
 			GuiPanel::Sptr panel = crosshairs->Add<GuiPanel>();
 			panel->SetBorderRadius(4);
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
+
+			crosshairs->SetRenderFlag(1);
+		}
+
+		GameObject::Sptr crosshairs2 = scene->CreateGameObject("Crosshairs2");
+		{
+			//crosshairs->SetRenderFlag(1);//this is how you would set this ui object to ONLY render for player 1
+
+			RectTransform::Sptr transform = crosshairs2->Add<RectTransform>();
+			transform->SetMin({ windowSize.x / 2 - 50, windowSize.y / 4 - 50 });
+			transform->SetMax({ windowSize.x / 2 + 50, windowSize.y / 4 + 50 });
+
+			GuiPanel::Sptr panel = crosshairs2->Add<GuiPanel>();
+			panel->SetBorderRadius(4);
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
+
+			crosshairs2->SetRenderFlag(2);
+		}
+
+		GameObject::Sptr menu = scene->CreateGameObject("Menu");
+		{
+
+			RectTransform::Sptr transform = menu->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ windowSize.x, windowSize.y / 2 });
+
+			GuiPanel::Sptr panel = menu->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/tempMenu.png"));
+
+			//Use the render flag for menus
+			menu->SetRenderFlag(5);
+		}
+
+
+		GameObject::Sptr pauseMenu = scene->CreateGameObject("PauseBackground");
+		{
+
+			RectTransform::Sptr transform = pauseMenu->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ windowSize.x, windowSize.y });
+
+			GuiPanel::Sptr panel = pauseMenu->Add<GuiPanel>();
+			panel->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("PauseText");
+			{
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 0, 0 });
+				transform->SetMax({ windowSize.x, windowSize.y / 2});
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/pauseGameTemp.png"));
+
+				panel->SetColor(glm::vec4(
+					panel->GetColor().x,
+					panel->GetColor().y,
+					panel->GetColor().z,
+					0.0f));
+
+				subPanel2->SetRenderFlag(5);
+			}
+			
+			pauseMenu->AddChild(subPanel2);
+			pauseMenu->SetRenderFlag(5);
+		}
+
+		GameObject::Sptr p1Win = scene->CreateGameObject("P1 Wins");
+		{
+
+			RectTransform::Sptr transform = p1Win->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ windowSize.x, windowSize.y });
+
+			GuiPanel::Sptr panel = p1Win->Add<GuiPanel>();
+			panel->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("P1 Wins Text");
+			{
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 0, 0 });
+				transform->SetMax({ windowSize.x, windowSize.y / 2 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p1Wins.png"));
+
+				panel->SetColor(glm::vec4(
+					panel->GetColor().x,
+					panel->GetColor().y,
+					panel->GetColor().z,
+					0.0f));
+
+				subPanel2->SetRenderFlag(5);
+			}
+
+			p1Win->AddChild(subPanel2);
+			p1Win->SetRenderFlag(5);
+		}
+
+		GameObject::Sptr p2Win = scene->CreateGameObject("P2 Wins");
+		{
+
+			RectTransform::Sptr transform = p2Win->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ windowSize.x, windowSize.y });
+
+			GuiPanel::Sptr panel = p2Win->Add<GuiPanel>();
+			panel->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("P2 Wins Text");
+			{
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 0, 0 });
+				transform->SetMax({ windowSize.x, windowSize.y / 2 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p2Wins.png"));
+
+				panel->SetColor(glm::vec4(
+					panel->GetColor().x,
+					panel->GetColor().y,
+					panel->GetColor().z,
+					0.0f));
+
+				subPanel2->SetRenderFlag(5);
+			}
+
+			p2Win->AddChild(subPanel2);
+			p2Win->SetRenderFlag(5);
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -2068,8 +2200,15 @@ int main() {
 
 	GameObject::Sptr player1 = scene->FindObjectByName("Player 1");
 	GameObject::Sptr player2 = scene->FindObjectByName("Player 2");
+	GameObject::Sptr player1Cam = scene->FindObjectByName("Detached Camera");
+	GameObject::Sptr player2Cam = scene->FindObjectByName("Detached Camera 2");
 	GameObject::Sptr boomerang1 = scene->FindObjectByName("Boomerang 1");
 	GameObject::Sptr boomerang2 = scene->FindObjectByName("Boomerang 2");
+
+	player1->Get<PlayerControl>()->SetCanMove(false);
+	player2->Get<PlayerControl>()->SetCanMove(false);
+	player1Cam->Get<FirstPersonCamera>()->SetCanMove(false);
+	player2Cam->Get<FirstPersonCamera>()->SetCanMove(false);
 
 	bool arriving = false;
 	bool p1Dying = false;
@@ -2077,6 +2216,11 @@ int main() {
 
 	float p1HitTimer = 0.0f;
 	float p2HitTimer = 0.0f;
+
+	bool menuScreen = true;
+	bool paused = false;
+	bool readyToPause = false;
+	bool gameOver = false;
 
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
@@ -2090,6 +2234,36 @@ int main() {
 
 		// Draw our material properties window!
 		DrawMaterialsWindow();
+
+		if (player1->Get<ScoreCounter>()->ReachedMaxScore())
+		{
+			glm::vec4 p1WinColour = scene->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->GetColor();
+
+			scene->FindObjectByName("P1 Wins")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.6f));
+
+			scene->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetColor(glm::vec4(
+				p1WinColour.x,
+				p1WinColour.y,
+				p1WinColour.z,
+				1.0f));
+
+			gameOver = true;
+		}
+
+		else if (player2->Get<ScoreCounter>()->ReachedMaxScore())
+		{
+			glm::vec4 p2WinColour = scene->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->GetColor();
+
+			scene->FindObjectByName("P2 Wins")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.6f));
+
+			scene->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetColor(glm::vec4(
+				p2WinColour.x,
+				p2WinColour.y,
+				p2WinColour.z,
+				1.0f));
+
+			gameOver = true;
+		}
 
 		// Showcasing how to use the imGui library!
 		bool isDebugWindowOpen = ImGui::Begin("Debugging");
@@ -2196,11 +2370,6 @@ int main() {
 
 		// Update our worlds physics!
 		scene->DoPhysics(dt);
-
-		if (arriving)
-		{
-			//arrive(boomerang, player2, dt);
-		}
 
 		GameObject::Sptr detachedCam = scene->FindObjectByName("Detached Camera");
 		GameObject::Sptr player1 = scene->FindObjectByName("Player 1");
@@ -2387,7 +2556,6 @@ int main() {
 		if (debug)
 		{
 			glViewport(0, 0, windowSize.x, windowSize.y);
-
 		}
 
 		else
@@ -2623,6 +2791,166 @@ int main() {
 			// Flush the Gui Batch renderer 
 			GuiBatcher::Flush();
 
+			/*
+			// Disable alpha blending 
+			glDisable(GL_BLEND);
+			// Disable scissor testing 
+			glDisable(GL_SCISSOR_TEST);
+			// Re-enable depth writing 
+			glDepthMask(GL_TRUE);
+			*/
+
+			glViewport(0, 0, windowSize.x, windowSize.y);
+
+			if (gameOver)
+			{
+				player1->Get<PlayerControl>()->SetCanMove(false);
+				player2->Get<PlayerControl>()->SetCanMove(false);
+				player1Cam->Get<FirstPersonCamera>()->SetCanMove(false);
+				player2Cam->Get<FirstPersonCamera>()->SetCanMove(false);
+
+				GameObject::Sptr p1WinText = scene->FindObjectByName("P1 Wins Text");
+				GameObject::Sptr p2WinText = scene->FindObjectByName("P2 Wins Text");
+
+				p1WinText->Get<RectTransform>()->SetMax(glm::vec2(windowSize.x, windowSize.y / 2));
+				p2WinText->Get<RectTransform>()->SetMax(glm::vec2(windowSize.x, windowSize.y / 2));
+
+				if (player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_START))
+				{
+					readyToPause = false;
+					gameOver = false;
+
+					Respawn(player1, glm::vec3(0.0f, 0.0f, 3.0f));
+					Respawn(player2, glm::vec3(10.0f, 10.0f, 3.0f));
+
+					player1->Get<ScoreCounter>()->ResetScore();
+					player2->Get<ScoreCounter>()->ResetScore();
+
+					player1->Get<HealthManager>()->ResetHealth();
+					player2->Get<HealthManager>()->ResetHealth();
+
+					//Hide the p1 winning menu
+					glm::vec4 p1WinColour = p1WinText->Get<GuiPanel>()->GetColor();
+
+					scene->FindObjectByName("P1 Wins")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+					scene->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetColor(glm::vec4(
+						p1WinColour.x,
+						p1WinColour.y,
+						p1WinColour.z,
+						0.0f));
+
+					//Hide the p2 winning menu
+					glm::vec4 p2WinColour = p2WinText->Get<GuiPanel>()->GetColor();
+
+					scene->FindObjectByName("P2 Wins")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+					scene->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetColor(glm::vec4(
+						p2WinColour.x,
+						p2WinColour.y,
+						p2WinColour.z,
+						0.0f));
+
+					player1->Get<PlayerControl>()->SetCanMove(true);
+					player2->Get<PlayerControl>()->SetCanMove(true);
+					player1Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+					player2Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+				}
+			}
+			
+			//If the menu screen is open
+			else if (menuScreen)
+			{
+
+
+				GameObject::Sptr menu = scene->FindObjectByName("Menu");
+
+				//Continue to resize the menu to fit the screen
+				menu->Get<RectTransform>()->SetMax(glm::vec2(windowSize.x, windowSize.y / 2));
+
+				//If player 1 hits start
+				if (player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_START))
+				{
+					//Set playing to true
+					scene->IsPlaying = true;
+
+					glm::vec4 menuColor = menu->Get<GuiPanel>()->GetColor();
+
+					//Make the menu transparent
+					menu->Get<GuiPanel>()->SetColor(glm::vec4(
+						menuColor.x,
+						menuColor.y,
+						menuColor.z,
+						0.0f));
+
+					//Set the cameras
+					scene->MainCamera = scene->PlayerCamera;
+					scene->MainCamera2 = scene->PlayerCamera2;
+
+					//No longer in the menu screen
+					menuScreen = false;
+
+					player1->Get<PlayerControl>()->SetCanMove(true);
+					player2->Get<PlayerControl>()->SetCanMove(true);
+					player1Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+					player2Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+				}
+			}
+
+			//Else, not in the menu screen, now continuously check to see if someone pauses
+			else if (readyToPause)
+			{
+				if (!paused && (player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_START) || player2->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_START)))
+				{
+					GameObject::Sptr pause = scene->FindObjectByName("PauseText");
+					glm::vec4 pauseColour = pause->Get<GuiPanel>()->GetColor();
+
+					pause->Get<RectTransform>()->SetMax(glm::vec2(windowSize.x, windowSize.y / 2));
+
+					pause->Get<GuiPanel>()->SetColor(glm::vec4(
+						pauseColour.x,
+						pauseColour.y,
+						pauseColour.z,
+						1.0f));
+
+					scene->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.6f));
+					paused = true;
+
+					player1->Get<PlayerControl>()->SetCanMove(false);
+					player2->Get<PlayerControl>()->SetCanMove(false);
+					player1Cam->Get<FirstPersonCamera>()->SetCanMove(false);
+					player2Cam->Get<FirstPersonCamera>()->SetCanMove(false);
+				}
+
+				else if (paused && (player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_B) || player2->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_B)))
+				{
+					GameObject::Sptr pause = scene->FindObjectByName("PauseText");
+					glm::vec4 pauseColour = pause->Get<GuiPanel>()->GetColor();
+
+					pause->Get<GuiPanel>()->SetColor(glm::vec4(
+						pauseColour.x,
+						pauseColour.y,
+						pauseColour.z,
+						0.0f));
+
+					scene->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+					paused = false;
+
+					player1->Get<PlayerControl>()->SetCanMove(true);
+					player2->Get<PlayerControl>()->SetCanMove(true);
+					player1Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+					player2Cam->Get<FirstPersonCamera>()->SetCanMove(true);
+				}
+			}
+
+			else if (!player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_START)) readyToPause = true;
+
+			//Render menus
+			scene->RenderGUI(5);
+
+			// Flush the Gui Batch renderer 
+			GuiBatcher::Flush();
+
 			// Disable alpha blending 
 			glDisable(GL_BLEND);
 			// Disable scissor testing 
@@ -2631,6 +2959,8 @@ int main() {
 			glDepthMask(GL_TRUE);
 
 		}
+
+
 		////////////////////////////////////////////////////////////////////////// END RENDERING 
 		// End our ImGui window
 		// Draw object GUIs 

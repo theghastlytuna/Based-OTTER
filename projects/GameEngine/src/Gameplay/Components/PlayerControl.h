@@ -23,6 +23,8 @@ public:
 	bool IsSprinting();
 	bool GetJustThrew();
 
+	void SetCanMove(bool canMove);
+
 public:
 	virtual void RenderImGui() override;
 	MAKE_TYPENAME(PlayerControl);
@@ -48,6 +50,8 @@ protected:
 	bool _justThrew = false;
 	float _spintVal = 5.0f;
 	GLFWwindow* _window;
+
+	bool _canMove = true;
 
 	ControllerInput::Sptr _controller;
 	glm::vec2 _controllerSensitivity;

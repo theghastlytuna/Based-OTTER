@@ -46,3 +46,9 @@ bool ScoreCounter::ReachedMaxScore()
 {
 	return winner;
 }
+
+void ScoreCounter::ResetScore()
+{
+	score = 0;
+	winner = false;
+}

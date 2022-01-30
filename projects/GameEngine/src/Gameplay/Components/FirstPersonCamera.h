@@ -18,6 +18,8 @@ public:
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
 
+	void SetCanMove(bool canMove);
+
 public:
 	virtual void RenderImGui() override;
 	MAKE_TYPENAME(FirstPersonCamera);
@@ -31,6 +33,7 @@ protected:
 	glm::dvec2 _prevMousePos;
 	glm::vec2 _currentRot;
 
+	bool _canMove;
 	bool _isMousePressed = false;
 	GLFWwindow* _window;
 
