@@ -7,6 +7,7 @@
 #include "Gameplay/Scene.h"
 #include "Utils/JsonGlmHelpers.h"
 #include "Utils/ImGuiHelper.h"
+#include "Application/Application.h"
 
 ControllerInput::ControllerInput()
 	: IComponent(),
@@ -17,7 +18,7 @@ ControllerInput::~ControllerInput() = default;
 
 void ControllerInput::Awake()
 {
-	_window = GetGameObject()->GetScene()->Window;
+	_window = Application::Get().GetWindow();
 }
 
 void ControllerInput::Update(float deltaTime)

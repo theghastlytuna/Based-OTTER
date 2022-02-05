@@ -3,7 +3,7 @@
 #include <GLM/glm.hpp>
 
 #include "Graphics/Texture2D.h"
-#include "Graphics/Shader.h"
+#include "Graphics/ShaderProgram.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
@@ -128,8 +128,8 @@
 		static glm::mat3 __model;
 		static std::vector<glm::mat3> __modelTransformStack;
 		static std::vector<IRect> __scissorRects;
-		static Shader::Sptr __shader;
-		static Shader::Sptr __fontShader;
+		static ShaderProgram::Sptr __shader;
+		static ShaderProgram::Sptr __fontShader;
 		static std::unordered_map<Texture2D*, MeshData> _meshBuilders;
 		static VertexArrayObject::Sptr __vao;
 		static VertexBuffer::Sptr __vbo;

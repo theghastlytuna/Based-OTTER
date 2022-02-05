@@ -47,26 +47,6 @@ int PhysicsBase::_editorSelectedColliderType = 0;
 			collider->_isDirty |= LABEL_LEFT(ImGui::DragFloat3, "Position", &collider->_position.x, 0.01f);
 			collider->_isDirty |= LABEL_LEFT(ImGui::DragFloat3, "Rotation", &collider->_rotation.x, 1.0f);
 			collider->_isDirty |= LABEL_LEFT(ImGui::DragFloat3, "Scale   ", &collider->_scale.x, 0.01f);
-
-			if (ImGui::Button("Print Collider")) {
-				std::cout << "Collider Co-oridnates: \n" <<
-					"BoxCollider::Sptr collider_ = BoxCollider::Create(glm::vec3 (" << collider->_scale.x << ", " << collider->_scale.y << ", " << collider->_scale.z << " ));\n"
-					<< "collider->SetPosition(glm::vec3(" << collider->_position.x << "," << collider->_position.y << "," << collider->_position.z << ")); \n"
-					<< "collider->SetRotation(glm::vec3(" << collider->_rotation.x << ", " << collider->_rotation.y << ", " << collider->_rotation.z << ")); ";
-			}
-
-
-			/*
-			
-			"BoxCollider::Sptr collider__ = BoxCollider::Create(glm::vec3(110.0f, 110.0f, 1.0f));
-			collider->SetPosition({ 0,0,-1 });
-			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-			*/
-			/*
-			std::cout << "BoxCollider::Sptr collider_ = BoxCollider::Create(glm::vec3 (" << collider->_scale.x << ", " << collider->_scale.y << ", " << collider->_scale.z << " ));\n"
-				<< "collider->SetPosition(glm::vec3(" << collider->_position.x << "," << collider->_position.y << "," << collider->_position.z << ")); \n"
-				<< "collider->SetRotation(glm::vec3(" << &collider->_rotation.x << ", " << &collider->_rotation.y << ", " << &collider->_rotation.z << ")); "
-				*/
 			// Draw collider's editor
 			collider->DrawImGui();
 
@@ -95,9 +75,9 @@ int PhysicsBase::_editorSelectedColliderType = 0;
 			nlohmann::json blob;
 			blob["guid"] = collider->_guid.str();
 			blob["type"] = ~collider->_type;
-			blob["position"] = GlmToJson(collider->_position);
-			blob["rotation"] = GlmToJson(collider->_rotation);
-			blob["scale"]    = GlmToJson(collider->_scale);
+			blob["position"] = (collider->_position);
+			blob["rotation"] = (collider->_rotation);
+			blob["scale"]    = (collider->_scale);
 			collider->ToJson(blob);
 			output["colliders"].push_back(blob);
 		}
@@ -120,9 +100,9 @@ int PhysicsBase::_editorSelectedColliderType = 0;
 				if (collider != nullptr) {
 					// Copy in collider info
 					collider->_guid = Guid(blob["guid"]);
-					collider->_position = ParseJsonVec3(blob["position"]);
-					collider->_rotation = ParseJsonVec3(blob["rotation"]);
-					collider->_scale = ParseJsonVec3(blob["scale"]);
+					collider->_position = JsonGet(blob, "position", collider->_position);
+					collider->_rotation = JsonGet(blob, "rotation", collider->_rotation);
+					collider->_scale    = JsonGet(blob, "scale", collider->_scale);
 					// Allow the derived loading
 					collider->FromJson(blob);
 					// Mark dirty and store

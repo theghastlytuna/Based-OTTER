@@ -62,6 +62,9 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 
 		trigger->GetGameObject()->Get<BoomerangBehavior>()->returnBoomerang();
 		_gotHit = true;
+
+		//Find the value of the boomerang ID, assign it to the enemy boomerang ID
+		_enemyBoomerangID = trigger->GetGameObject()->Name[trigger->GetGameObject()->Name.length() - 1] - '0';
 	}
 
 	else if (trigger->GetGameObject()->Name == "Boomerang " + std::to_string(_playerID))
@@ -88,6 +91,11 @@ void HealthManager::ResetHealth()
 float HealthManager::GetDamageOpacity()
 {
 	return _damageScreenOpacity;
+}
+
+int HealthManager::GotHitBy()
+{
+	return _enemyBoomerangID;
 }
 
 bool HealthManager::IsDead()

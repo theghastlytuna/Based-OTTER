@@ -173,7 +173,7 @@ void TextureCube::_LoadImages(const std::unordered_map<CubeMapFace, std::string>
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
 	// Upload our data to our image (note that the custom enum tools let us convert to base type [GLenum] with the * operator)
-	glTextureSubImage3D(_handle, 0, 0, 0, 0, _description.Size, _description.Size, 6, *_description.FormatHint, *PixelType::UByte, datastore);
+	glTextureSubImage3D(_rendererId, 0, 0, 0, 0, _description.Size, _description.Size, 6, *_description.FormatHint, *PixelType::UByte, datastore);
 	delete[] datastore;
 }
 
@@ -181,12 +181,12 @@ void TextureCube::_SetTextureParams(){
 	// Make sure the size is greater than zero and that we have a format specified before trying to set parameters
 	if (_description.Size > 0 && _description.Format != InternalFormat::Unknown) {
 		// Allocates the memory for our texture
-		glTextureStorage2D(_handle, 1, (GLenum)_description.Format, _description.Size, _description.Size);
+		glTextureStorage2D(_rendererId, 1, (GLenum)_description.Format, _description.Size, _description.Size);
 
 		// Set up our texture parameters
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(_handle, GL_TEXTURE_MIN_FILTER, (GLenum)_description.MinificationFilter);
-		glTextureParameteri(_handle, GL_TEXTURE_MAG_FILTER, (GLenum)_description.MagnificationFilter);
+		glTextureParameteri(_rendererId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_rendererId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(_rendererId, GL_TEXTURE_MIN_FILTER, (GLenum)_description.MinificationFilter);
+		glTextureParameteri(_rendererId, GL_TEXTURE_MAG_FILTER, (GLenum)_description.MagnificationFilter);
 	}
 }

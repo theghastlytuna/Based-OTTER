@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "Graphics/Shader.h"
+#include "Graphics/ShaderProgram.h"
 #include "Graphics/ITexture.h"
 
 namespace Gameplay {
@@ -8,7 +8,7 @@ namespace Gameplay {
 	/// Helper structure for material parameters to our shader
 	/// THIS IS VERY TEMPORARY
 	/// </summary>
-	struct Material : public IResource {
+	class Material : public IResource {
 	public:
 		typedef std::shared_ptr<Material> Sptr;
 		typedef std::weak_ptr<Material>   Wptr;
@@ -32,7 +32,7 @@ namespace Gameplay {
 		/// Creates a new material from a given shader
 		/// </summary>
 		/// <param name="shader">The shader for the material</param>
-		Material(const Shader::Sptr& shader);
+		Material(const ShaderProgram::Sptr& shader);
 
 		/// <summary>
 		/// Sets a material parameter with the given name and type
@@ -58,7 +58,7 @@ namespace Gameplay {
 		/// <summary>
 		/// Gets the shader that this material is using
 		/// </summary>
-		const Shader::Sptr& GetShader() const;
+		const ShaderProgram::Sptr& GetShader() const;
 
 		/// <summary>
 		/// Handles applying this material's state to the OpenGL pipeline
@@ -122,7 +122,7 @@ namespace Gameplay {
 			UniformData(UniformData&& other);
 			UniformData& operator=(const UniformData& other);
 			UniformData& operator=(UniformData&& other) noexcept;
-			UniformData(const std::string& uniformName, const Shader::Sptr& shader);
+			UniformData(const std::string& uniformName, const ShaderProgram::Sptr& shader);
 			~UniformData();
 
 			/// <summary>
@@ -138,7 +138,7 @@ namespace Gameplay {
 			/// Parses a uniform information structure from a JSON blob
 			/// </summary>
 			/// <param name="blob">The JSON blob to parse</param>
-			static UniformData FromJson(const nlohmann::json& blob, const std::string& name, const Shader::Sptr& shader);
+			static UniformData FromJson(const nlohmann::json& blob, const std::string& name, const ShaderProgram::Sptr& shader);
 
 			template <typename T>
 			T& Get() {
@@ -167,7 +167,7 @@ namespace Gameplay {
 		/// <summary>
 		/// The shader that the material is using
 		/// </summary>
-		Shader::Sptr    _shader;
+		ShaderProgram::Sptr    _shader;
 		/// <summary>
 		/// The uniforms that the material will be modifying
 		/// </summary>

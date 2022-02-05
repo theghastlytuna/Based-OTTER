@@ -17,19 +17,22 @@ void ResourceManager::Init() {
 	//_manifest["materials"] = std::vector<nlohmann::json>();
 }
 
-const nlohmann::json& ResourceManager::GetManifest() {
+const nlohmann::ordered_json& ResourceManager::GetManifest() {
 	return _manifest;
 }
 
-void ResourceManager::LoadManifest(const std::string& path) {
+void ResourceManager::LoadManifest(const std::string& path, bool preloadAssets) {
 	std::string contents = FileHelpers::ReadFile(path);
 	nlohmann::ordered_json blob = nlohmann::ordered_json::parse(contents);
+	_manifest = blob;
 
-	for (auto& [typeName, items] : blob.items()) {
-		auto& func = _typeLoaders[typeName];
-		if (func) {
-			for (auto& [guid, blob] : items.items()) {
-				func(blob);
+	if (preloadAssets) {
+		for (auto& [typeName, items] : blob.items()) {
+			auto& func = _typeLoaders[typeName];
+			if (func) {
+				for (auto& [guid, blob] : items.items()) {
+					func(blob);
+				}
 			}
 		}
 	}
@@ -38,9 +41,10 @@ void ResourceManager::LoadManifest(const std::string& path) {
 void ResourceManager::SaveManifest(const std::string& path) {
 	// Update all resources in the manifest so they match their current representation
 	for (auto& [type, map] : _resources) {
+		std::string typeName = StringTools::SanitizeClassName(type.name());
 		for (auto& [guid, res] : map) {
-			_manifest[StringTools::SanitizeClassName(type.name())][guid.str()] = res->ToJson();
-			_manifest[StringTools::SanitizeClassName(type.name())][guid.str()]["guid"] = res->GetGUID().str();
+			_manifest[typeName][guid.str()] = res->ToJson();
+			_manifest[typeName][guid.str()]["guid"] = res->GetGUID().str();
 		}
 	}
 	FileHelpers::WriteContentsToFile(path, _manifest.dump(1,'\t'));

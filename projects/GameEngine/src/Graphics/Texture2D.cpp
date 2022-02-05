@@ -47,29 +47,40 @@ Texture2D::Texture2D(const Texture2DDescription& description) : ITexture(Texture
 	}
 }
 
-Texture2D::Texture2D(const std::string& filePath) : ITexture(TextureType::_2D) {
+Texture2D::Texture2D(const std::string& filePath) : 
+	ITexture(TextureType::_2D) 
+{
 	_description.Filename = filePath;
 	_SetTextureParams();
 	_LoadDataFromFile();
 }
 
 void Texture2D::SetMinFilter(MinFilter value) {
-	_description.MinificationFilter = value;
-	glTextureParameteri(_handle, GL_TEXTURE_MIN_FILTER, *_description.MinificationFilter);
+	if (_description.MultisampleCount == 1) {
+		_description.MinificationFilter = value;
+		glTextureParameteri(_rendererId, GL_TEXTURE_MIN_FILTER, *_description.MinificationFilter);
+	}
+	else {
+		LOG_WARN("Attempted to set minification filter on a multisampled texture, ignoring");
+	}
 }
 
 void Texture2D::SetMagFilter(MagFilter value) {
-	_description.MagnificationFilter = value;
-	glTextureParameteri(_handle, GL_TEXTURE_MAG_FILTER, *_description.MagnificationFilter);
+	if (_description.MultisampleCount == 1) {
+		_description.MagnificationFilter = value;
+		glTextureParameteri(_rendererId, GL_TEXTURE_MAG_FILTER, *_description.MagnificationFilter);
+	} else {
+		LOG_WARN("Attempted to set magnification filter on a multisampled texture, ignoring");
+	}
 }
 
 void Texture2D::SetAnisoLevel(float value) {
 	if (value != _description.MaxAnisotropic) {
 		_description.MaxAnisotropic = glm::clamp(value, 1.0f, ITexture::GetLimits().MAX_ANISOTROPY);
-		glTextureParameterf(_handle, GL_TEXTURE_MAX_ANISOTROPY, _description.MaxAnisotropic);
+		glTextureParameterf(_rendererId, GL_TEXTURE_MAX_ANISOTROPY, _description.MaxAnisotropic);
 
 		if (_description.GenerateMipMaps) {
-			glGenerateTextureMipmap(_handle);
+			glGenerateTextureMipmap(_rendererId);
 		}
 	}
 }
@@ -85,11 +96,11 @@ void Texture2D::LoadData(uint32_t width, uint32_t height, PixelFormat format, Pi
 	glPixelStorei(GL_PACK_ALIGNMENT, componentSize);
 
 	// Upload our data to our image
-	glTextureSubImage2D(_handle, 0, offsetX, offsetY, width, height, (GLenum)format, (GLenum)type, data);
+	glTextureSubImage2D(_rendererId, 0, offsetX, offsetY, width, height, (GLenum)format, (GLenum)type, data);
 
 	// If requested, generate mip-maps for our texture
 	if (_description.GenerateMipMaps) {
-		glGenerateTextureMipmap(_handle);
+		glGenerateTextureMipmap(_rendererId);
 	}
 }
 
@@ -142,9 +153,18 @@ void Texture2D::_LoadDataFromFile() {
 		// We now have data in the image, we can clear the STBI data
 		stbi_image_free(data);
 	}
+	
+	SetDebugName(_description.Filename);
 }
 
 void Texture2D::_SetTextureParams() {
+	// If we have a multisampled texture, and the current type is 2D, change it to 2D multisampled
+	if (_description.MultisampleCount > 1 && _type == TextureType::_2D) {
+		glDeleteTextures(1, &_rendererId);
+		_type = TextureType::_2DMultisample;
+		glCreateTextures(*_type, 1, &_rendererId);
+	}
+
 	// If the anisotropy is negative, we assume that we want max anisotropy
 	if (_description.MaxAnisotropic < 0.0f) {
 		_description.MaxAnisotropic = ITexture::GetLimits().MAX_ANISOTROPY;
@@ -152,16 +172,24 @@ void Texture2D::_SetTextureParams() {
 
 	// Make sure the size is greater than zero and that we have a format specified before trying to set parameters
 	if ((_description.Width * _description.Height > 0) && _description.Format != InternalFormat::Unknown) {
-		// Calculate how many layers of storage to allocate based on whether mipmaps are enabled or not
-		int layers = _description.GenerateMipMaps ? CalcRequiredMipLevels(_description.Width, _description.Height) : 1;
-		// Allocates the memory for our texture
-		glTextureStorage2D(_handle, layers, (GLenum)_description.Format, _description.Width, _description.Height);
+		// If the texture is NOT multisampled, we proceed as normal
+		if (_description.MultisampleCount == 1) {
+			// Calculate how many layers of storage to allocate based on whether mipmaps are enabled or not
+			int layers = _description.GenerateMipMaps ? CalcRequiredMipLevels(_description.Width, _description.Height) : 1;
+			// Allocates the memory for our texture
+			glTextureStorage2D(_rendererId, layers, (GLenum)_description.Format, _description.Width, _description.Height);
 
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_S, (GLenum)_description.HorizontalWrap);
-		glTextureParameteri(_handle, GL_TEXTURE_WRAP_T, (GLenum)_description.VerticalWrap);
-		glTextureParameteri(_handle, GL_TEXTURE_MIN_FILTER, (GLenum)_description.MinificationFilter);
-		glTextureParameteri(_handle, GL_TEXTURE_MAG_FILTER, (GLenum)_description.MagnificationFilter);
-		glTextureParameterf(_handle, GL_TEXTURE_MAX_ANISOTROPY, _description.MaxAnisotropic);
+			glTextureParameteri(_rendererId, GL_TEXTURE_MIN_FILTER, (GLenum)_description.MinificationFilter);
+			glTextureParameteri(_rendererId, GL_TEXTURE_MAG_FILTER, (GLenum)_description.MagnificationFilter);
+			glTextureParameterf(_rendererId, GL_TEXTURE_MAX_ANISOTROPY, _description.MaxAnisotropic);
+		}
+		// Texture is multisampled, we need to allocate memory differently
+		else {
+			glTextureStorage2DMultisample(_rendererId, _description.MultisampleCount, *_description.Format, _description.Width, _description.Height, true);
+		}
+
+		glTextureParameteri(_rendererId, GL_TEXTURE_WRAP_S, (GLenum)_description.HorizontalWrap);
+		glTextureParameteri(_rendererId, GL_TEXTURE_WRAP_T, (GLenum)_description.VerticalWrap);
 	}
 }
 

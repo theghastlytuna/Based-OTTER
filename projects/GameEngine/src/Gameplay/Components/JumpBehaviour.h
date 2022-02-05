@@ -12,6 +12,8 @@ class JumpBehaviour : public Gameplay::IComponent {
 public:
 	typedef std::shared_ptr<JumpBehaviour> Sptr;
 
+	std::weak_ptr<Gameplay::IComponent> Panel;
+
 	JumpBehaviour();
 	virtual ~JumpBehaviour();
 
@@ -19,26 +21,27 @@ public:
 	virtual void Update(float deltaTime) override;
 
 	bool IsInAir();
-
 	bool IsStartingJump();
 
 public:
 	virtual void RenderImGui() override;
-	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
-	virtual void OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
 	MAKE_TYPENAME(JumpBehaviour);
 	virtual nlohmann::json ToJson() const override;
 	static JumpBehaviour::Sptr FromJson(const nlohmann::json& blob);
 
+	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+	virtual void OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+
 protected:
 	float _impulse;
+
+	bool _isPressed = false;
+	Gameplay::Physics::RigidBody::Sptr _body;
 
 	//Boolean to represent whether the attached object is on a ground object
 	bool _onGround = false;
 
 	bool _startingJump = false;
-
-	Gameplay::Physics::RigidBody::Sptr _body;
 
 	ControllerInput::Sptr _controller;
 };

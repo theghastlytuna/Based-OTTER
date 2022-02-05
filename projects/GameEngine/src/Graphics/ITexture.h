@@ -2,24 +2,19 @@
 #include <memory>
 #include <glad/glad.h>
 #include <cstdint>
-#include <Graphics/TextureEnums.h>
 #include <GLM/glm.hpp>
 #include "Utils/ResourceManager/IResource.h"
+#include "Graphics/IGraphicsResource.h"
+#include "Graphics/GLenums.h"
 
 /// <summary>
 /// The abstract base class for all our textures that we'll be implementing
 /// </summary>
-class ITexture : public IResource
+class ITexture : public IGraphicsResource, public IResource
 {
 public:
-	typedef std::shared_ptr<ITexture> Sptr;
+	DEFINE_RESOURCE(ITexture)
 
-	// Remove the copy and and assignment operators
-	ITexture(const ITexture& other) = delete;
-	ITexture(ITexture&& other) = delete;
-	ITexture& operator=(const ITexture& other) = delete;
-	ITexture& operator=(ITexture&& other) = delete;
-	
 	/// <summary>
 	/// Represents the limits available to OpenGL textures on the current renderer
 	/// </summary>
@@ -53,6 +48,10 @@ public:
 	/// <param name="color">The color to clear to</param>
 	void Clear(const glm::vec4& color);
 
+	// Inherited from IGraphicsResource
+
+	virtual GlResourceType GetResourceClass() const override;
+
 protected:
 	ITexture(TextureType type);
 
@@ -61,7 +60,6 @@ protected:
 	/// </summary>
 	virtual void _Recreate();
 
-	GLuint _handle;    // The OpenGL handle for this textureW
 	TextureType _type; // The type for this texture, mainly used for debugging
 
 // STATIC SECTION

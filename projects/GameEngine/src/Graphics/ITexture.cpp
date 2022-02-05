@@ -4,8 +4,8 @@ ITexture::Limits ITexture::__limits = ITexture::Limits();
 bool ITexture::__isStaticInit = false;
 
 ITexture::ITexture(TextureType type) :
-	_type(type),
-	_handle(0)
+	IGraphicsResource(),
+	_type(type)
 {
 	__StaticInit();
 	_Recreate();
@@ -13,23 +13,23 @@ ITexture::ITexture(TextureType type) :
 
 void ITexture::_Recreate()
 {
-	if (_handle == 0) {
-		glDeleteTextures(1, &_handle);
+	if (_rendererId == 0) {
+		glDeleteTextures(1, &_rendererId);
 	}
-	glCreateTextures((GLenum)_type, 1, &_handle);
+	glCreateTextures((GLenum)_type, 1, &_rendererId);
 }
 
 ITexture::~ITexture() {
-	if (glIsTexture(_handle)) {
-		glDeleteTextures(1, &_handle);
-		_handle = 0;
+	if (glIsTexture(_rendererId)) {
+		glDeleteTextures(1, &_rendererId);
+		_rendererId = 0;
 	}
 }
 
 void ITexture::Bind(int slot) {
-	if (_handle != 0) {
+	if (_rendererId != 0) {
 		// Instead of glActiveTexture + glBindTexture, we can one line it now :D
-		glBindTextureUnit(slot, _handle); 
+		glBindTextureUnit(slot, _rendererId); 
 	}
 }
 
@@ -38,9 +38,13 @@ void ITexture::Unbind(int slot) {
 }
 
 void ITexture::Clear(const glm::vec4& color) {
-	if (_handle != 0) {
-		glClearTexImage(_handle, 0, GL_RGBA, GL_FLOAT, &color.x);
+	if (_rendererId != 0) {
+		glClearTexImage(_rendererId, 0, GL_RGBA, GL_FLOAT, &color.x);
 	}
+}
+
+GlResourceType ITexture::GetResourceClass() const {
+	return GlResourceType::Texture;
 }
 
 void ITexture::__StaticInit()

@@ -26,6 +26,8 @@ public:
 
 	float GetDamageOpacity();
 
+	int GotHitBy();
+
 	bool IsDead();
 
 public:
@@ -45,6 +47,8 @@ protected:
 	bool _gotHit = false;
 	int _playerID;
 	int _enemyID;
+
+	int _enemyBoomerangID;
 
 	Gameplay::GameObject::Sptr _player;
 };

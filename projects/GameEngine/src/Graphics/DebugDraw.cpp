@@ -164,7 +164,7 @@ DebugDrawer& DebugDrawer::Get() {
 				}
 			)LIT";
 
-		__Shader = Shader::Create();
+		__Shader = ShaderProgram::Create();
 		__Shader->LoadShaderPart(vs_source, ShaderPartType::Vertex);
 		__Shader->LoadShaderPart(fs_source, ShaderPartType::Fragment);
 		__Shader->Link();

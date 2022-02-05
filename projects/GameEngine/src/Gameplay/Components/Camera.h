@@ -75,11 +75,14 @@ namespace Gameplay {
 		/// <summary>
 		/// Gets the projection matrix for this camera
 		/// </summary>
-		const glm::mat4& GetProjection() const { return _projection; }
+		const glm::mat4& GetProjection() const;
 		/// <summary>
 		/// Gets the combined view-projection matrix for this camera, calculating if needed
 		/// </summary>
 		const glm::mat4& GetViewProjection() const;
+
+		const glm::vec4& GetClearColor() const;
+		void SetClearColor(const glm::vec4& color);
 
 	protected:
 		float _nearPlane;
@@ -97,6 +100,8 @@ namespace Gameplay {
 		mutable glm::mat4 _viewProjection;
 		// A dirty flag that indicates whether we need to re-calculate our view projection matrix
 		mutable bool      _isDirty;
+
+		glm::vec4         _clearColor;
 
 		// Recalculates the projection matrix
 		const glm::mat4& __CalculateProjection() const;

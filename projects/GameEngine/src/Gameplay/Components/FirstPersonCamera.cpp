@@ -10,6 +10,7 @@
 #include "Gameplay/GameObject.h"
 
 #include "Gameplay/Physics/RigidBody.h"
+#include "Application/Application.h"
 
 FirstPersonCamera::FirstPersonCamera()
 	: IComponent(),
@@ -26,7 +27,7 @@ FirstPersonCamera::~FirstPersonCamera() = default;
 
 void FirstPersonCamera::Awake()
 {
-	_window = GetGameObject()->GetScene()->Window;
+	_window = Application::Get().GetWindow();
 
 	_controller = GetComponent<ControllerInput>();
 	
@@ -94,18 +95,10 @@ void FirstPersonCamera::RenderImGui()
 
 nlohmann::json FirstPersonCamera::ToJson() const
 {
-	return {
-		{ "mouse_sensitivity", GlmToJson(_mouseSensitivity) },
-		{ "move_speed", GlmToJson(_moveSpeeds) },
-		{ "shift_mult", _shiftMultipler }
-	};
+	return nlohmann::json();
 }
 
 FirstPersonCamera::Sptr FirstPersonCamera::FromJson(const nlohmann::json& blob)
 {
-	FirstPersonCamera::Sptr result = std::make_shared<FirstPersonCamera>();
-	result->_mouseSensitivity = ParseJsonVec2(blob["mouse_sensitivity"]);
-	result->_moveSpeeds = ParseJsonVec3(blob["move_speed"]);
-	result->_shiftMultipler = JsonGet(blob, "shift_mult", 2.0f);
-	return result;
+	return FirstPersonCamera::Sptr();
 }

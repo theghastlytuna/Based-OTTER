@@ -2,7 +2,7 @@
 #include <GLM/glm.hpp>
 #include <stack>
 #include "Graphics/VertexTypes.h"
-#include "Graphics/Shader.h"
+#include "Graphics/ShaderProgram.h"
 
 /// <summary>
 /// Utility class for drawing lines and triangles in an immediate mode style
@@ -144,5 +144,5 @@ protected:
 	VertexArrayObject::Sptr _trisVAO;
 
 	inline static DebugDrawer* __Instance = nullptr;
-	inline static Shader::Sptr __Shader = nullptr;
+	inline static ShaderProgram::Sptr __Shader = nullptr;
 };

@@ -91,7 +91,7 @@ namespace Gameplay::Physics {
 		/// <summary>
 		/// Gets the bodies angular velocity, in degrees/s
 		/// </summary>
-		const glm::vec3& GetAngularVelocity() const;
+		glm::vec3 GetAngularVelocity() const;
 
 		/// <summary>
 		/// Sets the angular factor for this body. The velocity along each
@@ -172,6 +172,7 @@ namespace Gameplay::Physics {
 		static RigidBody::Sptr FromJson(const nlohmann::json& data);
 		MAKE_TYPENAME(RigidBody)
 
+
 	protected:
 		// The physics update mode for the body (static, dynamic, kinematic)
 		RigidBodyType _type;
@@ -196,7 +197,6 @@ namespace Gameplay::Physics {
 		bool             _angularVelocityDirty;
 		btVector3        _angularFactor;
 		bool             _angularFactorDirty;
-
 
 		// Handles resolving any dirty state stuff for our object
 		void _HandleStateDirty();

@@ -3,6 +3,7 @@
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
 #include "Utils/ImGuiHelper.h"
+#include "Gameplay/InputEngine.h"
 
 void JumpBehaviour::Awake()
 {
@@ -55,8 +56,6 @@ JumpBehaviour::Sptr JumpBehaviour::FromJson(const nlohmann::json& blob) {
 }
 
 void JumpBehaviour::Update(float deltaTime) {
-	//Find whether the attached object is on the ground
-	
 	//If the object has a controller connected, use that to find input
 	_startingJump = false;
 
@@ -68,14 +67,13 @@ void JumpBehaviour::Update(float deltaTime) {
 			_startingJump = true;
 		}
 	}
-
-	//Else, use the keyboard
-	else
-	{
-		if (glfwGetKey(GetGameObject()->GetScene()->Window, GLFW_KEY_SPACE) && _onGround)
-		{
-			_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
-			_startingJump = true;
+	
+	
+	else if (InputEngine::GetKeyState(GLFW_KEY_SPACE) == ButtonState::Pressed) {
+		_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
+		Gameplay::IComponent::Sptr ptr = Panel.lock();
+		if (ptr != nullptr) {
+			ptr->IsEnabled = !ptr->IsEnabled;
 		}
 	}
 }
@@ -89,4 +87,3 @@ bool JumpBehaviour::IsStartingJump()
 {
 	return _startingJump;
 }
-

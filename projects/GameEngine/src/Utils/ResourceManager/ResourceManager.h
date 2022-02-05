@@ -4,10 +4,10 @@
 #include <unordered_map>
 #include <typeindex>
 
-#include "Graphics/Texture2D.h";
-#include "Graphics/VertexArrayObject.h";
-#include "Graphics/Shader.h";
-#include "Gameplay/Material.h";
+#include "Graphics/Texture2D.h"
+#include "Graphics/VertexArrayObject.h"
+#include "Graphics/ShaderProgram.h"
+#include "Gameplay/Material.h"
 
 #include "Utils/GUID.hpp"
 #include "Utils/ResourceManager/IResource.h"
@@ -58,7 +58,26 @@ public:
 	/// <returns>The resource with the given GUID, or nullptr if none exists</returns>
 	template<typename T, typename = std::enable_if<is_valid_resource<T>()>::type>
 	static std::shared_ptr<T> Get(Guid id) {
-		return std::dynamic_pointer_cast<T>(_resources[std::type_index(typeid(T))][id]);
+		// Try and grab the asset from the resource pool
+		std::shared_ptr<T> result =  std::dynamic_pointer_cast<T>(_resources[std::type_index(typeid(T))][id]);
+
+		// If the asset is null, we can try finding it in the manifest to load it
+		if (result == nullptr) {
+			// Get the type name it'll be stored under
+			std::string typeName = StringTools::SanitizeClassName(typeid(T).name());
+
+			// If the manifest has an entry, we can load it!
+			if (_manifest[typeName].contains(id)) {
+				// Invoke the loader function with the manifest data
+				_typeLoaders[typeName](_manifest[typeName][id]);
+
+				// Search resources again to get the resource
+				return std::dynamic_pointer_cast<T>(_resources[std::type_index(typeid(T))][id]);
+			}
+		}
+
+		// If result wasn't null, or couldn't be found in the manifest, return here
+		return result;
 	}
 
 	/// <summary>
@@ -87,7 +106,6 @@ public:
 		}
 	}
 
-
 	/// <summary>
 	/// Iterates over all resources of the given type and invokes a method with them
 	/// </summary>
@@ -115,12 +133,14 @@ public:
 	/// <summary>
 	/// Gets the current JSON manifest
 	/// </summary>
-	static const nlohmann::json& GetManifest();
+	static const nlohmann::ordered_json& GetManifest();
 	/// <summary>
-	/// Loads a manifest file into the resource manager
+	/// Loads a manifest file into the resource manager. Note that this will not perform load on the assets themselves 
+	/// unless preloadAssets is set to true
 	/// </summary>
 	/// <param name="path">The path to the JSON manifest file</param>
-	static void LoadManifest(const std::string& path);
+	/// <param name="preloadAssets">True if all assets should be loaded into memory</param>
+	static void LoadManifest(const std::string& path, bool preloadAssets = false);
 	/// <summary>
 	/// Saves the manifest to the given JSON file
 	/// </summary>

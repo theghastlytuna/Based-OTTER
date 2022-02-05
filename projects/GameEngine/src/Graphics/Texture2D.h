@@ -42,6 +42,10 @@ struct Texture2DDescription {
 	/// True if this texture should generate mip maps (smaller copies of the image with filtering pre-applied)
 	/// </summary>
 	bool           GenerateMipMaps;
+	/// <summary>
+	/// Returns the number of samples if the texture is multisampled, default 1
+	/// </summary>
+	uint8_t        MultisampleCount;
 
 	/// <summary>
 	/// The path to the source file for the image, or an empty string if the file has been
@@ -65,6 +69,7 @@ struct Texture2DDescription {
 		MagnificationFilter(MagFilter::Linear),
 		MaxAnisotropic(-1.0f), // max aniso by default
 		GenerateMipMaps(true),
+		MultisampleCount(1),
 		Filename(""),
 		FormatHint(PixelFormat::RGBA)
 	{ }
@@ -72,13 +77,7 @@ struct Texture2DDescription {
 
 class Texture2D : public ITexture {
 public:
-	typedef std::shared_ptr<Texture2D> Sptr;
-
-	// Remove the copy and and assignment operators
-	Texture2D(const Texture2D& other) = delete;
-	Texture2D(Texture2D&& other) = delete;
-	Texture2D& operator=(const Texture2D& other) = delete;
-	Texture2D& operator=(Texture2D&& other) = delete;
+	DEFINE_RESOURCE(Texture2D)
 
 	// Make sure we mark our destructor as virtual so base class is called
 	virtual ~Texture2D() = default;
@@ -111,12 +110,12 @@ public:
 	/// <summary>
 	/// Gets the minification filter that the texture is using
 	/// </summary>
-	MinFilter GetMinFilter() const { return _description.MinificationFilter; }
+	MinFilter GetMinFilter() const { return _description.MultisampleCount == 1 ? _description.MinificationFilter : MinFilter::Unknown; }
 	void SetMinFilter(MinFilter value);
 	/// <summary>
 	/// Gets the magnification filter that the texture is using
 	/// </summary>
-	MagFilter GetMagFilter() const { return _description.MagnificationFilter; }
+	MagFilter GetMagFilter() const { return _description.MultisampleCount == 1 ? _description.MagnificationFilter : MagFilter::Unknown; }
 	void SetMagFilter(MagFilter value);
 
 	float GetAnisoLevel() const { return _description.MaxAnisotropic; }
@@ -125,7 +124,7 @@ public:
 	/// <summary>
 	/// Loads a region of data into this texture
 	/// Bounds must be contained by the bounds of the texture
-	/// format and type must be convertable to the texture's internal format
+	/// format and type must be convertible to the texture's internal format
 	/// </summary>
 	/// <param name="width">The width of the data frame, in pixels</param>
 	/// <param name="height">The height of the data frame, in pixels</param>

@@ -27,7 +27,7 @@ const glm::vec4& GuiText::GetColor() const {
 	return _color;
 }
 
-const std::string& GuiText::GetText() const {
+std::string GuiText::GetText() const {
 	return StringConvert.to_bytes(_text);
 }
 
@@ -76,7 +76,7 @@ void GuiText::Awake() {
 
 void GuiText::RenderGUI()
 {
-	if (_font != nullptr && ! _text.empty()) {
+	if (_font != nullptr && !_text.empty()) {
 		glm::vec2 position = _transform->GetSize() / 2.0f;
 		position -= _textSize / 2.0f;
 		GuiBatcher::RenderText(_text, _font, position, _color, _textScale);
@@ -105,7 +105,7 @@ void GuiText::RenderImGui()
 
 nlohmann::json GuiText::ToJson() const {
 	return {
-		{ "color", GlmToJson(_color) },
+		{ "color", _color },
 		{ "text",  _text },
 		{ "scale", _textScale },
 		{ "font",  _font  ? _font->GetGUID().str() : "null" }
@@ -114,8 +114,8 @@ nlohmann::json GuiText::ToJson() const {
 
 GuiText::Sptr GuiText::FromJson(const nlohmann::json& blob) {
 	GuiText::Sptr result = std::make_shared<GuiText>();
-	result->_color     = ParseJsonVec4(blob["color"]);
-	result->_textScale = JsonGet(blob, "text", 1.0f);
+	result->_color     = JsonGet(blob, "color", result->_color);
+	result->_textScale = JsonGet(blob, "scale", 1.0f);
 	result->_text      = JsonGet<std::wstring>(blob, "text", LR"()");
 	result->_font      = ResourceManager::Get<Font>(Guid(JsonGet<std::string>(blob, "font", "null")));
 	return result;

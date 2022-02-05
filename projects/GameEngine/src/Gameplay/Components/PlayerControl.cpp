@@ -11,6 +11,7 @@
 
 
 #include "Gameplay/Physics/RigidBody.h"
+#include "Application/Application.h"
 
 PlayerControl::PlayerControl()
 	: IComponent(),
@@ -29,7 +30,7 @@ PlayerControl::~PlayerControl() = default;
 
 void PlayerControl::Awake()
 {
-	_window = GetGameObject()->GetScene()->Window;
+	_window = Application::Get().GetWindow();
 
 	_controller = GetComponent<ControllerInput>();
 

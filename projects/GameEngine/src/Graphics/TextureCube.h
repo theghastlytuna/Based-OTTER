@@ -1,6 +1,7 @@
 #pragma once
 #include <EnumToString.h>
 #include "ITexture.h"
+
 /*
 0 	GL_TEXTURE_CUBE_MAP_POSITIVE_X
 1 	GL_TEXTURE_CUBE_MAP_NEGATIVE_X
@@ -74,13 +75,7 @@ struct TextureCubeDescription {
 
 class TextureCube : public ITexture {
 public:
-	typedef std::shared_ptr<TextureCube> Sptr;
-
-	// Remove the copy and and assignment operators
-	TextureCube(const TextureCube& other) = delete;
-	TextureCube(TextureCube&& other) = delete;
-	TextureCube& operator=(const TextureCube& other) = delete;
-	TextureCube& operator=(TextureCube&& other) = delete;
+	DEFINE_RESOURCE(TextureCube);
 
 	// Make sure we mark our destructor as virtual so base class is called
 	virtual ~TextureCube() = default;

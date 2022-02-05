@@ -9,6 +9,188 @@
 #include <Logging.h>
 #include <glm/glm.hpp>
 
+// We can use an enum to make our code more readable and restrict
+// values to only ones we want to accept
+ENUM(ShaderPartType, GLint,
+	 Vertex       = GL_VERTEX_SHADER,
+	 Fragment     = GL_FRAGMENT_SHADER,
+	 TessControl  = GL_TESS_CONTROL_SHADER,
+	 TessEval     = GL_TESS_EVALUATION_SHADER,
+	 Geometry     = GL_GEOMETRY_SHADER,
+	 Unknown      = GL_NONE // Usually good practice to have an "unknown" or "none" state for enums
+)
+
+/// <summary>
+/// The types of texture we will support in our framework
+/// </summary>
+/// <see>https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glCreateTextures.xhtml</see>
+ENUM(TextureType, GLenum,
+	_1D            = GL_TEXTURE_1D,
+	_2D            = GL_TEXTURE_2D,
+	_3D            = GL_TEXTURE_3D,
+	Cubemap        = GL_TEXTURE_CUBE_MAP,
+	_2DMultisample = GL_TEXTURE_2D_MULTISAMPLE
+)
+
+// https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
+// These are some of our more common available internal formats
+ENUM(InternalFormat, GLint,
+	Unknown      = GL_NONE,
+	Depth        = GL_DEPTH_COMPONENT,
+	DepthStencil = GL_DEPTH_STENCIL,
+	R8           = GL_R8,
+	R16          = GL_R16,
+	RG8          = GL_RG8,
+	RGB8         = GL_RGB8,
+	SRGB         = GL_SRGB8,
+	RGB10        = GL_RGB10,
+	RGB16        = GL_RGB16,
+	RGB32F       = GL_RGB32F,
+	RGBA8        = GL_RGBA8,
+	SRGBA        = GL_SRGB8_ALPHA8,
+	RGBA16       = GL_RGBA16,
+	RGB32AF      = GL_RGBA32F
+	// Note: There are sized internal formats but there is a LOT of them
+)
+
+// The layout of the input pixel data
+ENUM(PixelFormat, GLint,
+    Unknown      = GL_NONE,
+	Red          = GL_RED,
+	RG           = GL_RG,
+	RGB          = GL_RGB,
+	SRGB         = GL_SRGB,
+	BGR          = GL_BGR,
+	RGBA         = GL_RGBA,
+	BGRA         = GL_BGRA,
+	Depth        = GL_DEPTH_COMPONENT,
+	DepthStencil = GL_DEPTH_STENCIL
+)
+
+// The type for each component of the pixel data
+ENUM(PixelType, GLint,
+	Unknown = GL_NONE,
+	UByte   = GL_UNSIGNED_BYTE,
+	Byte    = GL_BYTE,
+	UShort  = GL_UNSIGNED_SHORT,
+	Short   = GL_SHORT,
+	UInt    = GL_UNSIGNED_INT,
+	Int     = GL_INT,
+	Float   = GL_FLOAT
+)
+
+// These are our options for GL_TEXTURE_WRAP_T, GL_TEXTURE_WRAP_S and GL_TEXTURE_WRAP_R
+ENUM(WrapMode, GLint,
+	Unknown           = GL_NONE,
+	ClampToEdge       = GL_CLAMP_TO_EDGE,
+	ClampToBorder     = GL_CLAMP_TO_BORDER,
+	MirroredRepeat    = GL_MIRRORED_REPEAT,
+	Repeat            = GL_REPEAT, // Default
+	MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE
+)
+
+// These are our available options for the GL_TEXTURE_MIN_FILTER setting
+ENUM(MinFilter, GLint,
+    Unknown           = GL_NONE,
+	Nearest           = GL_NEAREST,
+	Linear            = GL_LINEAR,
+	NearestMipNearest = GL_NEAREST_MIPMAP_NEAREST,
+	LinearMipNearest  = GL_LINEAR_MIPMAP_NEAREST,
+	NearestMipLinear  = GL_NEAREST_MIPMAP_LINEAR, // This is the default setting
+	LinearMipLinear   = GL_LINEAR_MIPMAP_LINEAR
+)
+
+// These are our available options for the GL_TEXTURE_MAG_FILTER setting
+ENUM(MagFilter, GLint,
+	Unknown           = GL_NONE,
+	Nearest           = GL_NEAREST,
+	Linear            = GL_LINEAR  // This is the default setting
+)
+
+/*
+ * Gets the size of a single component in the given format, in bytes.
+ */
+constexpr size_t GetTexelComponentSize(PixelType type) {
+	switch (type) {
+	case PixelType::UByte:
+	case PixelType::Byte:
+		return 1;
+	case PixelType::UShort:
+	case PixelType::Short:
+		return 2;
+	case PixelType::Int:
+	case PixelType::UInt:
+		return 4;
+	default:
+		LOG_ASSERT(false, "Unknown type: {}", type);
+		return 0;
+	}
+}
+
+constexpr InternalFormat GetInternalFormatForChannels8(int numChannels) {
+	switch (numChannels) {
+		case 1:
+			return InternalFormat::R8;
+		case 2:
+			return InternalFormat::RG8;
+		case 3:
+			return InternalFormat::RGB8;
+		case 4:
+			return InternalFormat::RGBA8;
+		default:
+			LOG_WARN(false, "Unsupported texture format with {0} channels", numChannels);
+			return InternalFormat::Unknown;
+	}
+}
+constexpr PixelFormat GetPixelFormatForChannels(int numChannels) {
+	switch (numChannels) {
+		case 1:
+			return PixelFormat::Red;
+		case 2:
+			return PixelFormat::RG;
+		case 3:
+			return PixelFormat::RGB;
+		case 4:
+			return PixelFormat::RGBA;
+		default:
+			LOG_WARN(false, "Unsupported texture format with {0} channels", numChannels);
+			return PixelFormat::Unknown;
+	}
+}
+
+/*
+ * Gets the number of components in a given pixel format
+ */
+constexpr GLint GetTexelComponentCount(PixelFormat format) {
+	switch (format) {
+		case PixelFormat::Depth:
+		case PixelFormat::DepthStencil:
+		case PixelFormat::Red:
+			return 1;
+		case PixelFormat::RG:
+			return 2;
+		case PixelFormat::RGB:
+		case PixelFormat::BGR:
+			return 3;
+		case PixelFormat::RGBA:
+		case PixelFormat::BGRA:
+			return 4;
+		default:
+			LOG_ASSERT(false, "Unknown format: {}", format);
+			return 0;
+	}
+}
+
+/*
+ * Gets the number of bytes needed to represent a single texel of the given format and type
+ * @param format The format of the texel
+ * @param type The data type of the texel
+ * @returns The size of a single texel of the given format and type, in bytes
+ */
+constexpr size_t GetTexelSize(PixelFormat format, PixelType type) {
+	return GetTexelComponentSize(type) * GetTexelComponentCount(format);
+}
+
 /*
 	* Represents the type of data used in a shader in a more useful format for us
 	* than what OpenGL provides to us
@@ -486,3 +668,229 @@ constexpr GLenum ToGLElementType(ShaderDataTypecode typecode) {
 			LOG_ASSERT(false, "Unknown Shader Data Typecode!"); return 0;
 	}
 }
+
+/// <summary>
+/// Represents the element type of an Index Buffer
+/// </summary>
+ENUM(IndexType, GLenum,
+	 UByte   = GL_UNSIGNED_BYTE,
+	 UShort  = GL_UNSIGNED_SHORT,
+	 UInt    = GL_UNSIGNED_INT,
+	 Unknown = GL_NONE
+)
+
+inline size_t GetIndexTypeSize(IndexType type) {
+	switch (type) {
+		case IndexType::UByte:  return sizeof(uint8_t);
+		case IndexType::UShort: return sizeof(uint16_t);
+		case IndexType::UInt:   return sizeof(uint32_t);
+		case IndexType::Unknown:
+		default:
+			return 0;
+
+	}
+}
+
+/**
+ * Enumerates all possible options for glPolygonMode
+ */
+ENUM(FillMode, uint32_t,
+	Point = GL_POINT,
+	Line  = GL_LINE,
+	Fill  = GL_FILL
+)
+
+/**
+ * Enumerates all possible options for glCullFace, as well as
+ * providing a none value that indicates culling is disabled
+ */
+ENUM(CullMode, uint32_t,
+	None  = GL_NONE,
+	Front = GL_FRONT,
+	Back  = GL_BACK,
+	Both  = GL_FRONT_AND_BACK
+)
+
+/**
+ * Enumerates possible options for glBlendFunc 
+ */
+ENUM(BlendFunc, uint32_t,
+	Zero             = GL_ZERO,
+	One              = GL_ONE,
+	SrcCol           = GL_SRC_COLOR,
+	OneMinusSrcCol   = GL_ONE_MINUS_SRC_COLOR,
+	DstCol           = GL_DST_COLOR,
+	OneMinusDstCol   = GL_ONE_MINUS_DST_COLOR,
+	SrcAlpha         = GL_SRC_ALPHA,
+	OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+	DstAlpha         = GL_DST_ALPHA,
+	OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
+	SrcAlphaSaturate = GL_SRC_ALPHA_SATURATE
+)
+
+/**
+ * Enumerates possible options for glBlendEquation 
+ */
+ENUM(BlendEquation, uint32_t,
+	 Add        = GL_FUNC_ADD,
+	 Sub        = GL_FUNC_SUBTRACT,
+	 ReverseSub = GL_FUNC_REVERSE_SUBTRACT,
+	 Min        = GL_MIN,
+	 Max        = GL_MAX
+)
+
+/// <summary>
+/// The possible options for our buffer types
+/// </summary>
+/// <see>https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml</see>
+ENUM(BufferType, GLenum,
+	Vertex  = GL_ARRAY_BUFFER,
+	Index   = GL_ELEMENT_ARRAY_BUFFER,
+	Uniform = GL_UNIFORM_BUFFER
+)
+
+/// <summary>
+/// The possible options for our buffer usage hints
+/// Stream: Contents will be modified once and used rarely
+/// Static: Contents will be modified once and used regularly
+/// Dynamic: Contents will be modified and used regularly
+/// 
+/// Draw: Content will be modified by our application and used by OpenGL
+/// Read: Content will be filled with content by OpenGL to be read by our application
+/// Copy: Content will be filled by OpenGL and used by other OpenGL commands (not optimized for application access)
+/// </summary>
+/// <see>https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml</see>
+ENUM(BufferUsage, GLenum,
+	StreamDraw = GL_STREAM_DRAW,
+	StreamRead = GL_STREAM_READ,
+	StreamCopy = GL_STREAM_COPY,
+
+	StaticDraw = GL_STATIC_DRAW,
+	StaticRead = GL_STATIC_READ,
+	StaticCopy = GL_STATIC_COPY,
+
+	DynamicDraw = GL_DYNAMIC_DRAW,
+	DynamicRead = GL_DYNAMIC_READ,
+	DynamicCopy = GL_DYNAMIC_COPY,
+)
+
+/// <summary>
+/// We'll use this just to make it more clear what the intended usage of an attribute is in our code!
+/// </summary>
+ENUM(AttribUsage, uint8_t,
+	 Unknown   = 0,
+	 Position  = 1,
+	 Color     = 2,
+	 Color1    = 3,   //
+	 Color2    = 4,   // Extras
+	 Color3    = 5,   //
+	 Texture   = 6,
+	 Texture1  = 7, //
+	 Texture2  = 8, // Extras
+	 Texture3  = 9, //
+	 Normal    = 10,
+	 Tangent   = 11,
+	 BiTangent = 12,
+	 User0     = 13,    //
+	 User1     = 14,    //
+	 User2     = 15,    // Extras
+	 User3     = 16     //
+)
+
+/// <summary>
+/// Represents the type that a VAO attribute can have
+/// </summary>
+/// <see>https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml</see>
+ENUM(AttributeType, GLenum,
+	 Byte    = GL_BYTE,
+	 UByte   = GL_UNSIGNED_BYTE,
+	 Short   = GL_SHORT,
+	 UShort  = GL_UNSIGNED_SHORT,
+	 Int     = GL_INT,
+	 UInt    = GL_UNSIGNED_INT,
+	 Float   = GL_FLOAT,
+	 Double  = GL_DOUBLE,
+	 Unknown = GL_NONE
+)
+
+/// <summary>
+/// Represents the mode in which a VAO will be drawn
+/// </summary>
+/// <see>https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml</see>
+ENUM(DrawMode, GLenum,
+	 Points        = GL_POINTS,
+	 LineStrip     = GL_LINE_STRIP,
+	 LineLoop      = GL_LINE_LOOP,
+	 LineList      = GL_LINES,
+	 TriangleStrip = GL_TRIANGLE_STRIP,
+	 TriangleFan   = GL_TRIANGLE_FAN,
+	 TriangleList  = GL_TRIANGLES
+)
+
+/**
+ * Enumerates all possible attachment options of the glFramebufferTexture and  glFramebufferRenderbuffer commands
+ */
+ENUM(RenderTargetAttachment, uint32_t,
+	Unknown      = GL_NONE,
+	Color0       = GL_COLOR_ATTACHMENT0,
+	Color1       = GL_COLOR_ATTACHMENT1,
+	Color2       = GL_COLOR_ATTACHMENT2,
+	Color3       = GL_COLOR_ATTACHMENT3,
+	Color4       = GL_COLOR_ATTACHMENT4,
+	Color5       = GL_COLOR_ATTACHMENT5,
+	Color6       = GL_COLOR_ATTACHMENT6,
+	Color7       = GL_COLOR_ATTACHMENT7,
+	Depth        = GL_DEPTH_ATTACHMENT,
+	Stencil      = GL_STENCIL_ATTACHMENT,
+	DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT,
+)
+
+/**
+ * Returns true if the given attachment is a color attachment (and not depth or stencil)
+ */
+constexpr bool IsColorAttachment(RenderTargetAttachment attachment) {
+	return attachment >= RenderTargetAttachment::Color0 && attachment <= RenderTargetAttachment::Color7;
+}
+
+/**
+ * Enumerates the internal types that render targets may use (subset of texture formats)
+ */
+ENUM(RenderTargetType, uint32_t,
+	 Unknown      = GL_NONE,
+	 ColorRgba8   = GL_RGBA8,
+	 ColorRgb10   = GL_RGB10,
+	 ColorRgb8    = GL_RGB8,
+	 ColorRG8     = GL_RG8,
+	 ColorRed8    = GL_R8,
+	 ColorRgb16F  = GL_RGB16F,
+	 ColorRgba16F = GL_RGBA16F,
+	 DepthStencil = GL_DEPTH24_STENCIL8,
+	 Depth16      = GL_DEPTH_COMPONENT16,
+	 Depth24      = GL_DEPTH_COMPONENT24,
+	 Depth32      = GL_DEPTH_COMPONENT32,
+	 Stencil4     = GL_STENCIL_INDEX4,
+	 Stencil8     = GL_STENCIL_INDEX8,
+	 Stencil16    = GL_STENCIL_INDEX16
+)
+
+/**
+ * Enumerates the possible options for the glBindFramebuffer command
+ */
+ENUM_FLAGS(FramebufferBinding, GLenum,
+		   None  = 0,
+		   Draw  = GL_DRAW_FRAMEBUFFER,
+		   Write = GL_DRAW_FRAMEBUFFER,
+		   Read  = GL_READ_FRAMEBUFFER,
+		   Both  = GL_FRAMEBUFFER
+)
+
+/**
+ * Enumerates the possible options for glClear and glBlit commands
+ */
+ENUM_FLAGS(BufferFlags, GLenum,
+		   None    = 0,
+		   Color   = GL_COLOR_BUFFER_BIT,
+		   Depth   = GL_DEPTH_BUFFER_BIT,
+		   Stencil = GL_STENCIL_BUFFER_BIT,
+		   All     = Color | Depth | Stencil
+)
