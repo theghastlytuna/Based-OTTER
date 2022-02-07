@@ -130,6 +130,11 @@ void BoomerangBehavior::SetInactivePosition(glm::vec3 newPosition)
 	_inactivePosition = newPosition;
 }
 
+glm::vec3 BoomerangBehavior::getPosition()
+{
+	return GetGameObject()->GetPosition();
+}
+
 bool BoomerangBehavior::getReadyToThrow()
 {
 	if (_state == boomerangState::INACTIVE) {

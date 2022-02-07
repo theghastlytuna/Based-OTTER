@@ -137,11 +137,11 @@ void PlayerControl::Update(float deltaTime)
 				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
 				glm::vec3 playerPosition = GetGameObject()->GetPosition();
 				btVector3 btPlayerPosition = btVector3(playerPosition.x, playerPosition.y, playerPosition.z);
-				btCollisionWorld::ClosestRayResultCallback result(btPlayerPosition, btPlayerPosition * btCamLocF * 100);
-				GetGameObject()->GetScene()->GetPhysicsWorld()->rayTest(btPlayerPosition, btPlayerPosition * btCamLocF * 100, result);
+				btCollisionWorld::ClosestRayResultCallback result(btPlayerPosition, btCamLocF * 100);
+				GetGameObject()->GetScene()->GetPhysicsWorld()->rayTest(btPlayerPosition, btCamLocF * 100, result);
 				if (result.hasHit()) {
-					glm::vec3 point = glm::vec3(result.m_hitPointWorld.x(), result.m_hitPointWorld.y(), result.m_hitPointWorld.z());
-					_boomerangBehavior->UpdateTarget(point);
+					_raycastPosition = glm::vec3(result.m_hitPointWorld.x(), result.m_hitPointWorld.y(), result.m_hitPointWorld.z());
+					_boomerangBehavior->UpdateTarget(_raycastPosition);
 				}
 			}
 			else if (Target) {
