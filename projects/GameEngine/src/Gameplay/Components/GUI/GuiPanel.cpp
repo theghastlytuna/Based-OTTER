@@ -17,6 +17,11 @@ void GuiPanel::SetColor(const glm::vec4& color) {
 	_color = color;
 }
 
+void GuiPanel::SetTransparency(const float transparency)
+{
+	_color.w = transparency;
+}
+
 const glm::vec4& GuiPanel::GetColor() const {
 	return _color;
 }

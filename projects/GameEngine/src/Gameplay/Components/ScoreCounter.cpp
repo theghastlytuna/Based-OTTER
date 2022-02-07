@@ -1,5 +1,7 @@
 #include "ScoreCounter.h"
 
+#include "Application/Application.h"
+
 ScoreCounter::ScoreCounter() :
 	IComponent(),
 	score(0),
@@ -35,6 +37,10 @@ void ScoreCounter::AddScore()
 {
 	score++;
 	if (score >= maxScore) winner = true;
+
+	Application& app = Application::Get();
+
+
 }
 
 int ScoreCounter::GetScore()
@@ -45,4 +51,11 @@ int ScoreCounter::GetScore()
 bool ScoreCounter::ReachedMaxScore()
 {
 	return winner;
+}
+
+
+void ScoreCounter::ResetScore()
+{
+	score = 0;
+	winner = false;
 }

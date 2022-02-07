@@ -3,15 +3,15 @@
 #include "json.hpp"
 
 /**
- * This example layer handles creating a default test scene, which we will use 
+ * This example layer handles creating a default test scene, which we will use
  * as an entry point for creating a sample scene
  */
-class DefaultSceneLayer final : public ApplicationLayer {
+class Menu final : public ApplicationLayer {
 public:
-	MAKE_PTRS(DefaultSceneLayer)
+	MAKE_PTRS(Menu)
 
-	DefaultSceneLayer();
-	virtual ~DefaultSceneLayer();
+		Menu();
+	virtual ~Menu();
 
 	// Inherited from ApplicationLayer
 

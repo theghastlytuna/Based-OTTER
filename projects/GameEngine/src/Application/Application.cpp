@@ -47,6 +47,7 @@
 #include "Gameplay/Components/HealthManager.h"
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
+#include "Gameplay/Components/MenuElement.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"
@@ -59,6 +60,7 @@
 #include "Layers/ImGuiDebugLayer.h"
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/Components/ComponentManager.h"
+#include "Layers/Menu.h"
 
 Application* Application::_singleton = nullptr;
 std::string Application::_applicationName = "INFR-2350U - DEMO";
@@ -155,6 +157,7 @@ void Application::_Run()
 {
 	// TODO: Register layers
 	_layers.push_back(std::make_shared<GLAppLayer>());
+	_layers.push_back(std::make_shared<Menu>());
 	_layers.push_back(std::make_shared<DefaultSceneLayer>());
 	_layers.push_back(std::make_shared<RenderLayer>());
 	_layers.push_back(std::make_shared<InterfaceLayer>());
@@ -178,7 +181,6 @@ void Application::_Run()
 	// Register all component and resource types
 	_RegisterClasses();
 
-
 	// Load all layers
 	_Load();
 
@@ -194,7 +196,18 @@ void Application::_Run()
 	float p1HitTimer = 0.0f;
 	float p2HitTimer = 0.0f;
 
-	// Infinite loop as long as the application is running
+	bool menuScreen = true;
+	bool firstFrame = true;
+
+	GetLayer<DefaultSceneLayer>()->BeginLayer();
+
+	float selectTime = 0.5f;
+
+	MenuElement::Sptr currentElement;
+	std::vector<MenuElement::Sptr> menuItems;
+	int currentItemInd = 0;
+
+		// Infinite loop as long as the application is running
 	while (_isRunning) {
 		// Handle scene switching
 		if (_targetScene != nullptr) {
@@ -228,174 +241,281 @@ void Application::_Run()
 		ImGuiHelper::StartFrame();
 
 		GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
-		GameObject::Sptr player2 = _currentScene->FindObjectByName("Player 2");
-		GameObject::Sptr boomerang1 = _currentScene->FindObjectByName("Boomerang 1");
-		GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
-		GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
-
-		////////////////////Handle some UI stuff/////////////////////////////////
-
-		GameObject::Sptr p1Health = _currentScene->FindObjectByName("Player1Health");
-		GameObject::Sptr p2Health = _currentScene->FindObjectByName("Player2Health");
-
-		GameObject::Sptr p1DamageScreen = _currentScene->FindObjectByName("DamageFlash1");
-		GameObject::Sptr p2DamageScreen = _currentScene->FindObjectByName("DamageFlash2");
-
-		//Find the current health of the player, divide it by the maximum health, lerp between the minimum and maximum health bar values using this as the interp. parameter
-		p1Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
-			player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()), 45 });
-
-		p1Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-			player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()));
-
-		p1DamageScreen->Get<GuiPanel>()->SetColor(glm::vec4(
-			p1DamageScreen->Get<GuiPanel>()->GetColor().x,
-			p1DamageScreen->Get<GuiPanel>()->GetColor().y,
-			p1DamageScreen->Get<GuiPanel>()->GetColor().x,
-			player1->Get<HealthManager>()->GetDamageOpacity()));
-
-		p2Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
-			player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()), 45 });
-
-		p2Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-			player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()));
-
-		p2DamageScreen->Get<GuiPanel>()->SetColor(glm::vec4(
-			p2DamageScreen->Get<GuiPanel>()->GetColor().x,
-			p2DamageScreen->Get<GuiPanel>()->GetColor().y,
-			p2DamageScreen->Get<GuiPanel>()->GetColor().x,
-			player2->Get<HealthManager>()->GetDamageOpacity()));
-
-		if (player1->Get<MorphAnimator>() != nullptr)
+		if (firstFrame)
 		{
-			if (player1->Get<HealthManager>()->IsDead() && !p1Dying)
-			{
-				player1->Get<MorphAnimator>()->ActivateAnim("Die");
-				p1Dying = true;
-			}
+			
+			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
+			currentElement->GrowElement();
 
+			menuItems.push_back(_currentScene->FindObjectByName("Play Button")->Get<MenuElement>());
+			menuItems.push_back(_currentScene->FindObjectByName("Options Button")->Get<MenuElement>());
+			menuItems.push_back(_currentScene->FindObjectByName("Exit Button")->Get<MenuElement>());
 
-			else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
-			{
-				Respawn(player1, glm::vec3(0.0f, 0.0f, 3.0f));
-				p1Dying = false;
-			}
-			else if (!p1Dying)
-			{
-				//If the player is pressing the throw button and is in a the appropriate state, activate the throw anim
-				if (player1->Get<PlayerControl>()->GetJustThrew())
-				{
-					player1->Get<MorphAnimator>()->ActivateAnim("Attack");
-				}
-
-				//If the player has just jumped, activate the jump anim
-				else if (player1->Get<JumpBehaviour>()->IsStartingJump())
-				{
-					player1->Get<MorphAnimator>()->ActivateAnim("Jump");
-				}
-
-				//Else if the player is in the air and the jump anim has finished
-				else if (player1->Get<MorphAnimator>()->GetActiveAnim() == "jump" && player1->Get<MorphAnimator>()->IsEndOfClip())
-				{
-					//If the player is moving, then run in the air
-					if (player1->Get<PlayerControl>()->IsMoving())
-						player1->Get<MorphAnimator>()->ActivateAnim("Walk");
-
-					//Else, idle in the air
-					else
-						player1->Get<MorphAnimator>()->ActivateAnim("Idle");
-				}
-
-				//Else if the player is moving and isn't in the middle of jumping
-				else if (player1->Get<PlayerControl>()->IsMoving() && player1->Get<MorphAnimator>()->GetActiveAnim() != "jump"
-					&& (player1->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player1->Get<MorphAnimator>()->IsEndOfClip()))
-				{
-					//If the player is pressing sprint and isn't already in the running animation
-					if (player1->Get<MorphAnimator>()->GetActiveAnim() != "run" && player1->Get<PlayerControl>()->IsSprinting())
-						player1->Get<MorphAnimator>()->ActivateAnim("Run");
-
-					//If the player isn't pressing sprint and isn't already in the walking animation
-					else if (player1->Get<MorphAnimator>()->GetActiveAnim() != "walk" && !player1->Get<PlayerControl>()->IsSprinting())
-						player1->Get<MorphAnimator>()->ActivateAnim("Walk");
-				}
-
-				//Else if the player isn't moving and isn't jumping and isn't already idling
-				else if (!player1->Get<PlayerControl>()->IsMoving() && player1->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
-					(player1->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player1->Get<MorphAnimator>()->IsEndOfClip())
-					&& player1->Get<MorphAnimator>()->GetActiveAnim() != "idle")
-				{
-					player1->Get<MorphAnimator>()->ActivateAnim("Idle");
-				}
-			}
+			firstFrame = false;
 		}
 
-		if (player2->Get<MorphAnimator>() != nullptr)
+		else if (menuScreen)
 		{
-
-			if (player2->Get<HealthManager>()->IsDead() && !p2Dying)
+			
+			//if (_currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
+			if (player1->Get<ControllerInput>()->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f && selectTime >= 0.3f)
 			{
-				player2->Get<MorphAnimator>()->ActivateAnim("Die");
-				p2Dying = true;
+				currentElement->ShrinkElement();
+				currentItemInd++;
+
+				if (currentItemInd >= menuItems.size()) currentItemInd = 0;
+				currentElement = menuItems[currentItemInd];
+
+				currentElement->GrowElement();
+				selectTime = 0.0f;
 			}
 
-
-			else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
+			else if (player1->Get<ControllerInput>()->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f && selectTime >= 0.3f)
 			{
-				Respawn(player2, glm::vec3(0.0f, 0.0f, 3.0f));
-				p2Dying = false;
+				currentElement->ShrinkElement();
+				currentItemInd--;
+				if (currentItemInd < 0) currentItemInd = menuItems.size() - 1;
+
+				currentElement = menuItems[currentItemInd];
+
+				currentElement->GrowElement();
+				selectTime = 0.0f;
 			}
 
-			else if (!p2Dying)
+			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
 			{
-				//If the player is pressing the throw button and is in a the appropriate state, activate the throw anim
-				if (player2->Get<PlayerControl>()->GetJustThrew())
+				menuScreen = false;
+				_currentScene->IsPlaying = true;
+
+				for (int i = 0; i < menuItems.size(); i++)
 				{
-					player2->Get<MorphAnimator>()->ActivateAnim("Attack");
+					menuItems[i]->GetGameObject()->Get<GuiPanel>()->SetTransparency(0.0f);
 				}
 
-				//If the player has just jumped, activate the jump anim
-				else if (player2->Get<JumpBehaviour>()->IsStartingJump())
+				_currentScene->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
+				_currentScene->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+			}
+
+			else selectTime += dt;
+				
+				//_currentScene->~Scene();
+				//GetLayer<DefaultSceneLayer>()->BeginLayer();
+				//menuScreen = false;
+				
+			
+		}
+
+		else
+		{
+			GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
+			GameObject::Sptr player2 = _currentScene->FindObjectByName("Player 2");
+			GameObject::Sptr boomerang1 = _currentScene->FindObjectByName("Boomerang 1");
+			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
+
+			GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			////////////////////Handle some UI stuff/////////////////////////////////
+
+			GameObject::Sptr p1Health = _currentScene->FindObjectByName("Player1Health");
+			GameObject::Sptr p2Health = _currentScene->FindObjectByName("Player2Health");
+
+			GameObject::Sptr p1DamageScreen = _currentScene->FindObjectByName("DamageFlash1");
+			GameObject::Sptr p2DamageScreen = _currentScene->FindObjectByName("DamageFlash2");
+
+			//Find the current health of the player, divide it by the maximum health, lerp between the minimum and maximum health bar values using this as the interp. parameter
+			p1Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
+				player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()), 45 });
+
+			p1Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+				player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()));
+
+			p1DamageScreen->Get<GuiPanel>()->SetColor(glm::vec4(
+				p1DamageScreen->Get<GuiPanel>()->GetColor().x,
+				p1DamageScreen->Get<GuiPanel>()->GetColor().y,
+				p1DamageScreen->Get<GuiPanel>()->GetColor().x,
+				player1->Get<HealthManager>()->GetDamageOpacity()));
+
+			p2Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
+				player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()), 45 });
+
+			p2Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+				player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()));
+
+			p2DamageScreen->Get<GuiPanel>()->SetColor(glm::vec4(
+				p2DamageScreen->Get<GuiPanel>()->GetColor().x,
+				p2DamageScreen->Get<GuiPanel>()->GetColor().y,
+				p2DamageScreen->Get<GuiPanel>()->GetColor().x,
+				player2->Get<HealthManager>()->GetDamageOpacity()));
+
+			if (player1->Get<MorphAnimator>() != nullptr)
+			{
+				if (player1->Get<HealthManager>()->IsDead() && !p1Dying)
 				{
-					player2->Get<MorphAnimator>()->ActivateAnim("Jump");
+					std::string enemyNum = std::to_string(player1->Get<HealthManager>()->GotHitBy());
+
+					GameObject::Sptr enemy = _currentScene->FindObjectByName("Player " + enemyNum);
+
+					enemy->Get<ScoreCounter>()->AddScore();
+
+					std::cout << "Player " << enemyNum << "'s score: "
+						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
+
+					glm::vec4 enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->GetColor();
+
+					_currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->SetColor(glm::vec4(
+						enemyUIColour.x, enemyUIColour.y, enemyUIColour.z, 1.0f));
+
+					enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore() - 1))->Get<GuiPanel>()->GetColor();
+
+					_currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore() - 1))->Get<GuiPanel>()->SetColor(glm::vec4(
+						enemyUIColour.x, enemyUIColour.y, enemyUIColour.z, 0.0f));
+
+					player1->Get<MorphAnimator>()->ActivateAnim("Die");
+					p1Dying = true;
 				}
 
-				//Else if the player is in the air and the jump anim has finished
-				else if (player2->Get<MorphAnimator>()->GetActiveAnim() == "jump" && player2->Get<MorphAnimator>()->IsEndOfClip())
-				{
-					//If the player is moving, then run in the air
-					if (player2->Get<PlayerControl>()->IsMoving())
-						player2->Get<MorphAnimator>()->ActivateAnim("Walk");
 
-					//Else, idle in the air
-					else
+				else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
+				{
+					Respawn(player1, glm::vec3(0.0f, 0.0f, 3.0f));
+					p1Dying = false;
+				}
+				else if (!p1Dying)
+				{
+					//If the player is pressing the throw button and is in a the appropriate state, activate the throw anim
+					if (player1->Get<PlayerControl>()->GetJustThrew())
+					{
+						player1->Get<MorphAnimator>()->ActivateAnim("Attack");
+					}
+
+					//If the player has just jumped, activate the jump anim
+					else if (player1->Get<JumpBehaviour>()->IsStartingJump())
+					{
+						player1->Get<MorphAnimator>()->ActivateAnim("Jump");
+					}
+
+					//Else if the player is in the air and the jump anim has finished
+					else if (player1->Get<MorphAnimator>()->GetActiveAnim() == "jump" && player1->Get<MorphAnimator>()->IsEndOfClip())
+					{
+						//If the player is moving, then run in the air
+						if (player1->Get<PlayerControl>()->IsMoving())
+							player1->Get<MorphAnimator>()->ActivateAnim("Walk");
+
+						//Else, idle in the air
+						else
+							player1->Get<MorphAnimator>()->ActivateAnim("Idle");
+					}
+
+					//Else if the player is moving and isn't in the middle of jumping
+					else if (player1->Get<PlayerControl>()->IsMoving() && player1->Get<MorphAnimator>()->GetActiveAnim() != "jump"
+						&& (player1->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player1->Get<MorphAnimator>()->IsEndOfClip()))
+					{
+						//If the player is pressing sprint and isn't already in the running animation
+						if (player1->Get<MorphAnimator>()->GetActiveAnim() != "run" && player1->Get<PlayerControl>()->IsSprinting())
+							player1->Get<MorphAnimator>()->ActivateAnim("Run");
+
+						//If the player isn't pressing sprint and isn't already in the walking animation
+						else if (player1->Get<MorphAnimator>()->GetActiveAnim() != "walk" && !player1->Get<PlayerControl>()->IsSprinting())
+							player1->Get<MorphAnimator>()->ActivateAnim("Walk");
+					}
+
+					//Else if the player isn't moving and isn't jumping and isn't already idling
+					else if (!player1->Get<PlayerControl>()->IsMoving() && player1->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
+						(player1->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player1->Get<MorphAnimator>()->IsEndOfClip())
+						&& player1->Get<MorphAnimator>()->GetActiveAnim() != "idle")
+					{
+						player1->Get<MorphAnimator>()->ActivateAnim("Idle");
+					}
+				}
+			}
+
+			if (player2->Get<MorphAnimator>() != nullptr)
+			{
+
+				if (player2->Get<HealthManager>()->IsDead() && !p2Dying)
+				{
+					std::string enemyNum = std::to_string(player2->Get<HealthManager>()->GotHitBy());
+
+					GameObject::Sptr enemy = _currentScene->FindObjectByName("Player " + enemyNum);
+
+					enemy->Get<ScoreCounter>()->AddScore();
+
+					std::cout << "Player " << enemyNum << "'s score: "
+						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
+
+					glm::vec4 enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->GetColor();
+
+					_currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->SetColor(glm::vec4(
+						enemyUIColour.x, enemyUIColour.y, enemyUIColour.z, 1.0f));
+
+					enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore() - 1))->Get<GuiPanel>()->GetColor();
+
+					_currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore() - 1))->Get<GuiPanel>()->SetColor(glm::vec4(
+						enemyUIColour.x, enemyUIColour.y, enemyUIColour.z, 0.0f));
+
+
+					player2->Get<MorphAnimator>()->ActivateAnim("Die");
+					p2Dying = true;
+				}
+
+
+				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
+				{
+					Respawn(player2, glm::vec3(0.0f, 0.0f, 3.0f));
+					p2Dying = false;
+				}
+
+				else if (!p2Dying)
+				{
+					//If the player is pressing the throw button and is in a the appropriate state, activate the throw anim
+					if (player2->Get<PlayerControl>()->GetJustThrew())
+					{
+						player2->Get<MorphAnimator>()->ActivateAnim("Attack");
+					}
+
+					//If the player has just jumped, activate the jump anim
+					else if (player2->Get<JumpBehaviour>()->IsStartingJump())
+					{
+						player2->Get<MorphAnimator>()->ActivateAnim("Jump");
+					}
+
+					//Else if the player is in the air and the jump anim has finished
+					else if (player2->Get<MorphAnimator>()->GetActiveAnim() == "jump" && player2->Get<MorphAnimator>()->IsEndOfClip())
+					{
+						//If the player is moving, then run in the air
+						if (player2->Get<PlayerControl>()->IsMoving())
+							player2->Get<MorphAnimator>()->ActivateAnim("Walk");
+
+						//Else, idle in the air
+						else
+							player2->Get<MorphAnimator>()->ActivateAnim("Idle");
+					}
+
+					//Else if the player is moving and isn't in the middle of jumping
+					else if (player2->Get<PlayerControl>()->IsMoving() && player2->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
+						(player2->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player2->Get<MorphAnimator>()->IsEndOfClip()))
+					{
+						//If the player is pressing sprint and isn't already in the running animation
+						if (player2->Get<MorphAnimator>()->GetActiveAnim() != "run" && player2->Get<PlayerControl>()->IsSprinting())
+							player2->Get<MorphAnimator>()->ActivateAnim("Run");
+
+						//If the player isn't pressing sprint and isn't already in the walking animation
+						else if (player2->Get<MorphAnimator>()->GetActiveAnim() != "walk" && !player2->Get<PlayerControl>()->IsSprinting())
+							player2->Get<MorphAnimator>()->ActivateAnim("Walk");
+					}
+
+					//Else if the player isn't moving and isn't jumping and isn't already idling
+					else if (!player2->Get<PlayerControl>()->IsMoving() && player2->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
+						(player2->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player2->Get<MorphAnimator>()->IsEndOfClip()) &&
+						player2->Get<MorphAnimator>()->GetActiveAnim() != "idle")
+					{
 						player2->Get<MorphAnimator>()->ActivateAnim("Idle");
-				}
-
-				//Else if the player is moving and isn't in the middle of jumping
-				else if (player2->Get<PlayerControl>()->IsMoving() && player2->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
-					(player2->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player2->Get<MorphAnimator>()->IsEndOfClip()))
-				{
-					//If the player is pressing sprint and isn't already in the running animation
-					if (player2->Get<MorphAnimator>()->GetActiveAnim() != "run" && player2->Get<PlayerControl>()->IsSprinting())
-						player2->Get<MorphAnimator>()->ActivateAnim("Run");
-
-					//If the player isn't pressing sprint and isn't already in the walking animation
-					else if (player2->Get<MorphAnimator>()->GetActiveAnim() != "walk" && !player2->Get<PlayerControl>()->IsSprinting())
-						player2->Get<MorphAnimator>()->ActivateAnim("Walk");
-				}
-
-				//Else if the player isn't moving and isn't jumping and isn't already idling
-				else if (!player2->Get<PlayerControl>()->IsMoving() && player2->Get<MorphAnimator>()->GetActiveAnim() != "jump" &&
-					(player2->Get<MorphAnimator>()->GetActiveAnim() != "attack" || player2->Get<MorphAnimator>()->IsEndOfClip()) &&
-					player2->Get<MorphAnimator>()->GetActiveAnim() != "idle")
-				{
-					player2->Get<MorphAnimator>()->ActivateAnim("Idle");
+					}
 				}
 			}
 		}
 		//////////////////////////////////////////////////////////
-
 		// Core update loop
 		if (_currentScene != nullptr) {
 			_Update();
@@ -457,6 +577,7 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<BoomerangBehavior>();
 	ComponentManager::RegisterType<HealthManager>();
 	ComponentManager::RegisterType<ScoreCounter>();
+	ComponentManager::RegisterType<MenuElement>();
 }
 
 void Application::_Load() {

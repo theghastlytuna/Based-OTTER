@@ -112,6 +112,8 @@ public:
 	 */
 	virtual nlohmann::json GetDefaultConfig() { return {}; }
 
+	virtual void RepositionUI() {};
+
 protected:
 	ApplicationLayer() = default;
 };

@@ -15,6 +15,7 @@ public:
 	static ScoreCounter::Sptr FromJson(const nlohmann::json& blob);
 
 	void AddScore();
+	void ResetScore();
 	int GetScore();
 
 	bool ReachedMaxScore();

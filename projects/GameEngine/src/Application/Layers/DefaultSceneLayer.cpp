@@ -51,6 +51,7 @@
 #include "Gameplay/Components/HealthManager.h"
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
+#include "Gameplay/Components/MenuElement.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -97,6 +98,11 @@ DefaultSceneLayer::DefaultSceneLayer() :
 DefaultSceneLayer::~DefaultSceneLayer() = default;
 
 void DefaultSceneLayer::OnAppLoad(const nlohmann::json & config) {
+	//_CreateScene();
+}
+
+void DefaultSceneLayer::BeginLayer()
+{
 	_CreateScene();
 }
 
@@ -540,7 +546,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			Camera::Sptr cam = camera->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera!
-			scene->MainCamera = cam;
+			
 			scene->WorldCamera = cam;
 		}
 
@@ -552,7 +558,6 @@ void DefaultSceneLayer::_CreateScene() {
 
 			Camera::Sptr cam = camera2->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera! 
-			scene->MainCamera2 = cam;
 		}
 
 		GameObject::Sptr detachedCam = scene->CreateGameObject("Detached Camera");
@@ -566,6 +571,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			Camera::Sptr cam = detachedCam->Add<Camera>();
 			scene->PlayerCamera = cam;
+			scene->MainCamera = cam;
 		}
 
 		GameObject::Sptr player1 = scene->CreateGameObject("Player 1");
@@ -623,6 +629,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			Camera::Sptr cam = detachedCam2->Add<Camera>();
 			scene->PlayerCamera2 = cam;
+			scene->MainCamera2 = cam;
 		}
 
 		GameObject::Sptr player2 = scene->CreateGameObject("Player 2");
@@ -1665,8 +1672,6 @@ void DefaultSceneLayer::_CreateScene() {
 
 		GameObject::Sptr crosshairs = scene->CreateGameObject("Crosshairs");
 		{
-			//crosshairs->SetRenderFlag(1);//this is how you would set this ui object to ONLY render for player 1
-
 			RectTransform::Sptr transform = crosshairs->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 			transform->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
@@ -1680,17 +1685,345 @@ void DefaultSceneLayer::_CreateScene() {
 
 		GameObject::Sptr crosshairs2 = scene->CreateGameObject("Crosshairs 2");
 		{
-			//crosshairs->SetRenderFlag(1);//this is how you would set this ui object to ONLY render for player 1
-
 			RectTransform::Sptr transform = crosshairs2->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 			transform->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 
-			crosshairs->SetRenderFlag(2);
+			crosshairs2->SetRenderFlag(2);
 
 			GuiPanel::Sptr panel = crosshairs2->Add<GuiPanel>();
 			panel->SetBorderRadius(4);
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
+		}
+
+		GameObject::Sptr scoreCounter1 = scene->CreateGameObject("Score Counter 1");
+		{
+			scoreCounter1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = scoreCounter1->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x - 280, 5 });
+			transform->SetMax({ app.GetWindowSize().x - 100, 100 });
+
+			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
+			
+			GameObject::Sptr subPanel1 = scene->CreateGameObject("1-0");
+			{
+				subPanel1->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/0.png"));
+			}
+			
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("1-1");
+			{
+				subPanel2->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/1.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel3 = scene->CreateGameObject("1-2");
+			{
+				subPanel3->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel3->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/2.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel4 = scene->CreateGameObject("1-3");
+			{
+				subPanel4->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel4->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/3.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel5 = scene->CreateGameObject("1-4");
+			{
+				subPanel5->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel5->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/4.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel6 = scene->CreateGameObject("1-5");
+			{
+				subPanel6->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel6->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/5.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel7 = scene->CreateGameObject("1-6");
+			{
+				subPanel7->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel7->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/6.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel8 = scene->CreateGameObject("1-7");
+			{
+				subPanel8->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel8->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/7.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel9 = scene->CreateGameObject("1-8");
+			{
+				subPanel9->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel9->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/8.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel10 = scene->CreateGameObject("1-9");
+			{
+				subPanel10->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel10->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/9.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+		}
+
+		GameObject::Sptr scoreCounter2 = scene->CreateGameObject("Score Counter 2");
+		{
+			scoreCounter2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = scoreCounter2->Add<RectTransform>();
+			transform->SetMin({ 2 * app.GetWindowSize().x - 280, 5 });
+			transform->SetMax({ 2 * app.GetWindowSize().x - 100, 100 });
+
+			GuiPanel::Sptr panel = scoreCounter2->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
+
+			GameObject::Sptr subPanel1 = scene->CreateGameObject("2-0");
+			{
+				subPanel1->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/0.png"));
+			}
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("2-1");
+			{
+				subPanel2->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/1.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel3 = scene->CreateGameObject("2-2");
+			{
+				subPanel3->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel3->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/2.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel4 = scene->CreateGameObject("2-3");
+			{
+				subPanel4->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel4->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/3.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel5 = scene->CreateGameObject("2-4");
+			{
+				subPanel5->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel5->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/4.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel6 = scene->CreateGameObject("2-5");
+			{
+				subPanel6->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel6->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/5.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel7 = scene->CreateGameObject("2-6");
+			{
+				subPanel7->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel7->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/6.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel8 = scene->CreateGameObject("2-7");
+			{
+				subPanel8->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel8->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/7.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel9 = scene->CreateGameObject("2-8");
+			{
+				subPanel9->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel9->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/8.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel10 = scene->CreateGameObject("2-9");
+			{
+				subPanel10->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel10->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/9.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+		}
+
+		////////////////////Title screen//////////////////
+
+		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
+		{
+			menuBG->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
+
+			
+			GameObject::Sptr play = scene->CreateGameObject("Play Button");
+			{
+				play->SetRenderFlag(5);
+				RectTransform::Sptr transform = play->Add<RectTransform>();
+				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
+				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+
+				play->Add<MenuElement>();
+
+				GuiPanel::Sptr panel = play->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
+			}
+
+			GameObject::Sptr options = scene->CreateGameObject("Options Button");
+			{
+				options->SetRenderFlag(5);
+				RectTransform::Sptr transform = options->Add<RectTransform>();
+				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
+				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+
+				options->Add<MenuElement>();
+
+				GuiPanel::Sptr panel = options->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
+			}
+
+			GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
+			{
+				exit->SetRenderFlag(5);
+				RectTransform::Sptr transform = exit->Add<RectTransform>();
+				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
+				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
+
+				exit->Add<MenuElement>();
+
+				GuiPanel::Sptr panel = exit->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
+			}
+		}
+
+		GameObject::Sptr logo = scene->CreateGameObject("Logo");
+		{
+			logo->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = logo->Add<RectTransform>();
+			transform->SetMin({ -150, 0 });
+			transform->SetMax({ 500, 250 });
+
+			transform->SetRotationDeg(-35.0f);
+
+			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -1704,4 +2037,52 @@ void DefaultSceneLayer::_CreateScene() {
 		// Send the scene to the application
 		app.LoadScene(scene);
 	}
+}
+
+void DefaultSceneLayer::RepositionUI() 
+{
+	Application& app = Application::Get();
+	Gameplay::GameObject::Sptr crosshair = app.CurrentScene()->FindObjectByName("Crosshairs");
+	Gameplay::GameObject::Sptr crosshair2 = app.CurrentScene()->FindObjectByName("Crosshairs 2");
+
+	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
+	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
+
+	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
+	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
+	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
+	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
+
+	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+
+	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+
+	killUI->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 280, 5 });
+	killUI->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100, 100 });
+
+	killUI2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 280, 5 });
+	killUI2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100, 100 });
+
+	for (int i = 0; i < 10; i++)
+	{
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 85, 10 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
+
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 85, 10 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
+	}
+
+	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
+	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
+	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+
+	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
+	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+
+	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
+	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
 }

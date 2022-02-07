@@ -19,6 +19,9 @@ public:
 	/// </summary>
 	/// <param name="color"></param>
 	void SetColor(const glm::vec4& color);
+
+	void SetTransparency(const float transparency);
+
 	/// <summary>
 	/// Gets the color multiplier for this GUI object
 	/// </summary>
