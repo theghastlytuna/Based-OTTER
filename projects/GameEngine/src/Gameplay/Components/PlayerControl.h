@@ -38,6 +38,7 @@ protected:
 	bool boomerangThrown = false;
 	Gameplay::GameObject::Sptr _boomerang;
 	BoomerangBehavior::Sptr _boomerangBehavior;
+	Gameplay::Camera::Sptr _camera;
 
 	unsigned int playerID;
 
@@ -51,4 +52,5 @@ protected:
 
 	ControllerInput::Sptr _controller;
 	glm::vec2 _controllerSensitivity;
+	glm::vec3 _raycastPosition;
 };

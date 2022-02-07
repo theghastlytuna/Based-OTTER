@@ -96,6 +96,8 @@ public:
     /// <param name="newPosition">Where's it going???</param>
     void SetInactivePosition(glm::vec3 newPosition);
 
+    glm::vec3 getPosition();
+
     void setPlayer(std::string playerName);
 
     bool getReadyToThrow();
