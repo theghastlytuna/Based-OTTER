@@ -257,9 +257,28 @@ void Application::_Run()
 
 		else if (menuScreen)
 		{
-			
+			bool downSelect;
+			bool upSelect;
+			bool confirm;
+
+			ControllerInput::Sptr p1Control = player1->Get<ControllerInput>();
+			if (p1Control->IsValid())
+			{
+				downSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
+				upSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+				confirm = p1Control->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+			}
+
+			else
+			{
+				downSelect = glfwGetKey(_window, GLFW_KEY_S);
+				upSelect = glfwGetKey(_window, GLFW_KEY_W);
+				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
+
+			}
+
 			//if (_currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
-			if (player1->Get<ControllerInput>()->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f && selectTime >= 0.3f)
+			if (downSelect && selectTime >= 0.3f)
 			{
 				currentElement->ShrinkElement();
 				currentItemInd++;
@@ -271,7 +290,7 @@ void Application::_Run()
 				selectTime = 0.0f;
 			}
 
-			else if (player1->Get<ControllerInput>()->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f && selectTime >= 0.3f)
+			else if (upSelect && selectTime >= 0.3f)
 			{
 				currentElement->ShrinkElement();
 				currentItemInd--;
@@ -283,7 +302,7 @@ void Application::_Run()
 				selectTime = 0.0f;
 			}
 
-			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && player1->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
+			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
 			{
 				menuScreen = false;
 				_currentScene->IsPlaying = true;
@@ -701,6 +720,7 @@ void Application::_HandleWindowSizeChanged(const glm::ivec2& newSize) {
 	}
 	_windowSize = newSize;
 	_primaryViewport = { 0, 0, newSize.x, newSize.y };
+	GetLayer<DefaultSceneLayer>()->RepositionUI();
 }
 
 void Application::_ConfigureSettings() {
