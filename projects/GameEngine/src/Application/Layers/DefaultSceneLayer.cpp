@@ -1970,46 +1970,45 @@ void DefaultSceneLayer::_CreateScene() {
 
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
+		}
 
-			
-			GameObject::Sptr play = scene->CreateGameObject("Play Button");
-			{
-				play->SetRenderFlag(5);
-				RectTransform::Sptr transform = play->Add<RectTransform>();
-				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+		GameObject::Sptr play = scene->CreateGameObject("Play Button");
+		{
+			play->SetRenderFlag(5);
+			RectTransform::Sptr transform = play->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
 
-				play->Add<MenuElement>();
+			play->Add<MenuElement>();
 
-				GuiPanel::Sptr panel = play->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
-			}
+			GuiPanel::Sptr panel = play->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
+		}
 
-			GameObject::Sptr options = scene->CreateGameObject("Options Button");
-			{
-				options->SetRenderFlag(5);
-				RectTransform::Sptr transform = options->Add<RectTransform>();
-				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+		GameObject::Sptr options = scene->CreateGameObject("Options Button");
+		{
+			options->SetRenderFlag(5);
+			RectTransform::Sptr transform = options->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
 
-				options->Add<MenuElement>();
+			options->Add<MenuElement>();
 
-				GuiPanel::Sptr panel = options->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
-			}
+			GuiPanel::Sptr panel = options->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
+		}
 
-			GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
-			{
-				exit->SetRenderFlag(5);
-				RectTransform::Sptr transform = exit->Add<RectTransform>();
-				transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-				transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
+		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
+		{
+			exit->SetRenderFlag(5);
+			RectTransform::Sptr transform = exit->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
 
-				exit->Add<MenuElement>();
+			exit->Add<MenuElement>();
 
-				GuiPanel::Sptr panel = exit->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
-			}
+			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
 		}
 
 		GameObject::Sptr logo = scene->CreateGameObject("Logo");
