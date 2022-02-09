@@ -67,7 +67,7 @@ public:
     /// <param name="playerPosition">The player's position in world space.
     /// Projecile spacing is provided by this function.</param>
     /// <param name="playerNumber">the number the player throwing it (for camera shit)</param>
-    void throwWang(glm::vec3 playerPosition, int playerNumber);
+    void throwWang(glm::vec3 playerPosition, int playerNumber, float chargeLevel);
 
     /// <summary>
     /// Steers the projecile towards this new point in 3D Space.

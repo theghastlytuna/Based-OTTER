@@ -47,6 +47,8 @@ protected:
 	bool _isMoving = false;
 	bool _isSprinting = false;
 	bool _justThrew = false;
+	bool _charging = false;
+	float _chargeAmount = 0.f;
 	float _spintVal = 5.0f;
 	GLFWwindow* _window;
 

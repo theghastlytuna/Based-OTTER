@@ -72,7 +72,7 @@ void BoomerangBehavior::Seek(float deltaTime)
 	//Might make it more interesting to control
 }
 
-void BoomerangBehavior::throwWang(glm::vec3 playerPosition, int playerNumber)
+void BoomerangBehavior::throwWang(glm::vec3 playerPosition, int playerNumber, float chargeLevel)
 {
 	_state = boomerangState::FORWARD;
 	_targetLocked = false;
@@ -88,7 +88,7 @@ void BoomerangBehavior::throwWang(glm::vec3 playerPosition, int playerNumber)
 	cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
 	_boomerangEntity->SetPosition(playerPosition + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * _projectileSpacing);
 	_rigidBody->SetLinearVelocity(glm::vec3(0));
-	_rigidBody->SetLinearVelocity(cameraLocalForward * _boomerangLaunchForce);
+	_rigidBody->SetLinearVelocity(cameraLocalForward * _boomerangLaunchForce * chargeLevel);
 }
 
 void BoomerangBehavior::UpdateTarget(glm::vec3 newTarget)
