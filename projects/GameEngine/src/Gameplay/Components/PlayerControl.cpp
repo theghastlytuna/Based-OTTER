@@ -131,7 +131,10 @@ void PlayerControl::Update(float deltaTime)
 		if (Wang) {
 			if (_boomerangBehavior->getReadyToThrow()) {
 				if (_chargeAmount < 3.f)
-					_chargeAmount += 0.05;
+				{
+				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
+				_chargeAmount += 0.05;
+				}
 			}
 			else if (Point){
 				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
@@ -160,12 +163,14 @@ void PlayerControl::Update(float deltaTime)
 		{
 			if (_chargeAmount > 0.5)
 			{
+				//if the player is not holding the button, but has charged their throw above the minimum, throw the boomerang
 				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), playerID, _chargeAmount);
 				_justThrew = true;
 				_chargeAmount = 0;
 			}
 			else
 			{
+				//else, just reset the charge level (so players can't "prime" a throw)
 				_chargeAmount = 0;
 			}
 		}
