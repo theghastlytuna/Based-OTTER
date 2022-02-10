@@ -572,6 +572,10 @@ void DefaultSceneLayer::_CreateScene() {
 			Camera::Sptr cam = detachedCam->Add<Camera>();
 			scene->PlayerCamera = cam;
 			scene->MainCamera = cam;
+			scene->MainCamera->ResizeWindow(16, 9);
+			scene->PlayerCamera->ResizeWindow(16, 9);
+			scene->MainCamera->SetFovDegrees(90);
+			scene->PlayerCamera->SetFovDegrees(90);
 		}
 
 		GameObject::Sptr player1 = scene->CreateGameObject("Player 1");
@@ -630,6 +634,10 @@ void DefaultSceneLayer::_CreateScene() {
 			Camera::Sptr cam = detachedCam2->Add<Camera>();
 			scene->PlayerCamera2 = cam;
 			scene->MainCamera2 = cam;
+			scene->MainCamera2->ResizeWindow(16, 9);
+			scene->PlayerCamera2->ResizeWindow(16, 9);
+			scene->MainCamera2->SetFovDegrees(90);
+			scene->PlayerCamera2->SetFovDegrees(90);
 		}
 
 		GameObject::Sptr player2 = scene->CreateGameObject("Player 2");
