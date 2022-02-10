@@ -51,7 +51,7 @@ public:
     virtual void RenderImGui() override;
 
     void OnCollisionEnter();
-    float _boomerangLaunchForce = 1.f;
+    float _boomerangLaunchForce = 2.f;
 
     //Constructor and Destructor//
     //Do these even so anything?

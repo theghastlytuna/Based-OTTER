@@ -130,7 +130,8 @@ void PlayerControl::Update(float deltaTime)
 
 		if (Wang) {
 			if (_boomerangBehavior->getReadyToThrow()) {
-				_chargeAmount += 0.01;
+				if (_chargeAmount < 3.f)
+					_chargeAmount += 0.05;
 			}
 			else if (Point){
 				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
@@ -157,10 +158,14 @@ void PlayerControl::Update(float deltaTime)
 		}
 		else if (!Wang)
 		{
-			if (_chargeAmount > 0.01)
+			if (_chargeAmount > 0.5)
 			{
 				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), playerID, _chargeAmount);
 				_justThrew = true;
+				_chargeAmount = 0;
+			}
+			else
+			{
 				_chargeAmount = 0;
 			}
 		}
