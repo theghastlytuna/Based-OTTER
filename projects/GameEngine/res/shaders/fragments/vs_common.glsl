@@ -12,7 +12,7 @@ layout(location = 5) in vec3 inBiTangent;
 layout(location = 0) out vec3 outWorldPos;
 layout(location = 1) out vec3 outColor;
 layout(location = 2) out vec3 outNormal;
-layout(location = 3) out vec2 outUV;
+layout(location = 3) noperspective out vec2 outUV;
 layout(location = 4) out mat3 outTBN;
 
 // Include the matrices and frame level parameters

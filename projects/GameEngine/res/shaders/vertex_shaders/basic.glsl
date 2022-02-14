@@ -5,11 +5,18 @@
 
 void main() {
 
-	gl_Position = u_ModelViewProjection * vec4(inPosition, 1.0);
+	vec2 grid = vec2(427, 240) * 0.5f;
+	vec4 vertInClipSpace = u_ModelViewProjection * vec4(inPosition, 1.0);
+	vec4 snapped = vertInClipSpace;
+	snapped.xyz = vertInClipSpace.xyz / vertInClipSpace.w;
+	snapped.xy = floor(grid * snapped.xy) / grid;
+	snapped.xyz *= vertInClipSpace.w;
+
+	gl_Position = snapped;
 
 	// Lecture 5
 	// Pass vertex pos in world space to frag shader
-	outWorldPos = (u_Model * vec4(inPosition, 1.0)).xyz;
+	outWorldPos = (u_Model * vec4(snapped.xyz, 1.0)).xyz;
 
 	// Normals
 	outNormal = mat3(u_NormalMatrix) * inNormal;
