@@ -147,9 +147,14 @@ void Application::SaveSettings()
 	FileHelpers::WriteContentsToFile(settingsPath.string(), _appSettings.dump(1, '\t'));
 }
 
-void Respawn(GameObject::Sptr player, glm::vec3 position)
+void Respawn(GameObject::Sptr player)
 {
-	player->SetPosition(position);
+	glm::vec3 spawnPoints[] = { glm::vec3(44.5, 20.0, 0.5),
+								glm::vec3(26.0, 40.0, 0.5),
+								glm::vec3(-18.5, -4.0, 0.5),
+								glm::vec3(8.0, -5.0, 7.0) };
+	int selection = rand() % 4;
+	player->SetPosition(spawnPoints[selection]);
 	player->Get<HealthManager>()->ResetHealth();
 }
 
@@ -397,7 +402,7 @@ void Application::_Run()
 
 				else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
 				{
-					Respawn(player1, glm::vec3(0.0f, 0.0f, 3.0f));
+					Respawn(player1);
 					p1Dying = false;
 				}
 				else if (!p1Dying)
@@ -481,7 +486,7 @@ void Application::_Run()
 
 				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
 				{
-					Respawn(player2, glm::vec3(0.0f, 0.0f, 3.0f));
+					Respawn(player2);
 					p2Dying = false;
 				}
 
