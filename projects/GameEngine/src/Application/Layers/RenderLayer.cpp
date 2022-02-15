@@ -36,8 +36,8 @@ void RenderLayer::OnRender()
 	Application& app = Application::Get();
 	glm::uvec4 viewport = app.GetPrimaryViewport();
 
-	//glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
-	glViewport(0, 240, 427, 240);
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
+	//glViewport(0, 240, 427, 240);
 
 	// Clear the color and depth buffers
 	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
@@ -136,8 +136,8 @@ void RenderLayer::OnRender()
 
 	//////////////////////////////////////////////////Render camera 2
 
-	//glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
-	glViewport(0, 0, 427, 240);
+	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
+	//glViewport(0, 0, 427, 240);
 
 	// Grab shorthands to the camera and shader from the scene
 	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
