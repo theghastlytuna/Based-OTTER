@@ -199,7 +199,7 @@ void Application::_Run()
 	bool menuScreen = true;
 	bool firstFrame = true;
 
-	GetLayer<DefaultSceneLayer>()->BeginLayer();
+	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
 	float selectTime = 0.5f;
 
@@ -240,8 +240,7 @@ void Application::_Run()
 
 		ImGuiHelper::StartFrame();
 
-		GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
-
+		//GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
 		if (firstFrame)
 		{
 			
@@ -255,18 +254,20 @@ void Application::_Run()
 			firstFrame = false;
 		}
 
-		else if (menuScreen)
+		if (menuScreen)
 		{
 			bool downSelect;
 			bool upSelect;
 			bool confirm;
 
-			ControllerInput::Sptr p1Control = player1->Get<ControllerInput>();
-			if (p1Control->IsValid())
+			confirm = _currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+
+			ControllerInput::Sptr menuControl = _currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>();
+			if (menuControl->IsValid())
 			{
-				downSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
-				upSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
-				confirm = p1Control->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+				downSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
+				upSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
 			}
 
 			else
@@ -305,15 +306,18 @@ void Application::_Run()
 			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
 			{
 				menuScreen = false;
-				_currentScene->IsPlaying = true;
 
-				for (int i = 0; i < menuItems.size(); i++)
-				{
-					menuItems[i]->GetGameObject()->Get<GuiPanel>()->SetTransparency(0.0f);
-				}
+				GetLayer<Menu>()->SetActive(false);
 
-				_currentScene->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
-				_currentScene->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+				GetLayer<DefaultSceneLayer>()->BeginLayer();
+
+				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+
+				GetLayer<DefaultSceneLayer>()->SetActive(true);
+
+				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+
+				menuScreen = false;
 			}
 
 			else selectTime += dt;
@@ -321,10 +325,10 @@ void Application::_Run()
 				//_currentScene->~Scene();
 				//GetLayer<DefaultSceneLayer>()->BeginLayer();
 				//menuScreen = false;
-				
+			
 			
 		}
-
+		
 		else
 		{
 			GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
@@ -534,6 +538,7 @@ void Application::_Run()
 				}
 			}
 		}
+		
 		//////////////////////////////////////////////////////////
 		// Core update loop
 		if (_currentScene != nullptr) {
@@ -720,7 +725,17 @@ void Application::_HandleWindowSizeChanged(const glm::ivec2& newSize) {
 	}
 	_windowSize = newSize;
 	_primaryViewport = { 0, 0, newSize.x, newSize.y };
-	GetLayer<DefaultSceneLayer>()->RepositionUI();
+	
+	if (GetLayer<Menu>()->IsActive())
+	{
+		GetLayer<Menu>()->RepositionUI();
+	}
+
+	else if (GetLayer<DefaultSceneLayer>()->IsActive())
+	{
+		GetLayer<DefaultSceneLayer>()->RepositionUI();
+	}
+	
 }
 
 void Application::_ConfigureSettings() {
