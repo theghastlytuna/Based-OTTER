@@ -1696,16 +1696,16 @@ void DefaultSceneLayer::_CreateScene() {
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
 		}
 
-		GameObject::Sptr scoreCounter1 = scene->CreateGameObject("Score Counter 1");
+		GameObject::Sptr scoreCounter1 = scene->CreateGameObject("Score Counter 1"); /// HERE!!!!!
 		{
 			scoreCounter1->SetRenderFlag(1);
 
 			RectTransform::Sptr transform = scoreCounter1->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x - 280, 5 });
-			transform->SetMax({ app.GetWindowSize().x - 100, 100 });
+			transform->SetMin({ app.GetWindowSize().x, 5 });
+			transform->SetMax({ app.GetWindowSize().x - 20, 100 });
 
 			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
 			
 			GameObject::Sptr subPanel1 = scene->CreateGameObject("1-0");
 			{
@@ -1715,7 +1715,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/0.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/0.png"));
 			}
 			
 			GameObject::Sptr subPanel2 = scene->CreateGameObject("1-1");
@@ -1726,7 +1726,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/1.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/1.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1738,7 +1738,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/2.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/2.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1750,7 +1750,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/3.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/3.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1762,7 +1762,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/4.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/4.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1774,7 +1774,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/5.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/5.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1786,7 +1786,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/6.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/6.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1798,7 +1798,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/7.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/7.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1810,7 +1810,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/8.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/8.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1822,7 +1822,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/9.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/9.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 		}
@@ -1836,7 +1836,7 @@ void DefaultSceneLayer::_CreateScene() {
 			transform->SetMax({ 2 * app.GetWindowSize().x - 100, 100 });
 
 			GuiPanel::Sptr panel = scoreCounter2->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
 
 			GameObject::Sptr subPanel1 = scene->CreateGameObject("2-0");
 			{
@@ -1846,7 +1846,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/0.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/0.png"));
 			}
 
 			GameObject::Sptr subPanel2 = scene->CreateGameObject("2-1");
@@ -1857,7 +1857,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/1.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/1.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1869,7 +1869,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/2.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/2.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1881,7 +1881,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/3.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/3.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1893,7 +1893,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/4.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/4.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1905,7 +1905,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/5.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/5.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1917,7 +1917,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/6.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/6.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1929,7 +1929,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/7.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/7.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1941,7 +1941,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/8.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/8.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 
@@ -1953,7 +1953,7 @@ void DefaultSceneLayer::_CreateScene() {
 				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
 
 				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
-				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/9.png"));
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/9.png"));
 				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
 			}
 		}
@@ -2059,19 +2059,25 @@ void DefaultSceneLayer::RepositionUI()
 	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 
-	killUI->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 280, 5 });
-	killUI->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100, 100 });
+	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
+	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
 
-	killUI2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 280, 5 });
-	killUI2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100, 100 });
+	killUI2->Get<RectTransform>()->SetMin({0, app.GetWindowSize().y - 195 });
+	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
 
 	for (int i = 0; i < 10; i++)
 	{
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 85, 10 });
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({30, app.GetWindowSize().y - 130 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({160, app.GetWindowSize().y });
 
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+
+		//keeping this jus in case
+		/*
 		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 85, 10 });
 		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
+		*/
 	}
 
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
