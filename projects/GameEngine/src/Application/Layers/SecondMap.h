@@ -3,16 +3,13 @@
 #include "json.hpp"
 #include "Gameplay/Scene.h"
 
-/**
- * This example layer handles creating a default test scene, which we will use 
- * as an entry point for creating a sample scene
- */
-class DefaultSceneLayer final : public ApplicationLayer {
+class SecondMap final : public ApplicationLayer
+{
 public:
-	MAKE_PTRS(DefaultSceneLayer)
+	MAKE_PTRS(SecondMap)
 
-	DefaultSceneLayer();
-	virtual ~DefaultSceneLayer();
+	SecondMap();
+	virtual ~SecondMap();
 
 	// Inherited from ApplicationLayer
 
@@ -33,3 +30,4 @@ protected:
 
 	bool _active = false;
 };
+

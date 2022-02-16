@@ -51,6 +51,7 @@
 #include "Gameplay/Components/HealthManager.h"
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
+#include "Gameplay/Components/MenuElement.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -86,7 +87,7 @@ Menu::Menu() :
 Menu::~Menu() = default;
 
 void Menu::OnAppLoad(const nlohmann::json & config) {
-	//_CreateScene();
+	_CreateScene();
 }
 
 void Menu::_CreateScene() {
@@ -204,29 +205,67 @@ void Menu::_CreateScene() {
 
 		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
 		{
-			menuBG->SetRenderFlag(1);
+			menuBG->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
 			transform->SetMin({ 0, 0 });
-			transform->SetMax({ 200, 50 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
+		}
 
-			/*
-			GameObject::Sptr subPanel1 = scene->CreateGameObject("Player1Health");
-			{
-				subPanel1->SetRenderFlag(1);
-				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
-				transform->SetMin({ 5, 5 });
-				transform->SetMax({ 195, 45 });
+		GameObject::Sptr play = scene->CreateGameObject("Play Button");
+		{
+			play->SetRenderFlag(5);
+			RectTransform::Sptr transform = play->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
 
-				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
-				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-			}
+			play->Add<MenuElement>();
 
-			healthbar1->AddChild(subPanel1);
-			*/
+			GuiPanel::Sptr panel = play->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
+		}
+
+		GameObject::Sptr options = scene->CreateGameObject("Options Button");
+		{
+			options->SetRenderFlag(5);
+			RectTransform::Sptr transform = options->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+
+			options->Add<MenuElement>();
+
+			GuiPanel::Sptr panel = options->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
+		}
+
+		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
+		{
+			exit->SetRenderFlag(5);
+			RectTransform::Sptr transform = exit->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
+
+			exit->Add<MenuElement>();
+
+			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
+		}
+
+		GameObject::Sptr logo = scene->CreateGameObject("Logo");
+		{
+			logo->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = logo->Add<RectTransform>();
+			transform->SetMin({ -150, 0 });
+			transform->SetMax({ 500, 250 });
+
+			transform->SetRotationDeg(-35.0f);
+
+			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -237,16 +276,47 @@ void Menu::_CreateScene() {
 		// Save the scene to a JSON file
 		//scene->Save("scene.json");
 
+		_scene = scene;
+
 		// Send the scene to the application
 		app.LoadScene(scene);
+		_active = true;
 	}
+}
+
+void Menu::SetActive(bool active)
+{
+	_active = active;
+}
+
+bool Menu::IsActive()
+{
+	return _active;
+}
+
+Gameplay::Scene::Sptr Menu::GetScene()
+{
+	return _scene;
 }
 
 void Menu::RepositionUI()
 {
 	Application& app = Application::Get();
-	Gameplay::GameObject::Sptr background = app.CurrentScene()->FindObjectByName("Menu BG");
+	
+	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
+	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
+	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
+	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
 
-	background->Get<RectTransform>()->SetMin({ 0, 0 });
-	background->Get<RectTransform>()->SetMax({ 200, 50 });
+	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
+	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
+	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+
+	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
+	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+
+	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
+	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
 }

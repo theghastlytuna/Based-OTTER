@@ -61,6 +61,7 @@
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/Components/ComponentManager.h"
 #include "Layers/Menu.h"
+#include "Layers/SecondMap.h"
 
 Application* Application::_singleton = nullptr;
 std::string Application::_applicationName = "INFR-2350U - DEMO";
@@ -159,6 +160,7 @@ void Application::_Run()
 	_layers.push_back(std::make_shared<GLAppLayer>());
 	_layers.push_back(std::make_shared<Menu>());
 	_layers.push_back(std::make_shared<DefaultSceneLayer>());
+	_layers.push_back(std::make_shared<SecondMap>());
 	_layers.push_back(std::make_shared<RenderLayer>());
 	_layers.push_back(std::make_shared<InterfaceLayer>());
 	_layers.push_back(std::make_shared<LogicUpdateLayer>());
@@ -199,7 +201,7 @@ void Application::_Run()
 	bool menuScreen = true;
 	bool firstFrame = true;
 
-	GetLayer<DefaultSceneLayer>()->BeginLayer();
+	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
 	float selectTime = 0.5f;
 
@@ -240,7 +242,7 @@ void Application::_Run()
 
 		ImGuiHelper::StartFrame();
 
-		GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
+		//GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
 
 		if (firstFrame)
 		{
@@ -260,13 +262,15 @@ void Application::_Run()
 			bool downSelect;
 			bool upSelect;
 			bool confirm;
+			bool secondMapSelect;
 
-			ControllerInput::Sptr p1Control = player1->Get<ControllerInput>();
-			if (p1Control->IsValid())
+			ControllerInput::Sptr menuControl = _currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>();
+			if (menuControl->IsValid())
 			{
-				downSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
-				upSelect = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
-				confirm = p1Control->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+				downSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
+				upSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+				secondMapSelect = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
 			}
 
 			else
@@ -274,7 +278,7 @@ void Application::_Run()
 				downSelect = glfwGetKey(_window, GLFW_KEY_S);
 				upSelect = glfwGetKey(_window, GLFW_KEY_W);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
-
+				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
 			}
 
 			//if (_currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
@@ -304,25 +308,47 @@ void Application::_Run()
 
 			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
 			{
+				//No longer in Menu Screen, so set it to inactive
 				menuScreen = false;
-				_currentScene->IsPlaying = true;
+				GetLayer<Menu>()->SetActive(false);
 
-				for (int i = 0; i < menuItems.size(); i++)
-				{
-					menuItems[i]->GetGameObject()->Get<GuiPanel>()->SetTransparency(0.0f);
-				}
+				//Begin the first map (create the scene)
+				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
-				_currentScene->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
-				_currentScene->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+				//Load the scene
+				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+
+				//Set the current layer to active
+				GetLayer<DefaultSceneLayer>()->SetActive(true);
+
+				//Start playing
+				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+			}
+
+			else if (secondMapSelect)
+			{
+				menuScreen = false;
+				GetLayer<Menu>()->SetActive(false);
+
+				//Begin the second map (create the scene)
+				GetLayer<SecondMap>()->BeginLayer();
+
+				//Load the scene
+				LoadScene(GetLayer<SecondMap>()->GetScene());
+
+				//Set the current layer to active
+				GetLayer<SecondMap>()->SetActive(true);
+
+				//Start playing
+				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
+
 			}
 
 			else selectTime += dt;
-				
-				//_currentScene->~Scene();
-				//GetLayer<DefaultSceneLayer>()->BeginLayer();
-				//menuScreen = false;
-				
-			
+		}
+
+		else if (GetLayer<SecondMap>()->IsActive())
+		{
 		}
 
 		else
@@ -720,7 +746,21 @@ void Application::_HandleWindowSizeChanged(const glm::ivec2& newSize) {
 	}
 	_windowSize = newSize;
 	_primaryViewport = { 0, 0, newSize.x, newSize.y };
-	GetLayer<DefaultSceneLayer>()->RepositionUI();
+
+	if (GetLayer<Menu>()->IsActive())
+	{
+		GetLayer<Menu>()->RepositionUI();
+	}
+
+	else if (GetLayer<DefaultSceneLayer>()->IsActive())
+	{
+		GetLayer<DefaultSceneLayer>()->RepositionUI();
+	}
+
+	else if (GetLayer<SecondMap>()->IsActive())
+	{
+		GetLayer<SecondMap>()->RepositionUI();
+	}
 }
 
 void Application::_ConfigureSettings() {

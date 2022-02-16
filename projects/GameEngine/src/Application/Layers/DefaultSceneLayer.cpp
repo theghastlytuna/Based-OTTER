@@ -541,8 +541,6 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
-
-
 		// Create some lights for our scene
 		scene->Lights.resize(4);
 		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
@@ -2000,73 +1998,6 @@ void DefaultSceneLayer::_CreateScene() {
 			}
 		}
 
-		////////////////////Title screen//////////////////
-
-		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
-		{
-			menuBG->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
-
-			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
-		}
-
-		GameObject::Sptr play = scene->CreateGameObject("Play Button");
-		{
-			play->SetRenderFlag(5);
-			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
-
-			play->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = play->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
-		}
-
-		GameObject::Sptr options = scene->CreateGameObject("Options Button");
-		{
-			options->SetRenderFlag(5);
-			RectTransform::Sptr transform = options->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-			options->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = options->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
-		}
-
-		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
-		{
-			exit->SetRenderFlag(5);
-			RectTransform::Sptr transform = exit->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
-
-			exit->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
-		}
-
-		GameObject::Sptr logo = scene->CreateGameObject("Logo");
-		{
-			logo->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
-
-			transform->SetRotationDeg(-35.0f);
-
-			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
-		}
-
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
@@ -2075,9 +2006,26 @@ void DefaultSceneLayer::_CreateScene() {
 		// Save the scene to a JSON file
 		scene->Save("scene.json");
 
+		_scene = scene;
+
 		// Send the scene to the application
-		app.LoadScene(scene);
+		//app.LoadScene(scene);
 	}
+}
+
+Gameplay::Scene::Sptr DefaultSceneLayer::GetScene()
+{
+	return _scene;
+}
+
+void DefaultSceneLayer::SetActive(bool active)
+{
+	_active = active;
+}
+
+bool DefaultSceneLayer::IsActive()
+{
+	return _active;
 }
 
 void DefaultSceneLayer::RepositionUI() 
@@ -2088,11 +2036,6 @@ void DefaultSceneLayer::RepositionUI()
 
 	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
 	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
-
-	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
-	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
-	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
-	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
 
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
@@ -2115,15 +2058,4 @@ void DefaultSceneLayer::RepositionUI()
 		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
 	}
 
-	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
-	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
-
-	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
-
-	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
 }
