@@ -315,6 +315,18 @@ void Application::_Run()
 
 			GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
 
+			//Boomerang Visual indicator!!!
+			GameObject::Sptr dBoom1 = _currentScene->FindObjectByName("Display Boomerang 1");
+
+			Camera::Sptr camera = _currentScene->PlayerCamera;
+			
+			glm::vec3 cameraLocalForward;
+
+			cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
+
+			dBoom1->SetPosition(player1->GetPosition() + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * 0.5f);
+
+			dBoom1->SetRotation(camera->GetGameObject()->GetRotation());
 			////////////////////Handle some UI stuff/////////////////////////////////
 
 			GameObject::Sptr p1Health = _currentScene->FindObjectByName("Player1Health");

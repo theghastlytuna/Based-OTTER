@@ -169,6 +169,9 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr mainCharMesh2 = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
 		MeshResource::Sptr boomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
 		MeshResource::Sptr boomerangMesh2 = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+
+		MeshResource::Sptr displayBoomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+
 		MeshResource::Sptr movingPlatMesh = ResourceManager::CreateAsset<MeshResource>("floating_rock.obj");
 		MeshResource::Sptr healthPackMesh = ResourceManager::CreateAsset<MeshResource>("HealthPackAnims/healthPack_idle_000.obj");
 		MeshResource::Sptr torchMesh = ResourceManager::CreateAsset<MeshResource>("TorchAnims/Torch_Idle_000.obj");
@@ -368,6 +371,13 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerangMaterial2->Name = "Boomerang2";
 			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			displayBoomerangMaterial1->Name = "Display Boomerang1";
+			displayBoomerangMaterial1->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.1f);
 		}
 
 		// This will be the reflective material, we'll make the whole thing 90% reflective
@@ -1526,6 +1536,20 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerang2->Get<MorphAnimator>()->ActivateAnim("spin");
 		}
 
+		GameObject::Sptr displayBoomerang1 = scene->CreateGameObject("Display Boomerang 1");
+		{
+			// Set position in the scene
+			displayBoomerang1->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
+			displayBoomerang1->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			displayBoomerang1->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
+			renderer->SetMesh(displayBoomerangMesh);
+			renderer->SetMaterial(displayBoomerangMaterial1);
+
+		}
+
 		GameObject::Sptr catcus = scene->CreateGameObject("Catcus Base");
 		{
 			// Set position in the scene
@@ -2052,6 +2076,12 @@ void DefaultSceneLayer::RepositionUI()
 	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
 	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
+
+
+	/*
+	
+	*/
+
 
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
