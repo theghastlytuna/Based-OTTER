@@ -52,6 +52,7 @@
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
+#include "Gameplay/Components/PickUpBehaviour.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -1592,6 +1593,11 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMesh(healthPackMesh);
 			renderer->SetMaterial(healthPackMaterial);
 
+			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+			TriggerVolume::Sptr volume = healthPack->Add<TriggerVolume>();
+			volume->AddCollider(colliderTrigger);
+			PickUpBehaviour::Sptr pickUp = healthPack->Add<PickUpBehaviour>();
 
 			//Only add an animator when you have a clip to add.
 			MorphAnimator::Sptr animator = healthPack->Add<MorphAnimator>();

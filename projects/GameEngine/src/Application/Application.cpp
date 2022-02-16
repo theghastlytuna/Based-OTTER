@@ -48,6 +48,7 @@
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
+#include "Gameplay/Components/PickUpBehaviour.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"
@@ -602,6 +603,7 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<HealthManager>();
 	ComponentManager::RegisterType<ScoreCounter>();
 	ComponentManager::RegisterType<MenuElement>();
+	ComponentManager::RegisterType<PickUpBehaviour>();
 }
 
 void Application::_Load() {
