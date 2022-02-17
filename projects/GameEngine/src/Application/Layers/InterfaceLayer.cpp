@@ -102,35 +102,19 @@ void InterfaceLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2&
 
 	Application& app = Application::Get();
 
-	app.GetLayer<DefaultSceneLayer>()->RepositionUI();
-	//app.GetLayer<Menu>()->RepositionUI();
+	bool testVal = app.GetLayer<Menu>()->IsActive();
 
-	/*
-	Gameplay::GameObject::Sptr crosshair = app.CurrentScene()->FindObjectByName("Crosshairs");
-	Gameplay::GameObject::Sptr crosshair2 = app.CurrentScene()->FindObjectByName("Crosshairs 2");
-
-	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
-	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
-
-	crosshair->Get<RectTransform>()->SetMin({ newSize.x / 2 - 50, newSize.y / 2 - 50 });
-	crosshair->Get<RectTransform>()->SetMax({ newSize.x / 2 + 50, newSize.y / 2 + 50 });
-
-	crosshair2->Get<RectTransform>()->SetMin({ newSize.x / 2 - 50, newSize.y / 2 - 50 });
-	crosshair2->Get<RectTransform>()->SetMax({ newSize.x / 2 + 50, newSize.y / 2 + 50 });
-
-	killUI->Get<RectTransform>()->SetMin({ newSize.x - 250, 5 });
-	killUI->Get<RectTransform>()->SetMax({ newSize.x - 80, 100 });
-
-	killUI2->Get<RectTransform>()->SetMin({ newSize.x - 250, 5 });
-	killUI2->Get<RectTransform>()->SetMax({ newSize.x - 80, 100 });
-
-	for (int i = 0; i < 10; i++)
+	if (app.GetLayer<Menu>()->IsActive())
 	{
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ newSize.x - 85, 10 });
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ newSize.x - 10, 95 });
-
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ newSize.x - 85, 10 });
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ newSize.x - 10, 95 });
+		app.GetLayer<Menu>()->RepositionUI();
 	}
-	*/
+
+	else if (app.GetLayer<DefaultSceneLayer>()->IsActive())
+	{
+		app.GetLayer<DefaultSceneLayer>()->RepositionUI();
+	}
+	
+
+	//app.GetLayer<DefaultSceneLayer>()->RepositionUI();
+	//app.GetLayer<Menu>()->RepositionUI();
 }

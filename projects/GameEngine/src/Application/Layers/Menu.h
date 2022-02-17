@@ -1,6 +1,7 @@
 #pragma once
 #include "Application/ApplicationLayer.h"
 #include "json.hpp"
+#include "Gameplay/Scene.h"
 
 /**
  * This example layer handles creating a default test scene, which we will use
@@ -18,8 +19,19 @@ public:
 	virtual void OnAppLoad(const nlohmann::json& config) override;
 	virtual void RepositionUI() override;
 
-	void BeginLayer();
+	Gameplay::Scene::Sptr GetScene();
+
+	void SetActive(bool active);
+
+	bool IsActive();
+
+	//void BeginLayer();
 
 protected:
+
+	Gameplay::Scene::Sptr _scene;
+
+	bool _active = false;
+
 	void _CreateScene();
 };
