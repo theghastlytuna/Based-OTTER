@@ -133,7 +133,7 @@ void PlayerControl::Update(float deltaTime)
 				if (_chargeAmount < 3.f)
 				{
 				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
-				_chargeAmount += 0.05;
+				_chargeAmount += 0.02;
 				}
 			}
 			else if (Point){
