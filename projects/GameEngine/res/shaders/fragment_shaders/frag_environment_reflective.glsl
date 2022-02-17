@@ -50,7 +50,7 @@ void main() {
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
 
 	// combine for the final result
-	vec3 result = lightAccumulation  * inColor * textureColor.rgb;
+	vec3 result = inLight  * inColor * textureColor.rgb;
 
 	frag_color = vec4(mix(result, reflected, u_Material.Shininess), textureColor.a);
 }

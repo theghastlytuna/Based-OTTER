@@ -2,8 +2,16 @@
 
 // Include our common vertex shader attributes and uniforms
 #include "../fragments/vs_uncommon.glsl"
+#include "../fragments/multiple_point_lights.glsl"
 
 uniform float t;
+
+struct Material {
+	sampler2D Diffuse;
+	float     Shininess;
+};
+// Create a uniform for the material
+uniform Material u_Material;
 
 void main() {
 
@@ -29,5 +37,6 @@ void main() {
 	///////////
 	outColor = inColor;
 
+	outLight = CalcAllLightContribution(outWorldPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
 }
 
