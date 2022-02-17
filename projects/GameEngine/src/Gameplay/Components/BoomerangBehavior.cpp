@@ -110,7 +110,7 @@ void BoomerangBehavior::LockTarget(Gameplay::GameObject::Sptr targetEntity)
 
 void BoomerangBehavior::defyGravity()
 {
-	_rigidBody->ApplyForce(glm::vec3(0, 0, 9.81f));
+	_rigidBody->ApplyForce(glm::vec3(0, 0, 12.81f));
 }
 
 void BoomerangBehavior::returnBoomerang()

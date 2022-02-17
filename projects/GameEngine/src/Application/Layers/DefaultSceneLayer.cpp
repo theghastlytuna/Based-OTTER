@@ -611,7 +611,8 @@ void DefaultSceneLayer::_CreateScene() {
 			RigidBody::Sptr physics = player1->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(BoxCollider::Create(glm::vec3(0.4f, 1.2f, 0.4f)))->SetPosition(glm::vec3(0.0f, 0.95f, 0.0f));
 			physics->SetAngularFactor(glm::vec3(0.f));
-			physics->SetLinearDamping(0.9f);
+			physics->SetLinearDamping(0.6f);
+			physics->SetMass(1.f);
 
 			PlayerControl::Sptr controller = player1->Add<PlayerControl>();
 
@@ -672,7 +673,8 @@ void DefaultSceneLayer::_CreateScene() {
 			RigidBody::Sptr physics = player2->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(BoxCollider::Create(glm::vec3(0.4f, 1.2f, 0.4f)))->SetPosition(glm::vec3(0.0f, 0.95f, 0.0f));
 			physics->SetAngularFactor(glm::vec3(0.f));
-			physics->SetLinearDamping(0.9f);
+			physics->SetLinearDamping(0.6f);
+			physics->SetMass(1.f);
 
 			PlayerControl::Sptr controller = player2->Add<PlayerControl>();
 
@@ -1510,6 +1512,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			RigidBody::Sptr physics = boomerang->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(collider);
+
 			boomerang->Add<BoomerangBehavior>();
 
 			boomerang->Add<MorphAnimator>();
@@ -1542,6 +1545,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			RigidBody::Sptr physics = boomerang2->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(collider);
+
 			boomerang2->Add<BoomerangBehavior>();
 
 			boomerang2->Add<MorphAnimator>();

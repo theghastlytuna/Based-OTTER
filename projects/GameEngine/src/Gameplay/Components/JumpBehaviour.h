@@ -34,6 +34,7 @@ public:
 
 protected:
 	float _impulse;
+	float _jumpCooldown = 0.5f;
 
 	bool _isPressed = false;
 	Gameplay::Physics::RigidBody::Sptr _body;

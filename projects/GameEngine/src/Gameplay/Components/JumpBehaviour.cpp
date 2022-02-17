@@ -44,7 +44,7 @@ nlohmann::json JumpBehaviour::ToJson() const {
 
 JumpBehaviour::JumpBehaviour() :
 	IComponent(),
-	_impulse(10.0f)
+	_impulse(12.0f)
 { }
 
 JumpBehaviour::~JumpBehaviour() = default;
@@ -58,12 +58,14 @@ JumpBehaviour::Sptr JumpBehaviour::FromJson(const nlohmann::json& blob) {
 void JumpBehaviour::Update(float deltaTime) {
 	//If the object has a controller connected, use that to find input
 	_startingJump = false;
+	_jumpCooldown -= deltaTime;
 
 	if (_controller->IsValid())
 	{
-		if (_controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_A) && _onGround)
+		if (_controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_A) && _onGround && _jumpCooldown <= 0)
 		{
 			_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
+			_jumpCooldown = 0.5f;
 			_startingJump = true;
 		}
 	}
