@@ -128,6 +128,7 @@ void SecondMap::_CreateScene() {
 		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Base.obj");
 		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Tree_Base.obj");
 		MeshResource::Sptr treeBaseMesh2 = ResourceManager::CreateAsset<MeshResource>("stage2Objs/tree_Base.obj");
+		MeshResource::Sptr icosphereMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/icosphere2.obj");
 
 		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/Grass_Texture.png");
 		grassTex->SetMinFilter(MinFilter::Unknown);
@@ -141,6 +142,10 @@ void SecondMap::_CreateScene() {
 		treeTex->SetMinFilter(MinFilter::Unknown);
 		treeTex->SetMagFilter(MagFilter::Nearest);
 
+		Texture2D::Sptr    whiteTex = ResourceManager::CreateAsset<Texture2D>("textures/white.png");
+		treeTex->SetMinFilter(MinFilter::Unknown);
+		treeTex->SetMagFilter(MagFilter::Nearest);
+
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
 		ShaderProgram::Sptr      skyboxShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -151,11 +156,12 @@ void SecondMap::_CreateScene() {
 		// Create an empty scene
 		Scene::Sptr scene = std::make_shared<Scene>();
 
+		/*
 		// Setting up our enviroment map
 		scene->SetSkyboxTexture(testCubemap);
 		scene->SetSkyboxShader(skyboxShader);
 		scene->SetSkyboxRotation(glm::rotate(MAT4_IDENTITY, glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f)));
-
+		*/
 		Material::Sptr grassMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			grassMaterial->Name = "Box";
@@ -177,8 +183,30 @@ void SecondMap::_CreateScene() {
 			treeMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
+		Material::Sptr sphereMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			sphereMaterial->Name = "Sphere";
+			sphereMaterial->Set("u_Material.Diffuse", whiteTex);
+			sphereMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+
+		/*
+		Material::Sptr sphereMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			sphereMaterial->Name = "Box";
+			sphereMaterial->Set("u_Material.Diffuse", treeTex);
+			sphereMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		*/
+
 		// Create some lights for our scene
-		scene->Lights.resize(4);
+		scene->Lights.resize(1);
+
+		scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
+		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[0].Range = 40.0f;
+
+		/*
 		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 		scene->Lights[0].Range = 1000.0f;
@@ -193,6 +221,22 @@ void SecondMap::_CreateScene() {
 		scene->Lights[3].Position = glm::vec3(-67.73f, 15.73f, 3.5f);
 		scene->Lights[3].Color = glm::vec3(0.81f, 0.62f, 0.61f);
 		scene->Lights[3].Range = 200.0f;
+		*/
+
+		GameObject::Sptr icoSphere = scene->CreateGameObject("Icosphere");
+		{
+			// Set position in the scene
+			icoSphere->SetPosition(glm::vec3(10.0f, 10.0f, 0.0f));
+			icoSphere->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			//icoSphere->SetRotation(glm::vec3(90.0f, 0.0f, 9.0f));
+
+			icoSphere->Add<RotatingBehaviour>()->RotationSpeed = glm::vec3(5.0f, 5.0f, 5.0f);
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = icoSphere->Add<RenderComponent>();
+			renderer->SetMesh(icosphereMesh);
+			renderer->SetMaterial(sphereMaterial);
+		}
 
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
@@ -253,7 +297,7 @@ void SecondMap::_CreateScene() {
 			scene->MainCamera2->SetFovDegrees(90);
 			scene->PlayerCamera2->SetFovDegrees(90);
 		}
-
+		/*
 		GameObject::Sptr mapObj = scene->CreateGameObject("Map");
 		{
 			// Set position in the scene
@@ -305,7 +349,7 @@ void SecondMap::_CreateScene() {
 			renderer->SetMesh(healthBaseMesh);
 			renderer->SetMaterial(healthMaterial);
 		}
-
+		*/
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 

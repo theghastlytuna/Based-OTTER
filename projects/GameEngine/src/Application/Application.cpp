@@ -347,8 +347,23 @@ void Application::_Run()
 			else selectTime += dt;
 		}
 
+		
+
 		else if (GetLayer<SecondMap>()->IsActive())
 		{
+			//glm::vec3 currentRot = _currentScene->FindObjectByName("Icosphere")->GetRotation()
+				
+				
+				
+			//_currentScene->FindObjectByName("Icosphere")->GetRotation() * dt);
+			
+			/*
+			if (_currentScene->FindObjectByName("Icosphere")->GetRotationEuler().y > 90.0f)
+			{
+				_currentScene->FindObjectByName("Icosphere")->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+			}
+			*/
+			
 		}
 
 		else
