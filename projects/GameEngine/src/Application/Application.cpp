@@ -63,6 +63,8 @@
 #include "Gameplay/Components/ComponentManager.h"
 #include "Layers/Menu.h"
 
+#include "SoundManaging.h"
+
 Application* Application::_singleton = nullptr;
 std::string Application::_applicationName = "INFR-2350U - DEMO";
 
@@ -213,6 +215,11 @@ void Application::_Run()
 	std::vector<MenuElement::Sptr> menuItems;
 	int currentItemInd = 0;
 
+	SoundManaging& soundManaging = SoundManaging::_singleton;
+
+	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
+	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
+
 		// Infinite loop as long as the application is running
 	while (_isRunning) {
 		// Handle scene switching
@@ -243,6 +250,9 @@ void Application::_Run()
 		timing._unscaledTimeSinceAppLoad += dt;
 		timing._timeSinceSceneLoad += scaledDt;
 		timing._unscaledTimeSinceSceneLoad += dt;
+
+		//Update the durations of all sounds (to be used to see if a sound has fully been played)
+		soundManaging.UpdateSounds(dt);
 
 		ImGuiHelper::StartFrame();
 
@@ -284,7 +294,6 @@ void Application::_Run()
 
 			}
 
-			//if (_currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
 			if (downSelect && selectTime >= 0.3f)
 			{
 				currentElement->ShrinkElement();
@@ -311,6 +320,8 @@ void Application::_Run()
 
 			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
 			{
+				soundManaging.PlaySound("Scene Startup");
+
 				menuScreen = false;
 
 				GetLayer<Menu>()->SetActive(false);
@@ -324,15 +335,11 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 
 				menuScreen = false;
+
+				soundManaging.StopSounds();
 			}
 
 			else selectTime += dt;
-				
-				//_currentScene->~Scene();
-				//GetLayer<DefaultSceneLayer>()->BeginLayer();
-				//menuScreen = false;
-			
-			
 		}
 		
 		else
