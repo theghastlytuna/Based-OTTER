@@ -250,6 +250,7 @@ void SecondMap::_CreateScene() {
 			// Make sure that the camera is set as the scene's main camera!
 
 			scene->WorldCamera = cam;
+			scene->WorldCamera->ResizeWindow(16, 9);
 		}
 
 		//Set up the scene's camera 
@@ -260,6 +261,8 @@ void SecondMap::_CreateScene() {
 
 			Camera::Sptr cam = camera2->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera! 
+
+			cam->ResizeWindow(16, 9);
 		}
 
 		GameObject::Sptr detachedCam = scene->CreateGameObject("Detached Camera");
