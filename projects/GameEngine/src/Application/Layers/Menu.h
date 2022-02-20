@@ -33,7 +33,7 @@ protected:
 
 	Gameplay::Scene::Sptr _scene;
 
-	bool _active = false;
+	bool _active = true;
 
 	void _CreateScene();
 };

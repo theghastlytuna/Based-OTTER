@@ -212,6 +212,15 @@ void EndScreen::_CreateScene()
 void EndScreen::RepositionUI()
 {
 	Application& app = Application::Get();
+
+	Gameplay::GameObject::Sptr p1Wins = app.CurrentScene()->FindObjectByName("P1 Wins Text");
+	Gameplay::GameObject::Sptr p2Wins = app.CurrentScene()->FindObjectByName("P2 Wins Text");
+
+	p1Wins->Get<RectTransform>()->SetMin({ 0, 0 });
+	p1Wins->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+	p2Wins->Get<RectTransform>()->SetMin({ 0, 0 });
+	p2Wins->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 }
 
 void EndScreen::SetActive(bool active)

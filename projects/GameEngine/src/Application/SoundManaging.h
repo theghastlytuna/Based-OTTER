@@ -72,21 +72,8 @@ public:
 
 	inline void StopSounds()
 	{
-		/*
-		std::string tempStr = lowercase(name);
-
-		for each (soundData sampleSound in sounds)
-		{
-			if (sampleSound.name == tempStr)
-			{
-				system->
-			}
-		}
-		*/
 		channel->stop();
 	}
-
-
 
 	static inline SoundManaging& Current() { return _singleton; }
 
@@ -104,7 +91,6 @@ public:
 
 		return newStr;
 	}
-
 
 protected:
 	friend class Application;

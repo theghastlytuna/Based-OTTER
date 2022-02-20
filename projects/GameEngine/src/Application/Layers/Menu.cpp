@@ -170,7 +170,7 @@ void Menu::_CreateScene() {
 			controller1->SetController(GLFW_JOYSTICK_1);
 		}
 
-
+		////////////Main menu elements////////////////////////
 		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
 		{
 			menuBG->SetRenderFlag(5);
@@ -227,14 +227,79 @@ void Menu::_CreateScene() {
 			logo->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
+			transform->SetMin({ -50, 0 });
+			transform->SetMax({ app.GetWindowSize().x / 4, app.GetWindowSize().y / 5 });
 
 			transform->SetRotationDeg(-35.0f);
 
 			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
 		}
+
+		//////////////Loading screen//////////////////
+		GameObject::Sptr loadingScreen = scene->CreateGameObject("Loading Screen");
+		{
+			loadingScreen->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = loadingScreen->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+			GuiPanel::Sptr canPanel = loadingScreen->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/loadingScreen.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		////////////Options screen elements///////////////////////
+		GameObject::Sptr volumeText = scene->CreateGameObject("Volume Text");
+		{
+			volumeText->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = volumeText->Add<RectTransform>();
+			transform->SetMin({ 50, 100 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
+
+			volumeText->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = volumeText->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr volumeBar = scene->CreateGameObject("Volume Bar");
+		{
+			volumeBar->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = volumeBar->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, 100 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4});
+
+			volumeBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = volumeBar->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr volumeSelector = scene->CreateGameObject("Volume Selector");
+		{
+			volumeSelector->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = volumeSelector->Add<RectTransform>();
+			transform->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });
+			transform->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 4 });
+
+			volumeSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = volumeSelector->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+		///////////////////////////////////////////////
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
@@ -256,22 +321,53 @@ void Menu::RepositionUI()
 {
 	Application& app = Application::Get();
 
+	////////Main menu elements
 	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
+	Gameplay::GameObject::Sptr logo = app.CurrentScene()->FindObjectByName("Logo");
 	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
 	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
 
+	///////Loading screen
+	Gameplay::GameObject::Sptr loadingScreen = app.CurrentScene()->FindObjectByName("Loading Screen");
+
+	////////Options elements
+	Gameplay::GameObject::Sptr volumeText = app.CurrentScene()->FindObjectByName("Volume Text");
+	Gameplay::GameObject::Sptr volumeBar = app.CurrentScene()->FindObjectByName("Volume Bar");
+	Gameplay::GameObject::Sptr volumeSelector = app.CurrentScene()->FindObjectByName("Volume Selector");
+
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
+	logo->Get<RectTransform>()->SetMin({ -50, 0 });
+	logo->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 4, app.GetWindowSize().y / 5 });
+
 	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
 	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+	//Repositioning the UI causes the buttons to return to normal size, so make sure whichever button is selected grows again
+	if (playBut->Get<MenuElement>()->IsSelected()) playBut->Get<MenuElement>()->GrowElement();
 
 	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
 	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+	if (optionsBut->Get<MenuElement>()->IsSelected()) optionsBut->Get<MenuElement>()->GrowElement();
 
 	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
 	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
+	if (exitBut->Get<MenuElement>()->IsSelected()) exitBut->Get<MenuElement>()->GrowElement();
+	
+	loadingScreen->Get<RectTransform>()->SetMin({ 0, 0 });
+	loadingScreen->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+	volumeText->Get<RectTransform>()->SetMin({ 50, 100 });
+	volumeText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
+
+	volumeBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 100 });
+	volumeBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4 });
+	
+	/*
+	volumeSelector->Get<RectTransform>()->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });
+	volumeSelector->Get<RectTransform>()->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 4 });
+	*/
 }
 
 void Menu::SetActive(bool active)
