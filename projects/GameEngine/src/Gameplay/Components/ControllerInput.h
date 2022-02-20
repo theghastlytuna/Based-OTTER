@@ -28,13 +28,20 @@ public:
 
 	float GetAxisValue(int ID);
 
+	void SetEnabled(bool enabled);
+
+	bool GetButtonPressed(int ID);
+
 protected:
 	bool _controllerConnected = false;
 	int _controllerID;
 	int _buttonCount;
 	int _axesCount;
 
-	unsigned char* buttonList;
+	bool _enabled;
+
+	std::vector<char> buttonList;
+	std::vector<char> prevButtonList;
 
 	GLFWwindow* _window;
 };

@@ -102,8 +102,7 @@ void InterfaceLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2&
 
 	Application& app = Application::Get();
 
-	bool testVal = app.GetLayer<Menu>()->IsActive();
-
+	/*
 	if (app.GetLayer<Menu>()->IsActive())
 	{
 		app.GetLayer<Menu>()->RepositionUI();
@@ -113,8 +112,6 @@ void InterfaceLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2&
 	{
 		app.GetLayer<DefaultSceneLayer>()->RepositionUI();
 	}
-	
+	*/
 
-	//app.GetLayer<DefaultSceneLayer>()->RepositionUI();
-	//app.GetLayer<Menu>()->RepositionUI();
 }

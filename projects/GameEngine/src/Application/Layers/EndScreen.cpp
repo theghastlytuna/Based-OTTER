@@ -1,4 +1,4 @@
-#include "Menu.h"
+#include "EndScreen.h"
 
 // GLM math library
 #include <GLM/glm.hpp>
@@ -77,26 +77,25 @@
 using namespace Gameplay;
 using namespace Gameplay::Physics;
 
-Menu::Menu() :
+EndScreen::EndScreen() :
 	ApplicationLayer()
 {
 	Name = "Menu";
 	Overrides = AppLayerFunctions::OnAppLoad;
 }
 
-Menu::~Menu() = default;
+EndScreen::~EndScreen() = default;
 
-void Menu::OnAppLoad(const nlohmann::json & config) {
-	_CreateScene();
+void EndScreen::OnAppLoad(const nlohmann::json & config) {
 }
 
-void Menu::BeginLayer()
+void EndScreen::BeginLayer()
 {
 	_CreateScene();
 }
 
-void Menu::_CreateScene() {
-
+void EndScreen::_CreateScene()
+{
 	using namespace Gameplay;
 	using namespace Gameplay::Physics;
 
@@ -108,8 +107,8 @@ void Menu::_CreateScene() {
 		app.LoadScene("scene.json");
 	}
 
-	else {
-
+	else
+	{
 		// Create an empty scene
 		Scene::Sptr scene = std::make_shared<Scene>();
 
@@ -170,121 +169,62 @@ void Menu::_CreateScene() {
 			controller1->SetController(GLFW_JOYSTICK_1);
 		}
 
-
-		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
+		GameObject::Sptr p1WinText = scene->CreateGameObject("P1 Wins Text");
 		{
-			menuBG->SetRenderFlag(5);
+			RectTransform::Sptr transform = p1WinText->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y});
 
-			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
+			GuiPanel::Sptr panel = p1WinText->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p1Wins.png"));
+
+			panel->SetTransparency(0.0f);
+
+			p1WinText->SetRenderFlag(5);
+		}
+
+		GameObject::Sptr p2WinText = scene->CreateGameObject("P2 Wins Text");
+		{
+			RectTransform::Sptr transform = p2WinText->Add<RectTransform>();
 			transform->SetMin({ 0, 0 });
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
-		}
+			GuiPanel::Sptr panel = p2WinText->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p2Wins.png"));
 
-		GameObject::Sptr play = scene->CreateGameObject("Play Button");
-		{
-			play->SetRenderFlag(5);
-			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+			panel->SetTransparency(0.0f);
 
-			play->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = play->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
-		}
-
-		GameObject::Sptr options = scene->CreateGameObject("Options Button");
-		{
-			options->SetRenderFlag(5);
-			RectTransform::Sptr transform = options->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-			options->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = options->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
-		}
-
-		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
-		{
-			exit->SetRenderFlag(5);
-			RectTransform::Sptr transform = exit->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
-
-			exit->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
-		}
-
-		GameObject::Sptr logo = scene->CreateGameObject("Logo");
-		{
-			logo->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
-
-			transform->SetRotationDeg(-35.0f);
-
-			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
+			p2WinText->SetRenderFlag(5);
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
 		// Save the asset manifest for all the resources we just loaded
-		//ResourceManager::SaveManifest("manifest.json");
+		ResourceManager::SaveManifest("manifest.json");
 		// Save the scene to a JSON file
-		//scene->Save("scene.json");
+		scene->Save("scene.json");
 
 		_scene = scene;
-
-		// Send the scene to the application
-		app.LoadScene(scene);
-		_active = true;
 	}
 }
 
-void Menu::RepositionUI()
+void EndScreen::RepositionUI()
 {
 	Application& app = Application::Get();
-
-	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
-	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
-	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
-	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
-
-	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
-	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
-
-	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
-
-	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
 }
 
-void Menu::SetActive(bool active)
+void EndScreen::SetActive(bool active)
 {
 	_active = active;
 }
 
-bool Menu::IsActive()
+bool EndScreen::IsActive()
 {
 	return _active;
 }
 
-Gameplay::Scene::Sptr Menu::GetScene()
+Gameplay::Scene::Sptr EndScreen::GetScene()
 {
 	return _scene;
 }

@@ -62,6 +62,7 @@
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/Components/ComponentManager.h"
 #include "Layers/Menu.h"
+#include "Layers/EndScreen.h"
 
 #include "SoundManaging.h"
 
@@ -167,6 +168,7 @@ void Application::_Run()
 	_layers.push_back(std::make_shared<GLAppLayer>());
 	_layers.push_back(std::make_shared<Menu>());
 	_layers.push_back(std::make_shared<DefaultSceneLayer>());
+	_layers.push_back(std::make_shared<EndScreen>());
 	_layers.push_back(std::make_shared<RenderLayer>());
 	_layers.push_back(std::make_shared<InterfaceLayer>());
 	_layers.push_back(std::make_shared<LogicUpdateLayer>());
@@ -206,6 +208,7 @@ void Application::_Run()
 
 	bool menuScreen = true;
 	bool firstFrame = true;
+	bool paused = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -215,10 +218,13 @@ void Application::_Run()
 	std::vector<MenuElement::Sptr> menuItems;
 	int currentItemInd = 0;
 
+	///////Grab the sound manager and load all the sounds we want///////////
 	SoundManaging& soundManaging = SoundManaging::_singleton;
 
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
+
+	////////////////////////////////////////////////////////////////////////
 
 		// Infinite loop as long as the application is running
 	while (_isRunning) {
@@ -334,12 +340,32 @@ void Application::_Run()
 
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 
-				menuScreen = false;
-
 				soundManaging.StopSounds();
 			}
 
 			else selectTime += dt;
+		}
+
+		else if (GetLayer<EndScreen>()->IsActive())
+		{
+			/*
+			if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+			{
+				soundManaging.PlaySound("Scene Startup");
+
+				GetLayer<EndScreen>()->SetActive(false);
+
+				GetLayer<DefaultSceneLayer>()->BeginLayer();
+
+				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+
+				GetLayer<DefaultSceneLayer>()->SetActive(true);
+
+				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+
+				soundManaging.StopSounds();
+			}
+			*/
 		}
 		
 		else
@@ -350,6 +376,28 @@ void Application::_Run()
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
 			GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+			{
+				if (paused)
+				{
+					player1->Get<ControllerInput>()->SetEnabled(true);
+					timing.SetTimeScale(1.0f);
+					paused = false;
+					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.0f);
+				}
+
+				else
+				{
+					player1->Get<ControllerInput>()->SetEnabled(false);
+					timing.SetTimeScale(0.0f);
+					paused = true;
+
+					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.6f);
+				}
+			}
 
 			//Boomerang Visual indicator!!!
 			GameObject::Sptr dBoom1 = _currentScene->FindObjectByName("Display Boomerang 1");
@@ -507,7 +555,6 @@ void Application::_Run()
 					p2Dying = true;
 				}
 
-
 				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
 				{
 					Respawn(player2);
@@ -562,6 +609,44 @@ void Application::_Run()
 					}
 				}
 			}
+
+			///////////Look for a winner//////////////
+
+			if (player1->Get<ScoreCounter>()->ReachedMaxScore())
+			{
+				GetLayer<DefaultSceneLayer>()->SetActive(false);
+
+				GetLayer<EndScreen>()->BeginLayer();
+
+				LoadScene(GetLayer<EndScreen>()->GetScene());
+
+				GetLayer<EndScreen>()->SetActive(true);
+
+				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
+
+				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
+			}
+
+			else if (player2->Get<ScoreCounter>()->ReachedMaxScore())
+			{
+				GetLayer<DefaultSceneLayer>()->SetActive(false);
+
+				GetLayer<EndScreen>()->BeginLayer();
+
+				LoadScene(GetLayer<EndScreen>()->GetScene());
+
+				GetLayer<EndScreen>()->SetActive(true);
+
+				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
+
+				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
+			}
+
+			/////////////////////////////////////////
 		}
 		
 		//////////////////////////////////////////////////////////

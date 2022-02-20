@@ -4,7 +4,6 @@
 #include "Gameplay/Scene.h"
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/InputEngine.h"
-#include "Gameplay/Components/SoundManager.h"
 #include "Application/Application.h"
 #include "Application/SoundManaging.h"
 
@@ -70,8 +69,6 @@ void JumpBehaviour::Update(float deltaTime) {
 			_startingJump = true;
 
 			SoundManaging::Current().PlaySound("Jump");
-
-			//Application::Get().CurrentScene()->FindObjectByName("Sound Manager")->Get<SoundManager>()->PlaySound("Jump");
 		}
 	}
 	

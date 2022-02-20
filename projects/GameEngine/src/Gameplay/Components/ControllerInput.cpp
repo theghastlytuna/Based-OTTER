@@ -11,7 +11,8 @@
 
 ControllerInput::ControllerInput()
 	: IComponent(),
-	_controllerConnected(false)
+	_controllerConnected(false),
+	_enabled(true)
 { }
 
 ControllerInput::~ControllerInput() = default;
@@ -19,12 +20,44 @@ ControllerInput::~ControllerInput() = default;
 void ControllerInput::Awake()
 {
 	_window = Application::Get().GetWindow();
+
+	
+	auto buttons = glfwGetJoystickButtons(_controllerID, &_buttonCount);
+
+	std::vector<char> temp;
+
+	for (int i = 0; i < _buttonCount; i++)
+	{
+		//buttonList[i] = buttons[i];
+
+		temp.push_back(buttons[i]);
+	}
+
+	buttonList = temp;
+	prevButtonList = temp;
 }
 
 void ControllerInput::Update(float deltaTime)
 {
 
 	_controllerConnected = glfwJoystickPresent(_controllerID);
+
+	auto buttons = glfwGetJoystickButtons(_controllerID, &_buttonCount);
+
+	prevButtonList = buttonList;
+
+	//unsigned char temp[_buttonCount] = {};
+
+	std::vector<char> temp;
+
+	for (int i = 0; i < _buttonCount; i++)
+	{
+		//buttonList[i] = buttons[i];
+
+		temp.push_back(buttons[i]);
+	}
+
+	buttonList = temp;
 }
 
 void ControllerInput::RenderImGui()
@@ -56,12 +89,22 @@ bool ControllerInput::GetButtonDown(int ID)
 {
 	auto buttons = glfwGetJoystickButtons(_controllerID, &_buttonCount);
 
-	return buttons[ID];
+	return _enabled ? buttons[ID] : false;
 }
 
 float ControllerInput::GetAxisValue(int ID)
 {
 	auto axes = glfwGetJoystickAxes(_controllerID, &_axesCount);
 
-	return axes[ID];
+	return _enabled ? axes[ID] : 0.0f;
+}
+
+void ControllerInput::SetEnabled(bool enabled)
+{
+	_enabled = enabled;
+}
+
+bool ControllerInput::GetButtonPressed(int ID)
+{
+	return (prevButtonList[ID] == false) && (buttonList[ID] == true);
 }

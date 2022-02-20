@@ -636,6 +636,8 @@ void DefaultSceneLayer::_CreateScene() {
 			player1->Add<HealthManager>();
 
 			player1->Add<ScoreCounter>();
+
+			player1->SetRenderFlag(2);
 		}
 
 		GameObject::Sptr detachedCam2 = scene->CreateGameObject("Detached Camera 2");
@@ -697,6 +699,8 @@ void DefaultSceneLayer::_CreateScene() {
 			player2->Add<HealthManager>();
 
 			player2->Add<ScoreCounter>();
+
+			player2->SetRenderFlag(1);
 		}
 
 		//Stage Mesh - center floor
@@ -2001,73 +2005,38 @@ void DefaultSceneLayer::_CreateScene() {
 			}
 		}
 
-		////////////////////Title screen//////////////////
-		/*
-		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
+		GameObject::Sptr pauseMenu = scene->CreateGameObject("PauseBackground");
 		{
-			menuBG->SetRenderFlag(5);
 
-			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
+			RectTransform::Sptr transform = pauseMenu->Add<RectTransform>();
 			transform->SetMin({ 0, 0 });
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
+			GuiPanel::Sptr panel = pauseMenu->Add<GuiPanel>();
+			panel->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("PauseText");
+			{
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 0, 0 });
+				transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y});
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/pauseTextTemp.png"));
+
+				panel->SetColor(glm::vec4(
+					panel->GetColor().x,
+					panel->GetColor().y,
+					panel->GetColor().z,
+					0.0f));
+
+				subPanel2->SetRenderFlag(5);
+			}
+
+			pauseMenu->AddChild(subPanel2);
+			pauseMenu->SetRenderFlag(5);
 		}
 
-		GameObject::Sptr play = scene->CreateGameObject("Play Button");
-		{
-			play->SetRenderFlag(5);
-			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
-
-			play->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = play->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
-		}
-
-		GameObject::Sptr options = scene->CreateGameObject("Options Button");
-		{
-			options->SetRenderFlag(5);
-			RectTransform::Sptr transform = options->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-			options->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = options->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
-		}
-
-		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
-		{
-			exit->SetRenderFlag(5);
-			RectTransform::Sptr transform = exit->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
-
-			exit->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
-		}
-
-		GameObject::Sptr logo = scene->CreateGameObject("Logo");
-		{
-			logo->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
-
-			transform->SetRotationDeg(-35.0f);
-
-			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
-		}
-		*/
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
@@ -2077,9 +2046,6 @@ void DefaultSceneLayer::_CreateScene() {
 		scene->Save("scene.json");
 
 		_scene = scene;
-		
-		// Send the scene to the application
-		//app.LoadScene(scene);
 	}
 }
 
@@ -2093,27 +2059,28 @@ bool DefaultSceneLayer::IsActive()
 	return _active;
 }
 
+//Function to be used when the screen is resized
 void DefaultSceneLayer::RepositionUI() 
 {
 	Application& app = Application::Get();
+
+	//Grab all the UI elements
 	Gameplay::GameObject::Sptr crosshair = app.CurrentScene()->FindObjectByName("Crosshairs");
 	Gameplay::GameObject::Sptr crosshair2 = app.CurrentScene()->FindObjectByName("Crosshairs 2");
-
 	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
 	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
 
+	//Reposition the elements
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
-
 	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
-
 	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
 	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
-
 	killUI2->Get<RectTransform>()->SetMin({0, app.GetWindowSize().y - 195 });
 	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
 
+	//Reposition the score UI elements
 	for (int i = 0; i < 10; i++)
 	{
 		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({30, app.GetWindowSize().y - 130 });
@@ -2128,4 +2095,13 @@ void DefaultSceneLayer::RepositionUI()
 		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
 		*/
 	}
+
+	Gameplay::GameObject::Sptr pauseText = app.CurrentScene()->FindObjectByName("PauseText");
+	Gameplay::GameObject::Sptr pauseBG = app.CurrentScene()->FindObjectByName("PauseBackground");
+
+	pauseText->Get<RectTransform>()->SetMin({ 0, 0 });
+	pauseText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y});
+
+	pauseBG->Get<RectTransform>()->SetMin({ 0, 0 });
+	pauseBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y});
 }
