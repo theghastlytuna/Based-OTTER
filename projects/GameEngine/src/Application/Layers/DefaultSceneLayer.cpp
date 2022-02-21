@@ -152,6 +152,11 @@ void DefaultSceneLayer::_CreateScene() {
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
 		});
 
+		ShaderProgram::Sptr animShaderDepleted = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/depleteditem_vertlighting_frag.glsl" }
+		});
+
 		///////////////////// NEW SHADERS ////////////////////////////////////////////
 
 		// This shader handles our foliage vertex shader example
@@ -347,6 +352,12 @@ void DefaultSceneLayer::_CreateScene() {
 		Material::Sptr healthPackMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
 			healthPackMaterial->Name = "HealthPack";
+			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
+			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
+		{
+			healthPackMaterial->Name = "HealthPackDepleted";
 			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
 			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
 		}
@@ -1631,6 +1642,8 @@ void DefaultSceneLayer::_CreateScene() {
 			TriggerVolume::Sptr volume = healthPack->Add<TriggerVolume>();
 			volume->AddCollider(colliderTrigger);
 			PickUpBehaviour::Sptr pickUp = healthPack->Add<PickUpBehaviour>();
+			pickUp->DefaultMaterial = healthPackMaterial;
+			pickUp->DepletedMaterial = healthPackDepletedMaterial;
 
 			//Only add an animator when you have a clip to add.
 			MorphAnimator::Sptr animator = healthPack->Add<MorphAnimator>();

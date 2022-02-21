@@ -15,6 +15,7 @@ public:
 	// Inherited from IComponent
 
 	virtual void Update(float deltaTime) override;
+	virtual void Awake() override;
 	virtual void OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) override;
 	virtual void OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) override;
 	virtual void RenderImGui() override;
@@ -22,7 +23,11 @@ public:
 	static PickUpBehaviour::Sptr FromJson(const nlohmann::json& blob);
 	MAKE_TYPENAME(PickUpBehaviour);
 
+	Gameplay::Material::Sptr DefaultMaterial;
+	Gameplay::Material::Sptr DepletedMaterial;
+
 protected:
 	int pickUpType = 0;
 	float cooldownTimer = 0;
+	RenderComponent::Sptr _renderer;
 };

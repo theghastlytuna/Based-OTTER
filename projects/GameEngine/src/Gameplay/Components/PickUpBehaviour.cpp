@@ -14,6 +14,15 @@ void PickUpBehaviour::Update(float deltaTime)
 	{
 		cooldownTimer -= deltaTime;
 	}
+	else if (_renderer->GetMaterial() != DefaultMaterial)
+	{
+		_renderer->SetMaterial(DefaultMaterial);
+	}
+}
+
+void PickUpBehaviour::Awake()
+{
+	_renderer = GetComponent<RenderComponent>();
 }
 
 void PickUpBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
@@ -28,6 +37,7 @@ void PickUpBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Phy
 			case 0 : //health pack
 				LOG_INFO("Player {} Health PickUp applied: {}", GetGameObject()->Name, body->GetGameObject()->Name);
 				cooldownTimer = 60.f;
+				_renderer->SetMaterial(DepletedMaterial);
 				body->GetGameObject()->Get<HealthManager>()->ResetHealth();
 				break;
 
