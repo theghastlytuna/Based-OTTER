@@ -13,7 +13,7 @@ SimpleCameraControl::SimpleCameraControl() :
 	IComponent(),
 	_mouseSensitivity({ 0.5f, 0.3f }),
 	_moveSpeeds(glm::vec3(1.0f)),
-	_shiftMultipler(2.0f),
+	_shiftMultipler(20.0f),
 	_currentRot(glm::vec2(0.0f)),
 	_isMousePressed(false)
 { }

@@ -220,53 +220,87 @@ void DefaultSceneLayer::_CreateScene() {
 
 		// Load in some textures
 		Texture2D::Sptr    boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
-		Texture2D::Sptr    boxSpec = ResourceManager::CreateAsset<Texture2D>("textures/box-specular.png");
-		Texture2D::Sptr    monkeyTex = ResourceManager::CreateAsset<Texture2D>("textures/monkey-uvMap.png");
-		Texture2D::Sptr    leafTex = ResourceManager::CreateAsset<Texture2D>("textures/leaves.png");
-		Texture2D::Sptr	   catcusTex = ResourceManager::CreateAsset<Texture2D>("textures/cattusGood.png");
-		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
-		//Stage Textures
-		Texture2D::Sptr    sandTexture = ResourceManager::CreateAsset<Texture2D>("textures/sandFloor.png");
-		Texture2D::Sptr    rockFloorTexture = ResourceManager::CreateAsset<Texture2D>("textures/rockyFloor.png");
-		Texture2D::Sptr    rockFormationTexture = ResourceManager::CreateAsset<Texture2D>("textures/bigRock.png");
-		Texture2D::Sptr    bridgeTexture = ResourceManager::CreateAsset<Texture2D>("textures/woodBridge.png");
-		Texture2D::Sptr    rockWallsTexture = ResourceManager::CreateAsset<Texture2D>("textures/walls.png");
 
+		Texture2D::Sptr    boxSpec = ResourceManager::CreateAsset<Texture2D>("textures/box-specular.png");
+		
+		Texture2D::Sptr    monkeyTex = ResourceManager::CreateAsset<Texture2D>("textures/monkey-uvMap.png");
+
+		Texture2D::Sptr    leafTex = ResourceManager::CreateAsset<Texture2D>("textures/leaves.png");
+		leafTex->SetMinFilter(MinFilter::Unknown);
+		leafTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   catcusTex = ResourceManager::CreateAsset<Texture2D>("textures/cattusGood.png");
+		catcusTex->SetMinFilter(MinFilter::Unknown);
+		catcusTex->SetMagFilter(MagFilter::Nearest);
+		
+		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
+		mainCharTex->SetMinFilter(MinFilter::Unknown);
+		mainCharTex->SetMagFilter(MagFilter::Nearest);
+		
+		//Stage Textures
+		
+		Texture2D::Sptr    sandTexture = ResourceManager::CreateAsset<Texture2D>("textures/sandFloor.png");
+		sandTexture->SetMinFilter(MinFilter::Unknown);
+		sandTexture->SetMagFilter(MagFilter::Nearest);
+		
+		Texture2D::Sptr    rockFloorTexture = ResourceManager::CreateAsset<Texture2D>("textures/rockyFloor.png");
+		rockFloorTexture->SetMinFilter(MinFilter::Unknown);
+		rockFloorTexture->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr    rockFormationTexture = ResourceManager::CreateAsset<Texture2D>("textures/bigRock.png");
+		rockFormationTexture->SetMinFilter(MinFilter::Unknown);
+		rockFormationTexture->SetMagFilter(MagFilter::Nearest);
+		
+		Texture2D::Sptr    bridgeTexture = ResourceManager::CreateAsset<Texture2D>("textures/woodBridge.png");
+		bridgeTexture->SetMinFilter(MinFilter::Unknown);
+		bridgeTexture->SetMagFilter(MagFilter::Nearest);
+		
+		Texture2D::Sptr    rockWallsTexture = ResourceManager::CreateAsset<Texture2D>("textures/walls.png");
+		rockWallsTexture->SetMinFilter(MinFilter::Unknown);
+		rockWallsTexture->SetMagFilter(MagFilter::Nearest);
+		
 		//asset textures
 
 		Texture2D::Sptr    barrelTex = ResourceManager::CreateAsset<Texture2D>("textures/barrelTex.png");
+		barrelTex->SetMinFilter(MinFilter::Unknown);
+		barrelTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr	   healthPackTex = ResourceManager::CreateAsset<Texture2D>("textures/vegemiteTex.png");
+		healthPackTex->SetMinFilter(MinFilter::Unknown);
+		healthPackTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr	   torchTex = ResourceManager::CreateAsset<Texture2D>("textures/Torch.png");
+		torchTex->SetMinFilter(MinFilter::Unknown);
+		torchTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr	   boomerangTex = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang.png");
+		boomerangTex->SetMinFilter(MinFilter::Unknown);
+		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
 		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTex.png");
+		cactusTex->SetMinFilter(MinFilter::Unknown);
+		cactusTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/grassTex.png");
+		grassTex->SetMinFilter(MinFilter::Unknown);
+		grassTex->SetMagFilter(MagFilter::Nearest);
 
 		Texture2D::Sptr    greyTreeTex = ResourceManager::CreateAsset<Texture2D>("textures/greyTreeTex.png");
+		greyTreeTex->SetMinFilter(MinFilter::Unknown);
+		greyTreeTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr    beigeTreeTex = ResourceManager::CreateAsset<Texture2D>("textures/beigeTreeTex.png");
+		beigeTreeTex->SetMinFilter(MinFilter::Unknown);
+		beigeTreeTex->SetMagFilter(MagFilter::Nearest);
 
 		Texture2D::Sptr    rockTex = ResourceManager::CreateAsset<Texture2D>("textures/rockTex.png");
+		rockTex->SetMinFilter(MinFilter::Unknown);
+		rockTex->SetMagFilter(MagFilter::Nearest);
+		
 		Texture2D::Sptr    tumbleweedTex = ResourceManager::CreateAsset<Texture2D>("textures/tumbleweedTex.png");
+		tumbleweedTex->SetMinFilter(MinFilter::Unknown);
+		tumbleweedTex->SetMagFilter(MagFilter::Nearest);
 
-
-		leafTex->SetMinFilter(MinFilter::Nearest);
-		leafTex->SetMagFilter(MagFilter::Nearest);
-
-
-		sandTexture->SetMinFilter(MinFilter::Nearest);
-		sandTexture->SetMagFilter(MagFilter::Nearest);
-
-		rockFloorTexture->SetMinFilter(MinFilter::Nearest);
-		rockFloorTexture->SetMagFilter(MagFilter::Nearest);
-
-		rockFormationTexture->SetMinFilter(MinFilter::Nearest);
-		rockFormationTexture->SetMagFilter(MagFilter::Nearest);
-
-		rockWallsTexture->SetMinFilter(MinFilter::Nearest);
-		rockWallsTexture->SetMagFilter(MagFilter::Nearest);
-
-		barrelTex->SetMinFilter(MinFilter::Nearest);
-		barrelTex->SetMagFilter(MagFilter::Nearest);
 
 		//////////////Loading animation frames////////////////////////
 		/*
@@ -533,8 +567,6 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Set("u_Material.Diffuse", tumbleweedTex);
 			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
 		}
-
-
 
 		// Create some lights for our scene
 		scene->Lights.resize(4);
@@ -2018,73 +2050,6 @@ void DefaultSceneLayer::_CreateScene() {
 			}
 		}
 
-		////////////////////Title screen//////////////////
-		/*
-		GameObject::Sptr menuBG = scene->CreateGameObject("Menu BG");
-		{
-			menuBG->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = menuBG->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
-
-			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
-		}
-
-		GameObject::Sptr play = scene->CreateGameObject("Play Button");
-		{
-			play->SetRenderFlag(5);
-			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
-
-			play->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = play->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
-		}
-
-		GameObject::Sptr options = scene->CreateGameObject("Options Button");
-		{
-			options->SetRenderFlag(5);
-			RectTransform::Sptr transform = options->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
-
-			options->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = options->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/options.png"));
-		}
-
-		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
-		{
-			exit->SetRenderFlag(5);
-			RectTransform::Sptr transform = exit->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
-
-			exit->Add<MenuElement>();
-
-			GuiPanel::Sptr panel = exit->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/exit.png"));
-		}
-
-		GameObject::Sptr logo = scene->CreateGameObject("Logo");
-		{
-			logo->SetRenderFlag(5);
-
-			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
-
-			transform->SetRotationDeg(-35.0f);
-
-			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
-		}
-		*/
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
@@ -2094,7 +2059,7 @@ void DefaultSceneLayer::_CreateScene() {
 		scene->Save("scene.json");
 
 		_scene = scene;
-		
+
 		// Send the scene to the application
 		//app.LoadScene(scene);
 	}
@@ -2145,4 +2110,5 @@ void DefaultSceneLayer::RepositionUI()
 		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
 		*/
 	}
+
 }

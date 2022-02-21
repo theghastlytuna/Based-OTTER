@@ -285,10 +285,25 @@ void Menu::_CreateScene() {
 	}
 }
 
+void Menu::SetActive(bool active)
+{
+	_active = active;
+}
+
+bool Menu::IsActive()
+{
+	return _active;
+}
+
+Gameplay::Scene::Sptr Menu::GetScene()
+{
+	return _scene;
+}
+
 void Menu::RepositionUI()
 {
 	Application& app = Application::Get();
-
+	
 	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
 	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
@@ -305,19 +320,4 @@ void Menu::RepositionUI()
 
 	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
 	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
-}
-
-void Menu::SetActive(bool active)
-{
-	_active = active;
-}
-
-bool Menu::IsActive()
-{
-	return _active;
-}
-
-Gameplay::Scene::Sptr Menu::GetScene()
-{
-	return _scene;
 }

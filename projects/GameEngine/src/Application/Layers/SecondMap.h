@@ -3,33 +3,31 @@
 #include "json.hpp"
 #include "Gameplay/Scene.h"
 
-/**
- * This example layer handles creating a default test scene, which we will use
- * as an entry point for creating a sample scene
- */
-class Menu final : public ApplicationLayer {
+class SecondMap final : public ApplicationLayer
+{
 public:
-	MAKE_PTRS(Menu)
+	MAKE_PTRS(SecondMap)
 
-		Menu();
-	virtual ~Menu();
+	SecondMap();
+	virtual ~SecondMap();
 
 	// Inherited from ApplicationLayer
 
 	virtual void OnAppLoad(const nlohmann::json& config) override;
 	virtual void RepositionUI() override;
 
-	Gameplay::Scene::Sptr GetScene();
+	void BeginLayer();
 
 	void SetActive(bool active);
-
 	bool IsActive();
 
+	Gameplay::Scene::Sptr GetScene();
+
 protected:
+	void _CreateScene();
 
 	Gameplay::Scene::Sptr _scene;
 
 	bool _active = false;
-
-	void _CreateScene();
 };
+

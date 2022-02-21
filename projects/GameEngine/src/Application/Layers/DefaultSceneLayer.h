@@ -32,5 +32,4 @@ protected:
 	Gameplay::Scene::Sptr _scene;
 
 	bool _active = false;
-
 };
