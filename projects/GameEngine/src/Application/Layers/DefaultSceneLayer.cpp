@@ -136,14 +136,14 @@ void DefaultSceneLayer::_CreateScene() {
 		});
 
 		// This shader handles our basic materials without reflections (cause they expensive)
-		ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/textured_specular.glsl" }
-		});
+		});*/
 
 		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
-			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/animFrag.glsl" }
 		});
 
 		///////////////////// NEW SHADERS ////////////////////////////////////////////
@@ -155,10 +155,10 @@ void DefaultSceneLayer::_CreateScene() {
 		});
 
 		// This shader handles our cel shading example
-		ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/toon_shading.glsl" }
-		});
+		});*/
 
 		// Load in the meshes
 		MeshResource::Sptr monkeyMesh = ResourceManager::CreateAsset<MeshResource>("Monkey.obj");
@@ -207,8 +207,8 @@ void DefaultSceneLayer::_CreateScene() {
 		// Load in some textures
 		Texture2D::Sptr    boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
 
-		Texture2D::Sptr    boxSpec = ResourceManager::CreateAsset<Texture2D>("textures/box-specular.png");
-		
+		//Texture2D::Sptr    boxSpec = ResourceManager::CreateAsset<Texture2D>("textures/box-specular.png");
+
 		Texture2D::Sptr    monkeyTex = ResourceManager::CreateAsset<Texture2D>("textures/monkey-uvMap.png");
 
 		Texture2D::Sptr    leafTex = ResourceManager::CreateAsset<Texture2D>("textures/leaves.png");
@@ -218,17 +218,17 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr	   catcusTex = ResourceManager::CreateAsset<Texture2D>("textures/cattusGood.png");
 		catcusTex->SetMinFilter(MinFilter::Unknown);
 		catcusTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
 		mainCharTex->SetMinFilter(MinFilter::Unknown);
 		mainCharTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		//Stage Textures
-		
+
 		Texture2D::Sptr    sandTexture = ResourceManager::CreateAsset<Texture2D>("textures/sandFloor.png");
 		sandTexture->SetMinFilter(MinFilter::Unknown);
 		sandTexture->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    rockFloorTexture = ResourceManager::CreateAsset<Texture2D>("textures/rockyFloor.png");
 		rockFloorTexture->SetMinFilter(MinFilter::Unknown);
 		rockFloorTexture->SetMagFilter(MagFilter::Nearest);
@@ -236,29 +236,29 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr    rockFormationTexture = ResourceManager::CreateAsset<Texture2D>("textures/bigRock.png");
 		rockFormationTexture->SetMinFilter(MinFilter::Unknown);
 		rockFormationTexture->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    bridgeTexture = ResourceManager::CreateAsset<Texture2D>("textures/woodBridge.png");
 		bridgeTexture->SetMinFilter(MinFilter::Unknown);
 		bridgeTexture->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    rockWallsTexture = ResourceManager::CreateAsset<Texture2D>("textures/walls.png");
 		rockWallsTexture->SetMinFilter(MinFilter::Unknown);
 		rockWallsTexture->SetMagFilter(MagFilter::Nearest);
-		
+
 		//asset textures
 
 		Texture2D::Sptr    barrelTex = ResourceManager::CreateAsset<Texture2D>("textures/barrelTex.png");
 		barrelTex->SetMinFilter(MinFilter::Unknown);
 		barrelTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr	   healthPackTex = ResourceManager::CreateAsset<Texture2D>("textures/vegemiteTex.png");
 		healthPackTex->SetMinFilter(MinFilter::Unknown);
 		healthPackTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr	   torchTex = ResourceManager::CreateAsset<Texture2D>("textures/Torch.png");
 		torchTex->SetMinFilter(MinFilter::Unknown);
 		torchTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr	   boomerangTex = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang.png");
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
@@ -266,7 +266,7 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTex.png");
 		cactusTex->SetMinFilter(MinFilter::Unknown);
 		cactusTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/grassTex.png");
 		grassTex->SetMinFilter(MinFilter::Unknown);
 		grassTex->SetMagFilter(MagFilter::Nearest);
@@ -274,7 +274,7 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr    greyTreeTex = ResourceManager::CreateAsset<Texture2D>("textures/greyTreeTex.png");
 		greyTreeTex->SetMinFilter(MinFilter::Unknown);
 		greyTreeTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    beigeTreeTex = ResourceManager::CreateAsset<Texture2D>("textures/beigeTreeTex.png");
 		beigeTreeTex->SetMinFilter(MinFilter::Unknown);
 		beigeTreeTex->SetMagFilter(MagFilter::Nearest);
@@ -282,7 +282,7 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr    rockTex = ResourceManager::CreateAsset<Texture2D>("textures/rockTex.png");
 		rockTex->SetMinFilter(MinFilter::Unknown);
 		rockTex->SetMagFilter(MagFilter::Nearest);
-		
+
 		Texture2D::Sptr    tumbleweedTex = ResourceManager::CreateAsset<Texture2D>("textures/tumbleweedTex.png");
 		tumbleweedTex->SetMinFilter(MinFilter::Unknown);
 		tumbleweedTex->SetMagFilter(MagFilter::Nearest);
@@ -413,12 +413,12 @@ void DefaultSceneLayer::_CreateScene() {
 		}
 
 		// This will be the reflective material, we'll make the whole thing 90% reflective
-		Material::Sptr testMaterial = ResourceManager::CreateAsset<Material>(specShader);
+		/*Material::Sptr testMaterial = ResourceManager::CreateAsset<Material>(specShader);
 		{
 			testMaterial->Name = "Box-Specular";
 			testMaterial->Set("u_Material.Diffuse", boxTexture);
 			testMaterial->Set("u_Material.Specular", boxSpec);
-		}
+		}*/
 
 		// Our foliage vertex shader material
 		Material::Sptr foliageMaterial = ResourceManager::CreateAsset<Material>(foliageShader);
@@ -434,14 +434,14 @@ void DefaultSceneLayer::_CreateScene() {
 			foliageMaterial->Set("u_WindSpeed", 1.0f);
 		}
 
-		// Our toon shader material
-		Material::Sptr toonMaterial = ResourceManager::CreateAsset<Material>(toonShader);
-		{
-			toonMaterial->Name = "Toon";
-			toonMaterial->Set("u_Material.Diffuse", boxTexture);
-			toonMaterial->Set("u_Material.Shininess", 0.1f);
-			toonMaterial->Set("u_Material.Steps", 8);
-		}
+		//// Our toon shader material
+		//Material::Sptr toonMaterial = ResourceManager::CreateAsset<Material>(toonShader);
+		//{
+		//	toonMaterial->Name = "Toon";
+		//	toonMaterial->Set("u_Material.Diffuse", boxTexture);
+		//	toonMaterial->Set("u_Material.Shininess", 0.1f);
+		//	toonMaterial->Set("u_Material.Steps", 8);
+		//}
 
 		/////////////Stage materials
 
@@ -578,7 +578,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			Camera::Sptr cam = camera->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera!
-			
+
 			scene->WorldCamera = cam;
 		}
 
@@ -1746,7 +1746,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
-			
+
 			GameObject::Sptr subPanel1 = scene->CreateGameObject("1-0");
 			{
 				subPanel1->SetRenderFlag(1);
@@ -1757,7 +1757,7 @@ void DefaultSceneLayer::_CreateScene() {
 				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
 				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/0.png"));
 			}
-			
+
 			GameObject::Sptr subPanel2 = scene->CreateGameObject("1-1");
 			{
 				subPanel2->SetRenderFlag(1);
@@ -2028,7 +2028,7 @@ bool DefaultSceneLayer::IsActive()
 	return _active;
 }
 
-void DefaultSceneLayer::RepositionUI() 
+void DefaultSceneLayer::RepositionUI()
 {
 	Application& app = Application::Get();
 	Gameplay::GameObject::Sptr crosshair = app.CurrentScene()->FindObjectByName("Crosshairs");

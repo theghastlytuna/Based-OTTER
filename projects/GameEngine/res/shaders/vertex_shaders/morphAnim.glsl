@@ -37,6 +37,5 @@ void main() {
 	///////////
 	outColor = inColor;
 
-	outLight = CalcAllLightContribution(outWorldPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
+	//outLight = CalcAllLightContribution(snapped.xyz, outNormal, u_CamPos.xyz, u_Material.Shininess);
 }
-
