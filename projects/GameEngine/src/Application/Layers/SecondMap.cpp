@@ -425,7 +425,7 @@ void SecondMap::_CreateScene() {
 		GameObject::Sptr treeBase2 = scene->CreateGameObject("Tree Base 2");
 		{
 			// Set position in the scene
-			treeBase2->SetPosition(glm::vec3(7.0f, 28.0f, 11.0f));
+			treeBase2->SetPosition(glm::vec3(70.0f, 28.0f, 11.0f));
 			treeBase2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 			treeBase2->SetRotation(glm::vec3(90.0f, 0.0f, -90.0f));
 
@@ -1042,6 +1042,9 @@ void SecondMap::_CreateScene() {
 			pauseMenu->SetRenderFlag(5);
 		}
 
+#pragma endregion
+
+		
 #pragma endregion
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
