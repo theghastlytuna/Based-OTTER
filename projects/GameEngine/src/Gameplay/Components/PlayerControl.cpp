@@ -128,7 +128,7 @@ void PlayerControl::Update(float deltaTime)
 		}
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
-		if (Wang) {
+		if (rightTrigger > -1) {
 			if (_boomerangBehavior->getReadyToThrow()) {
 				if (_chargeAmount < 3.f)
 				{
@@ -136,6 +136,18 @@ void PlayerControl::Update(float deltaTime)
 				_chargeAmount += 0.02;
 				}
 			}
+			else
+			{
+				if (playerID == 1) {
+					//Tracks Player 2
+					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
+				}
+				else {
+					//Tracks Player 1
+					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
+				}
+			}
+			/*
 			else if (Point){
 				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
@@ -158,8 +170,9 @@ void PlayerControl::Update(float deltaTime)
 					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
 				}
 			}
+			*/
 		}
-		else if (!Wang)
+		else if (rightTrigger == -1)
 		{
 			if (_chargeAmount > 0.5)
 			{
