@@ -118,21 +118,36 @@ void SecondMap::_CreateScene() {
 
 	else {
 
+		// Create an empty scene
+		Scene::Sptr scene = std::make_shared<Scene>();
+
+#pragma region shaderCompilation
+
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
 		});
 
-		MeshResource::Sptr mapMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Map.obj");
-		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Base.obj");
-		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Tree_Base.obj");
-		MeshResource::Sptr treeBaseMesh2 = ResourceManager::CreateAsset<MeshResource>("stage2Objs/tree_Base.obj");
-		MeshResource::Sptr icosphereMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/icosphere2.obj");
+#pragma endregion
+#pragma region loadMeshes
 
-		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/Grass_Texture.png");
+		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Grass.obj");
+		MeshResource::Sptr wallMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Canyon_Walls.obj");
+		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Pick_Up.obj");
+		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Trees.obj");
+		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Raised_Platorm.obj");
+
+#pragma endregion
+#pragma region loadTextures
+
+		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Grass_Texture.png");
 		grassTex->SetMinFilter(MinFilter::Unknown);
 		grassTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr    wallTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Canyon_Walls.png");
+		wallTex->SetMinFilter(MinFilter::Unknown);
+		wallTex->SetMagFilter(MagFilter::Nearest);
 
 		Texture2D::Sptr    healthTex = ResourceManager::CreateAsset<Texture2D>("textures/Health_Spot.png");
 		healthTex->SetMinFilter(MinFilter::Unknown);
@@ -142,9 +157,8 @@ void SecondMap::_CreateScene() {
 		treeTex->SetMinFilter(MinFilter::Unknown);
 		treeTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    whiteTex = ResourceManager::CreateAsset<Texture2D>("textures/white.png");
-		treeTex->SetMinFilter(MinFilter::Unknown);
-		treeTex->SetMagFilter(MagFilter::Nearest);
+#pragma endregion
+#pragma region Skybox
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
@@ -153,60 +167,52 @@ void SecondMap::_CreateScene() {
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/skybox_frag.glsl" }
 		});
 
-		// Create an empty scene
-		Scene::Sptr scene = std::make_shared<Scene>();
-
-		/*
 		// Setting up our enviroment map
 		scene->SetSkyboxTexture(testCubemap);
 		scene->SetSkyboxShader(skyboxShader);
 		scene->SetSkyboxRotation(glm::rotate(MAT4_IDENTITY, glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f)));
-		*/
-		Material::Sptr grassMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+
+#pragma endregion
+#pragma region createMaterials
+
+		Material::Sptr grassMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			grassMaterial->Name = "Box";
-			grassMaterial->Set("u_Material.Diffuse", grassTex);
-			grassMaterial->Set("u_Material.Shininess", 0.1f);
+			grassMat->Name = "Box";
+			grassMat->Set("u_Material.Diffuse", grassTex);
+			grassMat->Set("u_Material.Shininess", 0.1f);
 		}
 
-		Material::Sptr healthMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		Material::Sptr wallMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			healthMaterial->Name = "Box";
-			healthMaterial->Set("u_Material.Diffuse", healthTex);
-			healthMaterial->Set("u_Material.Shininess", 0.1f);
+			wallMat->Name = "Box";
+			wallMat->Set("u_Material.Diffuse", wallTex);
+			wallMat->Set("u_Material.Shininess", 0.1f);
 		}
 
-		Material::Sptr treeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		Material::Sptr healthMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			treeMaterial->Name = "Box";
-			treeMaterial->Set("u_Material.Diffuse", treeTex);
-			treeMaterial->Set("u_Material.Shininess", 0.1f);
+			healthMat->Name = "Box";
+			healthMat->Set("u_Material.Diffuse", healthTex);
+			healthMat->Set("u_Material.Shininess", 0.1f);
 		}
 
-		Material::Sptr sphereMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		Material::Sptr treeMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			sphereMaterial->Name = "Sphere";
-			sphereMaterial->Set("u_Material.Diffuse", whiteTex);
-			sphereMaterial->Set("u_Material.Shininess", 0.1f);
+			treeMat->Name = "Box";
+			treeMat->Set("u_Material.Diffuse", treeTex);
+			treeMat->Set("u_Material.Shininess", 0.1f);
 		}
 
-		/*
-		Material::Sptr sphereMaterial = ResourceManager::CreateAsset<Material>(basicShader);
-		{
-			sphereMaterial->Name = "Box";
-			sphereMaterial->Set("u_Material.Diffuse", treeTex);
-			sphereMaterial->Set("u_Material.Shininess", 0.1f);
-		}
-		*/
+#pragma endregion
+#pragma region createLights
 
 		// Create some lights for our scene
-		scene->Lights.resize(1);
+		scene->Lights.resize(4);
 
-		scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
+		/*scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 40.0f;
+		scene->Lights[0].Range = 40.0f;*/
 
-		/*
 		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 		scene->Lights[0].Range = 1000.0f;
@@ -221,22 +227,10 @@ void SecondMap::_CreateScene() {
 		scene->Lights[3].Position = glm::vec3(-67.73f, 15.73f, 3.5f);
 		scene->Lights[3].Color = glm::vec3(0.81f, 0.62f, 0.61f);
 		scene->Lights[3].Range = 200.0f;
-		*/
 
-		GameObject::Sptr icoSphere = scene->CreateGameObject("Icosphere");
-		{
-			// Set position in the scene
-			icoSphere->SetPosition(glm::vec3(10.0f, 10.0f, 0.0f));
-			icoSphere->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			//icoSphere->SetRotation(glm::vec3(90.0f, 0.0f, 9.0f));
-
-			icoSphere->Add<RotatingBehaviour>()->RotationSpeed = glm::vec3(5.0f, 5.0f, 5.0f);
-
-			// Create and attach a renderer
-			RenderComponent::Sptr renderer = icoSphere->Add<RenderComponent>();
-			renderer->SetMesh(icosphereMesh);
-			renderer->SetMaterial(sphereMaterial);
-		}
+#pragma endregion
+#pragma region createGameObjects
+#pragma region Cameras
 
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
@@ -300,59 +294,89 @@ void SecondMap::_CreateScene() {
 			scene->MainCamera2->SetFovDegrees(90);
 			scene->PlayerCamera2->SetFovDegrees(90);
 		}
-		/*
-		GameObject::Sptr mapObj = scene->CreateGameObject("Map");
+
+#pragma endregion
+		
+		GameObject::Sptr groundObj = scene->CreateGameObject("Ground");
 		{
 			// Set position in the scene
-			mapObj->SetPosition(glm::vec3(0.0f, 0.0f, -20.0f));
-			mapObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			mapObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			groundObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			groundObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			groundObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
-			RenderComponent::Sptr renderer = mapObj->Add<RenderComponent>();
-			renderer->SetMesh(mapMesh);
-			renderer->SetMaterial(grassMaterial);
+			RenderComponent::Sptr renderer = groundObj->Add<RenderComponent>();
+			renderer->SetMesh(groundMesh);
+			renderer->SetMaterial(grassMat);
 		}
 
-		GameObject::Sptr treeBase1 = scene->CreateGameObject("Tree Base 1");
+		GameObject::Sptr wallObj = scene->CreateGameObject("Walls");
 		{
 			// Set position in the scene
-			treeBase1->SetPosition(glm::vec3(5.0f, 5.0f, -19.0f));
-			treeBase1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			treeBase1->SetRotation(glm::vec3(90.0f, 0.0f, 9.0f));
+			wallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			wallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			wallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
-			RenderComponent::Sptr renderer = treeBase1->Add<RenderComponent>();
-			renderer->SetMesh(treeBaseMesh);
-			renderer->SetMaterial(treeMaterial);
-		}
-
-		GameObject::Sptr treeBase2 = scene->CreateGameObject("Tree Base 2");
-		{
-			// Set position in the scene
-			treeBase2->SetPosition(glm::vec3(-25.0f, 25.0f, -19.0f));
-			treeBase2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			treeBase2->SetRotation(glm::vec3(90.0f, 0.0f, -158.0f));
-
-			// Create and attach a renderer
-			RenderComponent::Sptr renderer = treeBase2->Add<RenderComponent>();
-			renderer->SetMesh(treeBaseMesh2);
-			renderer->SetMaterial(treeMaterial);
+			RenderComponent::Sptr renderer = wallObj->Add<RenderComponent>();
+			renderer->SetMesh(wallMesh);
+			renderer->SetMaterial(wallMat);
 		}
 
 		GameObject::Sptr healthBase = scene->CreateGameObject("Health Base");
 		{
 			// Set position in the scene
-			healthBase->SetPosition(glm::vec3(0.0f, 0.0f, -19.5f));
+			healthBase->SetPosition(glm::vec3(17.0f, -7.5f, 2.6f));
 			healthBase->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 			healthBase->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = healthBase->Add<RenderComponent>();
 			renderer->SetMesh(healthBaseMesh);
-			renderer->SetMaterial(healthMaterial);
+			renderer->SetMaterial(healthMat);
 		}
-		*/
+
+		GameObject::Sptr treeBase1 = scene->CreateGameObject("Tree Base 1");
+		{
+			// Set position in the scene
+			treeBase1->SetPosition(glm::vec3(-23.0f, 0.0f, 11.0f));
+			treeBase1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			treeBase1->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = treeBase1->Add<RenderComponent>();
+			renderer->SetMesh(treeBaseMesh);
+			renderer->SetMaterial(treeMat);
+		}
+
+		GameObject::Sptr treeBase2 = scene->CreateGameObject("Tree Base 2");
+		{
+			// Set position in the scene
+			treeBase2->SetPosition(glm::vec3(70.0f, 28.0f, 11.0f));
+			treeBase2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			treeBase2->SetRotation(glm::vec3(90.0f, 0.0f, -90.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = treeBase2->Add<RenderComponent>();
+			renderer->SetMesh(treeBaseMesh);
+			renderer->SetMaterial(treeMat);
+		}
+
+		GameObject::Sptr raisedPlatObj = scene->CreateGameObject("Raised Platform");
+		{
+			// Set position in the scene
+			raisedPlatObj->SetPosition(glm::vec3(11.0f, -7.0f, 6.0f));
+			raisedPlatObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			raisedPlatObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = raisedPlatObj->Add<RenderComponent>();
+			renderer->SetMesh(raisedPlatMesh);
+			renderer->SetMaterial(treeMat);
+		}
+		
+#pragma endregion
+
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
