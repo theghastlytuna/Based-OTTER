@@ -35,13 +35,16 @@ void BoomerangBehavior::Update(float deltaTime)
 		defyGravity();
 		break;
 	case(boomerangState::POINTTRACK):
+		defyGravity();
 		Seek(deltaTime);
 		break;
 	case(boomerangState::LOCKTRACK):
+		defyGravity();
 		UpdateTarget(_targetEntity->GetPosition());
 		Seek(deltaTime);
 		break;
 	case(boomerangState::RETURNING):
+		defyGravity();
 		UpdateTarget(_player->GetPosition());
 		Seek(deltaTime);
 		break;
@@ -64,9 +67,16 @@ void BoomerangBehavior::Seek(float deltaTime)
 	desiredVector = glm::normalize(desiredVector);
 	currentVector = glm::normalize(currentVector);
 
-	glm::vec3 appliedVector = (desiredVector - currentVector);
-	appliedVector = glm::normalize(appliedVector) * _boomerangAcceleration * deltaTime;
-	_rigidBody->ApplyForce(appliedVector + glm::vec3(0,0, 9.8f));
+	glm::vec3 appliedVector = glm::normalize(desiredVector - currentVector);
+	if (_state == boomerangState::RETURNING)
+	{
+		appliedVector = appliedVector * _boomerangAcceleration * deltaTime;
+	}
+	else
+	{
+		appliedVector = appliedVector * _boomerangAcceleration * deltaTime * ((_triggerInput + 1) / 2);
+	}
+	_rigidBody->ApplyForce(appliedVector);
 
 	//TODO: Limit Angle of the applied vector to enforce turning speeds?
 	//Might make it more interesting to control

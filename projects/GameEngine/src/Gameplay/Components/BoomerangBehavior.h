@@ -52,6 +52,7 @@ public:
 
     void OnCollisionEnter();
     float _boomerangLaunchForce = 2.f;
+    float _triggerInput = -1.f;
 
     //Constructor and Destructor//
     //Do these even so anything?

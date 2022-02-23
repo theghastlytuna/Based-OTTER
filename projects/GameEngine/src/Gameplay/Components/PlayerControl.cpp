@@ -141,10 +141,12 @@ void PlayerControl::Update(float deltaTime)
 				if (playerID == 1) {
 					//Tracks Player 2
 					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
+					_boomerangBehavior->_triggerInput = rightTrigger;
 				}
 				else {
 					//Tracks Player 1
 					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
+					_boomerangBehavior->_triggerInput = rightTrigger;
 				}
 			}
 			/*
@@ -174,6 +176,7 @@ void PlayerControl::Update(float deltaTime)
 		}
 		else if (rightTrigger == -1)
 		{
+			_boomerangBehavior->_triggerInput = -1;
 			if (_chargeAmount > 0.5)
 			{
 				//if the player is not holding the button, but has charged their throw above the minimum, throw the boomerang
