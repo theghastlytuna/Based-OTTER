@@ -149,11 +149,11 @@ void SecondMap::_CreateScene() {
 		wallTex->SetMinFilter(MinFilter::Unknown);
 		wallTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    healthTex = ResourceManager::CreateAsset<Texture2D>("textures/Health_Spot.png");
+		Texture2D::Sptr    healthTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Health_Spot.png");
 		healthTex->SetMinFilter(MinFilter::Unknown);
 		healthTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    treeTex = ResourceManager::CreateAsset<Texture2D>("textures/Tree.png");
+		Texture2D::Sptr    treeTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Tree.png");
 		treeTex->SetMinFilter(MinFilter::Unknown);
 		treeTex->SetMagFilter(MagFilter::Nearest);
 
@@ -244,7 +244,7 @@ void SecondMap::_CreateScene() {
 			// Make sure that the camera is set as the scene's main camera!
 
 			scene->WorldCamera = cam;
-			scene->WorldCamera->ResizeWindow(16, 9);
+			scene->WorldCamera->ResizeWindow(1920, 500);
 		}
 
 		//Set up the scene's camera 
@@ -256,7 +256,7 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = camera2->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera! 
 
-			cam->ResizeWindow(16, 9);
+			cam->ResizeWindow(1920, 500);
 		}
 
 		GameObject::Sptr detachedCam = scene->CreateGameObject("Detached Camera");
@@ -271,8 +271,8 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = detachedCam->Add<Camera>();
 			scene->PlayerCamera = cam;
 			scene->MainCamera = cam;
-			scene->MainCamera->ResizeWindow(16, 9);
-			scene->PlayerCamera->ResizeWindow(16, 9);
+			scene->MainCamera->ResizeWindow(1920, 500);
+			scene->PlayerCamera->ResizeWindow(1920, 500);
 			scene->MainCamera->SetFovDegrees(90);
 			scene->PlayerCamera->SetFovDegrees(90);
 		}
@@ -289,8 +289,8 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = detachedCam2->Add<Camera>();
 			scene->PlayerCamera2 = cam;
 			scene->MainCamera2 = cam;
-			scene->MainCamera2->ResizeWindow(16, 9);
-			scene->PlayerCamera2->ResizeWindow(16, 9);
+			scene->MainCamera2->ResizeWindow(1920, 500);
+			scene->PlayerCamera2->ResizeWindow(1920, 500);
 			scene->MainCamera2->SetFovDegrees(90);
 			scene->PlayerCamera2->SetFovDegrees(90);
 		}
@@ -352,7 +352,7 @@ void SecondMap::_CreateScene() {
 		GameObject::Sptr treeBase2 = scene->CreateGameObject("Tree Base 2");
 		{
 			// Set position in the scene
-			treeBase2->SetPosition(glm::vec3(70.0f, 28.0f, 11.0f));
+			treeBase2->SetPosition(glm::vec3(7.0f, 28.0f, 11.0f));
 			treeBase2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 			treeBase2->SetRotation(glm::vec3(90.0f, 0.0f, -90.0f));
 
