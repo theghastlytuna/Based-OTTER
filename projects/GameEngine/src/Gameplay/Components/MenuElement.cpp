@@ -23,6 +23,8 @@ void MenuElement::GrowElement()
 
 	thisElement->Get<RectTransform>()->SetMin(tempMin - glm::vec2(100, 25));
 	thisElement->Get<RectTransform>()->SetMax(tempMax + glm::vec2(100, 25));
+
+	_selected = true;
 }
 
 void MenuElement::ShrinkElement()
@@ -32,6 +34,8 @@ void MenuElement::ShrinkElement()
 
 	thisElement->Get<RectTransform>()->SetMin(tempMin + glm::vec2(100, 25));
 	thisElement->Get<RectTransform>()->SetMax(tempMax - glm::vec2(100, 25));
+
+	_selected = false;
 }
 
 void MenuElement::RenderImGui()
@@ -46,4 +50,9 @@ nlohmann::json MenuElement::ToJson() const
 MenuElement::Sptr MenuElement::FromJson(const nlohmann::json& blob)
 {
 	return MenuElement::Sptr();
+}
+
+bool MenuElement::IsSelected()
+{
+	return _selected;
 }

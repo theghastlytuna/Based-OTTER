@@ -4,6 +4,8 @@
 #include "Gameplay/Scene.h"
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/InputEngine.h"
+#include "Application/Application.h"
+#include "Application/SoundManaging.h"
 
 void JumpBehaviour::Awake()
 {
@@ -67,6 +69,8 @@ void JumpBehaviour::Update(float deltaTime) {
 			_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
 			_jumpCooldown = 0.5f;
 			_startingJump = true;
+
+			SoundManaging::Current().PlaySound("Jump");
 		}
 	}
 	

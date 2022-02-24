@@ -18,6 +18,8 @@ public:
 	void GrowElement();
 	void ShrinkElement();
 
+	bool IsSelected();
+
 public:
 	virtual void RenderImGui() override;
 	MAKE_TYPENAME(MenuElement);
@@ -28,6 +30,8 @@ public:
 private:
 
 	Gameplay::GameObject::Sptr thisElement;
+
+	bool _selected = false;
 	
 	GLFWwindow* _window;
 };

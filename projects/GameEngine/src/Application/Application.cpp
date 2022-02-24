@@ -63,6 +63,9 @@
 #include "Gameplay/Components/ComponentManager.h"
 #include "Layers/Menu.h"
 #include "Layers/SecondMap.h"
+#include "Layers/EndScreen.h"
+
+#include "SoundManaging.h"
 
 Application* Application::_singleton = nullptr;
 std::string Application::_applicationName = "INFR-2350U - DEMO";
@@ -167,6 +170,7 @@ void Application::_Run()
 	_layers.push_back(std::make_shared<Menu>());
 	_layers.push_back(std::make_shared<DefaultSceneLayer>());
 	_layers.push_back(std::make_shared<SecondMap>());
+	_layers.push_back(std::make_shared<EndScreen>());
 	_layers.push_back(std::make_shared<RenderLayer>());
 	_layers.push_back(std::make_shared<InterfaceLayer>());
 	_layers.push_back(std::make_shared<LogicUpdateLayer>());
@@ -204,8 +208,10 @@ void Application::_Run()
 	float p1HitTimer = 0.0f;
 	float p2HitTimer = 0.0f;
 
-	bool menuScreen = true;
 	bool firstFrame = true;
+	bool paused = false;
+	bool loading = false;
+	bool options = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -214,6 +220,22 @@ void Application::_Run()
 	MenuElement::Sptr currentElement;
 	std::vector<MenuElement::Sptr> menuItems;
 	int currentItemInd = 0;
+
+	///////Grab the sound manager and load all the sounds we want///////////
+	SoundManaging& soundManaging = SoundManaging::_singleton;
+
+	struct soundInfo {
+		float minVol = 0.0f;
+		float maxVol = 1.0f;
+		float currentVol = 0.5f;
+	};
+
+	soundInfo thisSoundInfo;
+
+	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
+	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
+
+	////////////////////////////////////////////////////////////////////////
 
 		// Infinite loop as long as the application is running
 	while (_isRunning) {
@@ -246,10 +268,12 @@ void Application::_Run()
 		timing._timeSinceSceneLoad += scaledDt;
 		timing._unscaledTimeSinceSceneLoad += dt;
 
+		//Update the durations of all sounds (to be used to see if a sound has fully been played)
+		soundManaging.UpdateSounds(dt);
+
 		ImGuiHelper::StartFrame();
 
-		//GameObject::Sptr player1 = _currentScene->FindObjectByName("Player 1");
-
+		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
 			
@@ -263,20 +287,29 @@ void Application::_Run()
 			firstFrame = false;
 		}
 
-		if (menuScreen)
+		//If menu screen layer is active
+		if (GetLayer<Menu>()->IsActive())
 		{
 			bool downSelect;
 			bool upSelect;
+			bool leftSelect;
+			bool rightSelect;
 			bool confirm;
 			bool secondMapSelect;
+			bool back;
+
 
 			ControllerInput::Sptr menuControl = _currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>();
 			if (menuControl->IsValid())
 			{
 				downSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
 				upSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+				leftSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
+				rightSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
 				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
 				secondMapSelect = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
+				back = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
+
 			}
 
 			else
@@ -285,40 +318,139 @@ void Application::_Run()
 				upSelect = glfwGetKey(_window, GLFW_KEY_W);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
 				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
+				back = glfwGetKey(_window, GLFW_KEY_ESCAPE);
+
 			}
 
-			//if (_currentScene->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonDown(GLFW_GAMEPAD_BUTTON_A))
-			if (downSelect && selectTime >= 0.3f)
+			if (loading)
 			{
-				currentElement->ShrinkElement();
-				currentItemInd++;
+				soundManaging.PlaySound("Scene Startup");
 
-				if (currentItemInd >= menuItems.size()) currentItemInd = 0;
-				currentElement = menuItems[currentItemInd];
-
-				currentElement->GrowElement();
-				selectTime = 0.0f;
-			}
-
-			else if (upSelect && selectTime >= 0.3f)
-			{
-				currentElement->ShrinkElement();
-				currentItemInd--;
-				if (currentItemInd < 0) currentItemInd = menuItems.size() - 1;
-
-				currentElement = menuItems[currentItemInd];
-
-				currentElement->GrowElement();
-				selectTime = 0.0f;
-			}
-
-			else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
-			{
-				//No longer in Menu Screen, so set it to inactive
-				menuScreen = false;
 				GetLayer<Menu>()->SetActive(false);
 
-				//Begin the first map (create the scene)
+				GetLayer<DefaultSceneLayer>()->BeginLayer();
+
+				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+
+				GetLayer<DefaultSceneLayer>()->SetActive(true);
+
+				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+
+				soundManaging.StopSounds();
+			}
+
+			else if (options)
+			{
+				if (back)
+				{
+					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+					CurrentScene()->FindObjectByName("Volume Text")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Volume Bar")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Volume Selector")->Get<GuiPanel>()->SetTransparency(0.0f);
+
+					options = false;
+				}
+
+				else if (leftSelect && selectTime >= 0.2f)
+				{
+					//If sound isn't at 0 yet, reduce it
+					//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
+					//Therefore, use > 0.00001 instead of > 0
+					if (thisSoundInfo.currentVol > 0.00001f) thisSoundInfo.currentVol -= 0.1f;
+
+					selectTime = 0.0f;
+				}
+
+				else if (rightSelect && selectTime >= 0.2f)
+				{
+					if (thisSoundInfo.currentVol < 1.0f) thisSoundInfo.currentVol += 0.1f;
+
+					selectTime = 0.0f;
+				}
+
+				else selectTime += dt;
+
+				//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
+				float currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Volume Bar")->Get<RectTransform>()->GetMin().x + 10, 
+					CurrentScene()->FindObjectByName("Volume Bar")->Get<RectTransform>()->GetMax().x - 10, 
+					thisSoundInfo.currentVol);
+			
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 100 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 4 });
+			}
+
+			else
+			{
+
+				if (downSelect && selectTime >= 0.3f)
+				{
+					currentElement->ShrinkElement();
+					currentItemInd++;
+
+					if (currentItemInd >= menuItems.size()) currentItemInd = 0;
+					currentElement = menuItems[currentItemInd];
+
+					currentElement->GrowElement();
+					selectTime = 0.0f;
+				}
+
+				else if (upSelect && selectTime >= 0.3f)
+				{
+					currentElement->ShrinkElement();
+					currentItemInd--;
+					if (currentItemInd < 0) currentItemInd = menuItems.size() - 1;
+
+					currentElement = menuItems[currentItemInd];
+
+					currentElement->GrowElement();
+					selectTime = 0.0f;
+				}
+
+				else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
+				{
+
+					CurrentScene()->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+					loading = true;
+				}
+
+				else if (currentElement == _currentScene->FindObjectByName("Options Button")->Get<MenuElement>() && confirm)
+				{
+					options = true;
+
+					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+
+					CurrentScene()->FindObjectByName("Volume Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Volume Bar")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Volume Selector")->Get<GuiPanel>()->SetTransparency(1.0f);
+				}
+
+				else selectTime += dt;
+			}
+		}
+
+		//If end screen layer is active
+		else if (GetLayer<EndScreen>()->IsActive())
+		{
+			/*
+			if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+			{
+				soundManaging.PlaySound("Scene Startup");
+
+				GetLayer<EndScreen>()->SetActive(false);
+
 				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
 				//Load the scene
@@ -331,45 +463,9 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 			}
 
-			else if (secondMapSelect)
-			{
-				menuScreen = false;
-				GetLayer<Menu>()->SetActive(false);
-
-				//Begin the second map (create the scene)
-				GetLayer<SecondMap>()->BeginLayer();
-
-				//Load the scene
-				LoadScene(GetLayer<SecondMap>()->GetScene());
-
-				//Set the current layer to active
-				GetLayer<SecondMap>()->SetActive(true);
-
-				//Start playing
-				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
-
-			}
-
-			else selectTime += dt;
-		}
-
-		
-
-		else if (GetLayer<SecondMap>()->IsActive())
-		{
-			//glm::vec3 currentRot = _currentScene->FindObjectByName("Icosphere")->GetRotation()
-				
-				
-				
-			//_currentScene->FindObjectByName("Icosphere")->GetRotation() * dt);
-			
-			/*
-			if (_currentScene->FindObjectByName("Icosphere")->GetRotationEuler().y > 90.0f)
-			{
-				_currentScene->FindObjectByName("Icosphere")->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+				soundManaging.StopSounds();
 			}
 			*/
-			
 		}
 		
 		else
@@ -380,6 +476,28 @@ void Application::_Run()
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
 			GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+			{
+				if (paused)
+				{
+					player1->Get<ControllerInput>()->SetEnabled(true);
+					timing.SetTimeScale(1.0f);
+					paused = false;
+					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.0f);
+				}
+
+				else
+				{
+					player1->Get<ControllerInput>()->SetEnabled(false);
+					timing.SetTimeScale(0.0f);
+					paused = true;
+
+					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.6f);
+				}
+			}
 
 			//Boomerang Visual indicator!!!
 			GameObject::Sptr dBoom1 = _currentScene->FindObjectByName("Display Boomerang 1");
@@ -537,7 +655,6 @@ void Application::_Run()
 					p2Dying = true;
 				}
 
-
 				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
 				{
 					Respawn(player2);
@@ -592,6 +709,44 @@ void Application::_Run()
 					}
 				}
 			}
+
+			///////////Look for a winner//////////////
+
+			if (player1->Get<ScoreCounter>()->ReachedMaxScore())
+			{
+				GetLayer<DefaultSceneLayer>()->SetActive(false);
+
+				GetLayer<EndScreen>()->BeginLayer();
+
+				LoadScene(GetLayer<EndScreen>()->GetScene());
+
+				GetLayer<EndScreen>()->SetActive(true);
+
+				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
+
+				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
+			}
+
+			else if (player2->Get<ScoreCounter>()->ReachedMaxScore())
+			{
+				GetLayer<DefaultSceneLayer>()->SetActive(false);
+
+				GetLayer<EndScreen>()->BeginLayer();
+
+				LoadScene(GetLayer<EndScreen>()->GetScene());
+
+				GetLayer<EndScreen>()->SetActive(true);
+
+				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
+
+				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
+			}
+
+			/////////////////////////////////////////
 		}
 		
 		//////////////////////////////////////////////////////////
@@ -796,6 +951,12 @@ void Application::_HandleWindowSizeChanged(const glm::ivec2& newSize) {
 	{
 		GetLayer<SecondMap>()->RepositionUI();
 	}
+
+	else if (GetLayer<EndScreen>()->IsActive())
+	{
+		GetLayer<EndScreen>()->RepositionUI();
+	}
+	
 }
 
 void Application::_ConfigureSettings() {
