@@ -648,6 +648,7 @@ void DefaultSceneLayer::_CreateScene() {
 			RenderComponent::Sptr renderer = player1->Add<RenderComponent>();
 			renderer->SetMesh(mainCharMesh);
 			renderer->SetMaterial(mainCharMaterial);
+			player1->SetRenderFlag(2);
 
 			player1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
 
@@ -710,6 +711,7 @@ void DefaultSceneLayer::_CreateScene() {
 			RenderComponent::Sptr renderer = player2->Add<RenderComponent>();
 			renderer->SetMesh(mainCharMesh2);
 			renderer->SetMaterial(mainCharMaterial2);
+			player2->SetRenderFlag(1);
 
 			player2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
 

@@ -87,43 +87,50 @@ void RenderLayer::OnRender()
 
 	// Render all our objects
 	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
-		// Early bail if mesh not set
-		if (renderable->GetMesh() == nullptr) {
-			return;
-		}
+		if (renderable->GetGameObject()->GetRenderFlag() == 0 ||
+			renderable->GetGameObject()->GetRenderFlag() == 1)
+		{
 
-		// If we don't have a material, try getting the scene's fallback material
-		// If none exists, do not draw anything
-		if (renderable->GetMaterial() == nullptr) {
-			if (defaultMat != nullptr) {
-				renderable->SetMaterial(defaultMat);
-			} else {
+
+			// Early bail if mesh not set
+			if (renderable->GetMesh() == nullptr) {
 				return;
 			}
+
+			// If we don't have a material, try getting the scene's fallback material
+			// If none exists, do not draw anything
+			if (renderable->GetMaterial() == nullptr) {
+				if (defaultMat != nullptr) {
+					renderable->SetMaterial(defaultMat);
+				}
+				else {
+					return;
+				}
+			}
+
+			// If the material has changed, we need to bind the new shader and set up our material and frame data
+			// Note: This is a good reason why we should be sorting the render components in ComponentManager
+			if (renderable->GetMaterial() != currentMat) {
+				currentMat = renderable->GetMaterial();
+				shader = currentMat->GetShader();
+
+				shader->Bind();
+				currentMat->Apply();
+			}
+
+			// Grab the game object so we can do some stuff with it
+			GameObject* object = renderable->GetGameObject();
+
+			// Use our uniform buffer for our instance level uniforms
+			auto& instanceData = _instanceUniforms->GetData();
+			instanceData.u_Model = object->GetTransform();
+			instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
+			instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
+			_instanceUniforms->Update();
+
+			// Draw the object
+			renderable->GetMesh()->Draw();
 		}
-
-		// If the material has changed, we need to bind the new shader and set up our material and frame data
-		// Note: This is a good reason why we should be sorting the render components in ComponentManager
-		if (renderable->GetMaterial() != currentMat) {
-			currentMat = renderable->GetMaterial();
-			shader = currentMat->GetShader();
-
-			shader->Bind();
-			currentMat->Apply();
-		}
-
-		// Grab the game object so we can do some stuff with it
-		GameObject* object = renderable->GetGameObject();
-
-		// Use our uniform buffer for our instance level uniforms
-		auto& instanceData = _instanceUniforms->GetData();
-		instanceData.u_Model = object->GetTransform();
-		instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
-		instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
-		_instanceUniforms->Update();
-
-		// Draw the object
-		renderable->GetMesh()->Draw();
 	});
 
 	// Use our cubemap to draw our skybox
@@ -183,44 +190,49 @@ void RenderLayer::OnRender()
 
 	// Render all our objects
 	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
-		// Early bail if mesh not set
-		if (renderable->GetMesh() == nullptr) {
-			return;
-		}
+		if (renderable->GetGameObject()->GetRenderFlag() == 0 ||
+			renderable->GetGameObject()->GetRenderFlag() == 2)
+		{
 
-		// If we don't have a material, try getting the scene's fallback material
-		// If none exists, do not draw anything
-		if (renderable->GetMaterial() == nullptr) {
-			if (defaultMat2 != nullptr) {
-				renderable->SetMaterial(defaultMat2);
-			}
-			else {
+			// Early bail if mesh not set
+			if (renderable->GetMesh() == nullptr) {
 				return;
 			}
+
+			// If we don't have a material, try getting the scene's fallback material
+			// If none exists, do not draw anything
+			if (renderable->GetMaterial() == nullptr) {
+				if (defaultMat2 != nullptr) {
+					renderable->SetMaterial(defaultMat2);
+				}
+				else {
+					return;
+				}
+			}
+
+			// If the material has changed, we need to bind the new shader and set up our material and frame data
+			// Note: This is a good reason why we should be sorting the render components in ComponentManager
+			if (renderable->GetMaterial() != currentMat2) {
+				currentMat2 = renderable->GetMaterial();
+				shader2 = currentMat2->GetShader();
+
+				shader2->Bind();
+				currentMat2->Apply();
+			}
+
+			// Grab the game object so we can do some stuff with it
+			GameObject* object = renderable->GetGameObject();
+
+			// Use our uniform buffer for our instance level uniforms
+			auto& instanceData = _instanceUniforms->GetData();
+			instanceData.u_Model = object->GetTransform();
+			instanceData.u_ModelViewProjection = viewProj2 * object->GetTransform();
+			instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
+			_instanceUniforms->Update();
+
+			// Draw the object
+			renderable->GetMesh()->Draw();
 		}
-
-		// If the material has changed, we need to bind the new shader and set up our material and frame data
-		// Note: This is a good reason why we should be sorting the render components in ComponentManager
-		if (renderable->GetMaterial() != currentMat2) {
-			currentMat2 = renderable->GetMaterial();
-			shader2 = currentMat2->GetShader();
-
-			shader2->Bind();
-			currentMat2->Apply();
-		}
-
-		// Grab the game object so we can do some stuff with it
-		GameObject* object = renderable->GetGameObject();
-
-		// Use our uniform buffer for our instance level uniforms
-		auto& instanceData = _instanceUniforms->GetData();
-		instanceData.u_Model = object->GetTransform();
-		instanceData.u_ModelViewProjection = viewProj2 * object->GetTransform();
-		instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
-		_instanceUniforms->Update();
-
-		// Draw the object
-		renderable->GetMesh()->Draw();
 		});
 
 	// Use our cubemap to draw our skybox
