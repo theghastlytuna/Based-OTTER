@@ -213,15 +213,15 @@ void Menu::_CreateScene() {
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/placeholderBG.jpg"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/realBG.png"));
 		}
 
 		GameObject::Sptr play = scene->CreateGameObject("Play Button");
 		{
 			play->SetRenderFlag(5);
 			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+			transform->SetMin({ app.GetWindowSize().x  - 200, app.GetWindowSize().y /2 });
+			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y /2 - 100 });
 
 			play->Add<MenuElement>();
 
@@ -233,8 +233,8 @@ void Menu::_CreateScene() {
 		{
 			options->SetRenderFlag(5);
 			RectTransform::Sptr transform = options->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+			transform->SetMin({ app.GetWindowSize().x - 200, app.GetWindowSize().y / 2 - 50 });
+			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y / 2 + 50 });
 
 			options->Add<MenuElement>();
 
@@ -260,13 +260,13 @@ void Menu::_CreateScene() {
 			logo->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = logo->Add<RectTransform>();
-			transform->SetMin({ -150, 0 });
-			transform->SetMax({ 500, 250 });
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ 650, 250 });
 
-			transform->SetRotationDeg(-35.0f);
+			//transform->SetRotationDeg(-35.0f);
 
 			GuiPanel::Sptr canPanel = logo->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title_placeholder.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/title.png"));
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -293,18 +293,22 @@ void Menu::RepositionUI()
 	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
 	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
+	Gameplay::GameObject::Sptr logo = app.CurrentScene()->FindObjectByName("Logo");
 
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 250 });
-	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 - 150 });
+	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 200, app.GetWindowSize().y / 2 + 100  });
+	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y / 2 });
 
-	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 - 50 });
-	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 50 });
+	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x  - 350, app.GetWindowSize().y / 2  });
+	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x  + 50, app.GetWindowSize().y / 2 + 100 });
 
-	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
-	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });
+	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x  - 300, app.GetWindowSize().y / 2 + 100 });
+	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x  + 100, app.GetWindowSize().y / 2 + 200 });
+
+	logo->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 6, 0});
+	logo->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - (app.GetWindowSize().x / 6), app.GetWindowSize().y / 3 });
 }
 
 void Menu::SetActive(bool active)

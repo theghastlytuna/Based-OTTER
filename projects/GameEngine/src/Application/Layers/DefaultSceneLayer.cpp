@@ -386,6 +386,13 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.1f);
 		}
 
+		Material::Sptr displayBoomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			displayBoomerangMaterial2->Name = "Display Boomerang2";
+			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+		}
+
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(reflectiveShader);
 		{
@@ -1552,16 +1559,39 @@ void DefaultSceneLayer::_CreateScene() {
 
 		GameObject::Sptr displayBoomerang1 = scene->CreateGameObject("Display Boomerang 1");
 		{
+			glm::vec3 displacement = (glm::vec3(0.6f, -0.1f, -0.7f));
 			// Set position in the scene
-			displayBoomerang1->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
+			displayBoomerang1->SetPosition(glm::vec3(player1->GetPosition()));
 			displayBoomerang1->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
-			displayBoomerang1->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+			displayBoomerang1->SetRotation(glm::vec3(-178.0f, -15.0f, -110.0f));
 
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
 			renderer->SetMaterial(displayBoomerangMaterial1);
 
+			detachedCam->AddChild(displayBoomerang1);
+			displayBoomerang1->SetPosition(displacement);
+		}
+
+		GameObject::Sptr displayBoomerang2 = scene->CreateGameObject("Display Boomerang 2");
+		{
+			
+
+			glm::vec3 displacement = (glm::vec3(0.6f, -0.1f, -0.7f));
+			// Set position in the scene
+
+			displayBoomerang2->SetPosition(glm::vec3(player2->GetPosition()));
+			displayBoomerang2->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			displayBoomerang2->SetRotation(glm::vec3(-178.0f, -15.0f, -110.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = displayBoomerang2->Add<RenderComponent>();
+			renderer->SetMesh(displayBoomerangMesh);
+			renderer->SetMaterial(displayBoomerangMaterial1);
+
+			detachedCam2->AddChild(displayBoomerang2);
+			displayBoomerang2->SetPosition(displacement);
 		}
 
 		GameObject::Sptr catcus = scene->CreateGameObject("Catcus Base");
