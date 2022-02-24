@@ -342,7 +342,6 @@ void Menu::RepositionUI()
 	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
 	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
-	Gameplay::GameObject::Sptr logo = app.CurrentScene()->FindObjectByName("Logo");
 
 	///////Loading screen
 	Gameplay::GameObject::Sptr loadingScreen = app.CurrentScene()->FindObjectByName("Loading Screen");
