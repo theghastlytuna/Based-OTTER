@@ -105,6 +105,8 @@ public:
 
     bool getReadyToThrow();
 
+    bool isInactive();
+
     virtual nlohmann::json ToJson() const override;
     static BoomerangBehavior::Sptr FromJson(const nlohmann::json& blob);
     MAKE_TYPENAME(BoomerangBehavior);

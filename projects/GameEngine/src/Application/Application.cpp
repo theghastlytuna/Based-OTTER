@@ -475,7 +475,7 @@ void Application::_Run()
 			GameObject::Sptr boomerang1 = _currentScene->FindObjectByName("Boomerang 1");
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
-			GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+			//GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{
@@ -501,21 +501,29 @@ void Application::_Run()
 
 			//Boomerang Visual indicator!!!
 			GameObject::Sptr dBoom1 = _currentScene->FindObjectByName("Display Boomerang 1");
-
-			//Camera::Sptr camera = _currentScene->PlayerCamera;
-			
-			//glm::vec3 cameraLocalForward;
-
-			//cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
-
 			//dBoom1->SetPosition(glm::vec3(0.6f, -0.1f, -0.7f));
-
-			//dBoom1->SetPosition(player1->GetPosition() + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * 0.5f);
-			//dBoom1->SetRotation(camera->GetGameObject()->GetRotation());
 			
-			//GameObject::Sptr dBoom2 = _currentScene->FindObjectByName("Display Boomerang 2");
+			GameObject::Sptr dBoom2 = _currentScene->FindObjectByName("Display Boomerang 2");
 			//dBoom2->SetPosition(glm::vec3(0.6f, -0.1f, -0.7f));
 			////////////////////Handle some UI stuff/////////////////////////////////
+			if (boomerang1->Get<BoomerangBehavior>()->isInactive() == false)
+			{
+				dBoom1->SetRenderFlag(6);
+			}
+			else
+			{
+				dBoom1->SetRenderFlag(0);
+			}
+
+			if (boomerang2->Get<BoomerangBehavior>()->isInactive() == false)
+			{
+				dBoom2->SetRenderFlag(6);
+			}
+			else
+			{
+				dBoom2->SetRenderFlag(0);
+			}
+
 
 			GameObject::Sptr p1Health = _currentScene->FindObjectByName("Player1Health");
 			GameObject::Sptr p2Health = _currentScene->FindObjectByName("Player2Health");

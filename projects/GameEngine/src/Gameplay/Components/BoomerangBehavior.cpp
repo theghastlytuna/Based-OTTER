@@ -153,6 +153,16 @@ bool BoomerangBehavior::getReadyToThrow()
 	return false;
 }
 
+bool BoomerangBehavior::isInactive()
+{
+	if (_state == boomerangState::INACTIVE)
+	{
+		return true;
+	}
+	else 
+	return false;
+}
+
 void BoomerangBehavior::OnCollisionEnter()
 {
 	returnBoomerang();

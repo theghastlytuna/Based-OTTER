@@ -1833,7 +1833,7 @@ void DefaultSceneLayer::_CreateScene() {
 			transform->SetMax({ app.GetWindowSize().x - 20, 100 });
 
 			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/kills.png"));
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
 
 			GameObject::Sptr subPanel1 = scene->CreateGameObject("1-0");
 			{
