@@ -7,8 +7,7 @@
 #include "Gameplay/Scene.h"
 #include "Utils/JsonGlmHelpers.h"
 #include "Utils/ImGuiHelper.h"
-#include "Gameplay/GameObject.h"
-
+#include "Gameplay/Components/Camera.h"
 
 #include "Gameplay/Physics/RigidBody.h"
 #include "Application/Application.h"
@@ -134,6 +133,7 @@ void PlayerControl::Update(float deltaTime)
 				{
 				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
 				_chargeAmount += 0.02;
+				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(90 - (_chargeAmount * 5));
 				}
 			}
 			else
@@ -183,6 +183,7 @@ void PlayerControl::Update(float deltaTime)
 				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), playerID, _chargeAmount);
 				_justThrew = true;
 				_chargeAmount = 0;
+				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(90);
 			}
 			else
 			{

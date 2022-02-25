@@ -105,6 +105,16 @@ namespace Gameplay {
 		return _viewProjection;
 	}
 
+	float Camera::GetFovDegrees()
+	{
+		return glm::degrees(_fovRadians);
+	}
+
+	float Camera::GetFovRadians()
+	{
+		return _fovRadians;
+	}
+
 	const glm::vec4& Camera::GetClearColor() const
 	{
 		return _clearColor;

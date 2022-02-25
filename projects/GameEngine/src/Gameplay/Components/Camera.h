@@ -81,6 +81,9 @@ namespace Gameplay {
 		/// </summary>
 		const glm::mat4& GetViewProjection() const;
 
+		float GetFovDegrees();
+		float GetFovRadians();
+
 		const glm::vec4& GetClearColor() const;
 		void SetClearColor(const glm::vec4& color);
 
