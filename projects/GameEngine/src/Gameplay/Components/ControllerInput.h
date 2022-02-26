@@ -30,6 +30,8 @@ public:
 
 	void SetEnabled(bool enabled);
 
+	bool GetEnabled();
+
 	bool GetButtonPressed(int ID);
 
 protected:

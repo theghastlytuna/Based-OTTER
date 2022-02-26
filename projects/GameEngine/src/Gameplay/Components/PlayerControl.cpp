@@ -127,7 +127,7 @@ void PlayerControl::Update(float deltaTime)
 		}
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
-		if (rightTrigger > -1) {
+		if (rightTrigger > -1 && GetGameObject()->Get<ControllerInput>()->GetEnabled()) {
 			if (_boomerangBehavior->getReadyToThrow()) {
 				if (_chargeAmount < 3.f)
 				{

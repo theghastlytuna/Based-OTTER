@@ -104,6 +104,11 @@ void ControllerInput::SetEnabled(bool enabled)
 	_enabled = enabled;
 }
 
+bool ControllerInput::GetEnabled()
+{
+	return _enabled;
+}
+
 bool ControllerInput::GetButtonPressed(int ID)
 {
 	return (prevButtonList[ID] == false) && (buttonList[ID] == true);

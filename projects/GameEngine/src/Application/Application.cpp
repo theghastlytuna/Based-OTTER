@@ -383,6 +383,24 @@ void Application::_Run()
 				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 4 });
 			}
 
+			else if (secondMapSelect)
+			{
+				GetLayer<Menu>()->SetActive(false);
+
+				//Begin the second map (create the scene)
+				GetLayer<SecondMap>()->BeginLayer();
+
+				//Load the scene
+				LoadScene(GetLayer<SecondMap>()->GetScene());
+
+				//Set the current layer to active
+				GetLayer<SecondMap>()->SetActive(true);
+
+				//Start playing
+				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
+
+			}
+
 			else
 			{
 
