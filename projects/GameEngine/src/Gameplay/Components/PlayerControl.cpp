@@ -22,7 +22,7 @@ PlayerControl::PlayerControl()
 	_isMoving(false),
 	_isSprinting(false),
 	_spintVal(2.5f),
-	_controllerSensitivity({1.1f, 1.1f})
+	_controllerSensitivity({ 1.1f, 1.1f })
 { }
 
 PlayerControl::~PlayerControl() = default;
@@ -59,6 +59,8 @@ void PlayerControl::Awake()
 	else {
 		_camera = GetGameObject()->GetScene()->PlayerCamera2;
 	}
+	//IMPORTANT: This only works because the detachedCam is the only child of the player. If anything to do with children or the detached cam changes, this might break
+	_initialFov = GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->GetFovDegrees();
 }
 
 void PlayerControl::Update(float deltaTime)
@@ -127,16 +129,19 @@ void PlayerControl::Update(float deltaTime)
 		}
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
+		//trigger input from controller goes from -1 to 1
+		//also makes sure that the controller is enabled since pausing sets trigger input to 0
 		if (rightTrigger > -1 && GetGameObject()->Get<ControllerInput>()->GetEnabled()) {
 			if (_boomerangBehavior->getReadyToThrow()) {
 				if (_chargeAmount < 3.f)
 				{
 				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
 				_chargeAmount += 0.02;
-				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(90 - (_chargeAmount * 5));
+				//IMPORTANT: This only works because the detachedCam is the only child of the player. If anything to do with children or the detached cam changes, this might break
+				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov - (_chargeAmount * 5));
 				}
 			}
-			else
+			else //tracking to raycasted point
 			{
 				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
@@ -184,7 +189,7 @@ void PlayerControl::Update(float deltaTime)
 				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), playerID, _chargeAmount);
 				_justThrew = true;
 				_chargeAmount = 0;
-				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(90);
+				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov);
 			}
 			else
 			{

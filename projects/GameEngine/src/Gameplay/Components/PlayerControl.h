@@ -49,6 +49,7 @@ protected:
 	bool _justThrew = false;
 	bool _charging = false;
 	float _chargeAmount = 0.f;
+	float _initialFov;
 	float _spintVal = 5.0f;
 	GLFWwindow* _window;
 
