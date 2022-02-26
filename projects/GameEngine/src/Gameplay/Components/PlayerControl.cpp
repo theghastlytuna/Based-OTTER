@@ -138,14 +138,15 @@ void PlayerControl::Update(float deltaTime)
 			}
 			else
 			{
-				if (playerID == 1) {
-					//Tracks Player 2
-					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
-					_boomerangBehavior->_triggerInput = rightTrigger;
-				}
-				else {
-					//Tracks Player 1
-					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
+				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
+				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
+				glm::vec3 playerPosition = GetGameObject()->GetPosition();
+				btVector3 btPlayerPosition = btVector3(playerPosition.x, playerPosition.y, playerPosition.z);
+				btCollisionWorld::ClosestRayResultCallback result(btPlayerPosition, btCamLocF * 100);
+				GetGameObject()->GetScene()->GetPhysicsWorld()->rayTest(btPlayerPosition, btCamLocF * 100, result);
+				if (result.hasHit()) {
+					_raycastPosition = glm::vec3(result.m_hitPointWorld.x(), result.m_hitPointWorld.y(), result.m_hitPointWorld.z());
+					_boomerangBehavior->UpdateTarget(_raycastPosition);
 					_boomerangBehavior->_triggerInput = rightTrigger;
 				}
 			}
