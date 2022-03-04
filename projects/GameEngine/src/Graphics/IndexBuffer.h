@@ -1,5 +1,5 @@
 #pragma once
-#include "IBuffer.h"
+#include "Graphics/Buffers/IBuffer.h"
 #include <cstdint>
 #include <stdexcept>
 #include <memory>
