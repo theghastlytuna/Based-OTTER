@@ -80,14 +80,14 @@ using namespace Gameplay;
 
 Application::Application() :
 	_window(nullptr),
-	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
+	_windowSize({ DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT }),
 	_isRunning(false),
 	_isEditor(true),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
 	_targetScene(nullptr),
 	_renderOutput(nullptr)
-
+{}
 Application::~Application() = default;
 
 Application& Application::Get() {
