@@ -63,7 +63,6 @@
 #include "Layers/DefaultSceneLayer.h"
 #include "Layers/LogicUpdateLayer.h"
 #include "Layers/ImGuiDebugLayer.h"
-#include "Layers/InstancedRenderingTestLayer.h"
 #include "Layers/ParticleLayer.h"
 #include "Layers/Menu.h"
 #include "Layers/SecondMap.h"
