@@ -52,6 +52,7 @@
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
 #include "Gameplay/Components/PickUpBehaviour.h"
+#include "Gameplay/Components/FirstPersonCamera.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"

@@ -10,12 +10,12 @@
 #include <filesystem>
 
 // Graphics
-#include "Graphics/IndexBuffer.h"
-#include "Graphics/VertexBuffer.h"
+#include "Graphics/Buffers/IndexBuffer.h"
+#include "Graphics/Buffers/VertexBuffer.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/ShaderProgram.h"
-#include "Graphics/Texture2D.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/Texture2D.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
 #include "Graphics/GuiBatcher.h"
