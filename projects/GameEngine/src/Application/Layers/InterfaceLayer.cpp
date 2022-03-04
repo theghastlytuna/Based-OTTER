@@ -38,7 +38,7 @@ void InterfaceLayer::OnRender(const Framebuffer::Sptr& prevLayer) {
 	GuiBatcher::SetProjection(proj);
 
 	// Iterate over and render all the GUI objects
-	app.CurrentScene()->RenderGUI();
+	app.CurrentScene()->RenderGUI(2);
 
 	// Flush the Gui Batch renderer
 	GuiBatcher::Flush();
