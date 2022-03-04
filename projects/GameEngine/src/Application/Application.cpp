@@ -903,7 +903,7 @@ void Application::_PreRender()
 }
 
 void Application::_RenderScene() {
-
+	Framebuffer::Sptr result = nullptr;
 	for (const auto& layer : _layers) {
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnRender)) {
 			layer->OnRender(result);
@@ -911,6 +911,7 @@ void Application::_RenderScene() {
 			result = layerResult != nullptr ? layerResult : result;
 		}
 	}
+	_renderOutput = result;
 }
 
 void Application::_PostRender() {

@@ -73,8 +73,8 @@ void MorphAnimator::Update(float deltaTime)
 	//Resize this frame's buffer attributes to only hold the position as well
 	pos1.resize(1);
 
-	thisObject->AddVertexBuffer(currentClip.frames[currentClip.currentFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->Buffer, pos0);
-	thisObject->AddVertexBuffer(currentClip.frames[currentClip.nextFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->Buffer, pos1);
+	thisObject->AddVertexBuffer(currentClip.frames[currentClip.currentFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->GetBuffer(), pos0);
+	thisObject->AddVertexBuffer(currentClip.frames[currentClip.nextFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->GetBuffer(), pos1);
 
 	//Pass the lerp param as a uniform
 	this->GetComponent<RenderComponent>()->GetMaterial()->Set("t", t);
