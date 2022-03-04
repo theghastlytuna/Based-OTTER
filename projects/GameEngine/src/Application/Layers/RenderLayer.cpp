@@ -137,7 +137,7 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	});
 
 	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox();
+	app.CurrentScene()->DrawSkybox(camera);
 
 	// Unbind our primary framebuffer so subsequent draw calls do not modify it
 	//_primaryFBO->Unbind();
