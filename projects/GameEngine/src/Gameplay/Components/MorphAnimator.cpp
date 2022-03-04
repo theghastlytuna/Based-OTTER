@@ -62,8 +62,8 @@ void MorphAnimator::Update(float deltaTime)
 	}
 
 	//This shit whack
-	std::vector<BufferAttribute> pos0 = currentClip.frames[currentClip.currentFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->Attributes;
-	std::vector<BufferAttribute> pos1 = currentClip.frames[currentClip.nextFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->Attributes;
+	std::vector<BufferAttribute> pos0 = currentClip.frames[currentClip.currentFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->GetAttributes();
+	std::vector<BufferAttribute> pos1 = currentClip.frames[currentClip.nextFrame]->Mesh->GetBufferBinding(AttribUsage::Position)->GetAttributes();
 
 	//Resize the buffer attributes of the first frame to only hold the position
 	pos0.resize(1);
