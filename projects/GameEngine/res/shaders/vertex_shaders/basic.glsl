@@ -2,29 +2,14 @@
 
 // Include our common vertex shader attributes and uniforms
 #include "../fragments/vs_common.glsl"
-#include "../fragments/multiple_point_lights.glsl"
-
-struct Material {
-	sampler2D Diffuse;
-	float     Shininess;
-};
-// Create a uniform for the material
-uniform Material u_Material;
 
 void main() {
 
-	vec2 grid = vec2(427, 240) * 0.5f;
-	vec4 vertInClipSpace = u_ModelViewProjection * vec4(inPosition, 1.0);
-	vec4 snapped = vertInClipSpace;
-	snapped.xyz = vertInClipSpace.xyz / vertInClipSpace.w;
-	snapped.xy = floor(grid * snapped.xy) / grid;
-	snapped.xyz *= vertInClipSpace.w;
-
-	gl_Position = snapped;
+	gl_Position = u_ModelViewProjection * vec4(inPosition, 1.0);
 
 	// Lecture 5
 	// Pass vertex pos in world space to frag shader
-	outWorldPos = (u_Model * vec4(inPosition.xyz, 1.0)).xyz;
+	outWorldPos = (u_Model * vec4(inPosition, 1.0)).xyz;
 
 	// Normals
 	outNormal = mat3(u_NormalMatrix) * inNormal;
@@ -44,5 +29,5 @@ void main() {
 	///////////
 	outColor = inColor;
 
-	outLight = CalcAllLightContribution(outWorldPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
 }
+

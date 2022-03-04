@@ -1,6 +1,7 @@
 #include "Gameplay/InputEngine.h"
 #include <locale>
 #include <codecvt>
+#include "Application/Application.h"
 
 GLFWwindow* InputEngine::__window = nullptr;
 glm::dvec2 InputEngine::__mousePos  = glm::dvec2(0.0);

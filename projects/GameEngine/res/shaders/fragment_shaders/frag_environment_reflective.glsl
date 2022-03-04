@@ -30,6 +30,7 @@ uniform Material u_Material;
 ////////////////////////////////////////////////////////////////
 
 #include "../fragments/multiple_point_lights.glsl"
+#include "../fragments/color_correction.glsl"
 
 const float LOG_MAX = 2.40823996531;
 
@@ -44,13 +45,13 @@ void main() {
 
 	// Will accumulate the contributions of all lights on this fragment
 	// This is defined in the fragment file "multiple_point_lights.glsl"
-	//vec3 lightAccumulation = CalcAllLightContribution(inWorldPos, normal, u_CamPos.xyz, u_Material.Shininess);
+	vec3 lightAccumulation = CalcAllLightContribution(inWorldPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
 	// Get the albedo from the diffuse / albedo map
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
 
 	// combine for the final result
-	vec3 result = inLight  * inColor * textureColor.rgb;
+	vec3 result = lightAccumulation  * inColor * textureColor.rgb;
 
-	frag_color = vec4(mix(result, reflected, u_Material.Shininess), textureColor.a);
+	frag_color = vec4(ColorCorrect(mix(result, reflected, u_Material.Shininess)), textureColor.a);
 }

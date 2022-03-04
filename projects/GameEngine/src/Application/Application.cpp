@@ -11,19 +11,22 @@
 #include "Layers/GLAppLayer.h"
 #include "Utils/FileHelpers.h"
 #include "Utils/ResourceManager/ResourceManager.h"
+#include "Utils/ImGuiHelper.h"
 
 // Graphics
-#include "Graphics/IndexBuffer.h"
-#include "Graphics/VertexBuffer.h"
+#include "Graphics/Buffers/IndexBuffer.h"
+#include "Graphics/Buffers/VertexBuffer.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/ShaderProgram.h"
-#include "Graphics/Texture2D.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/Texture1D.h"
+#include "Graphics/Textures/Texture2D.h"
+#include "Graphics/Textures/Texture3D.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
 #include "Graphics/GuiBatcher.h"
+#include "Graphics/Framebuffer.h"
 
-#include "Utils/ResourceManager/ResourceManager.h"
 
 // Gameplay
 #include "Gameplay/Material.h"
@@ -39,7 +42,7 @@
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
-#include "Gameplay/Components/FirstPersonCamera.h"
+#include "Gameplay/Components/ParticleSystem.h"
 #include "Gameplay/Components/MovingPlatform.h"
 #include "Gameplay/Components/PlayerControl.h"
 #include "Gameplay/Components/MorphAnimator.h"
@@ -59,8 +62,8 @@
 #include "Layers/DefaultSceneLayer.h"
 #include "Layers/LogicUpdateLayer.h"
 #include "Layers/ImGuiDebugLayer.h"
-#include "Utils/ImGuiHelper.h"
-#include "Gameplay/Components/ComponentManager.h"
+#include "Layers/InstancedRenderingTestLayer.h"
+#include "Layers/ParticleLayer.h"
 #include "Layers/Menu.h"
 #include "Layers/SecondMap.h"
 #include "Layers/EndScreen.h"
@@ -82,8 +85,8 @@ Application::Application() :
 	_isEditor(true),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
-	_targetScene(nullptr)
-{ }
+	_targetScene(nullptr),
+	_renderOutput(nullptr)
 
 Application::~Application() = default;
 
@@ -814,7 +817,9 @@ void Application::_RegisterClasses()
 	ResourceManager::Init();
 
 	// Register all our resource types so we can load them from manifest files
+	ResourceManager::RegisterType<Texture1D>();
 	ResourceManager::RegisterType<Texture2D>();
+	ResourceManager::RegisterType<Texture3D>();
 	ResourceManager::RegisterType<TextureCube>();
 	ResourceManager::RegisterType<ShaderProgram>();
 	ResourceManager::RegisterType<Material>();
@@ -900,7 +905,9 @@ void Application::_RenderScene() {
 
 	for (const auto& layer : _layers) {
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnRender)) {
-			layer->OnRender();
+			layer->OnRender(result);
+			Framebuffer::Sptr layerResult = layer->GetRenderOutput(); 
+			result = layerResult != nullptr ? layerResult : result;
 		}
 	}
 }
