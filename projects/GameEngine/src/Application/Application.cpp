@@ -234,6 +234,7 @@ void Application::_Run()
 
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
+	soundManaging.LoadSound("Sounds/pop.wav", "Pop");
 
 	////////////////////////////////////////////////////////////////////////
 
@@ -360,14 +361,28 @@ void Application::_Run()
 					//If sound isn't at 0 yet, reduce it
 					//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
 					//Therefore, use > 0.00001 instead of > 0
-					if (thisSoundInfo.currentVol > 0.00001f) thisSoundInfo.currentVol -= 0.1f;
+					if (thisSoundInfo.currentVol > 0.00001f)
+					{
+						thisSoundInfo.currentVol -= 0.1f;
+
+						soundManaging.SetVolume(thisSoundInfo.currentVol);
+
+						soundManaging.PlaySound("Pop");
+					}
 
 					selectTime = 0.0f;
 				}
 
 				else if (rightSelect && selectTime >= 0.2f)
 				{
-					if (thisSoundInfo.currentVol < 1.0f) thisSoundInfo.currentVol += 0.1f;
+					if (thisSoundInfo.currentVol < 1.0f)
+					{
+						thisSoundInfo.currentVol += 0.1f;
+
+						soundManaging.SetVolume(thisSoundInfo.currentVol);
+
+						soundManaging.PlaySound("Pop");
+					}
 
 					selectTime = 0.0f;
 				}

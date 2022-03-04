@@ -27,7 +27,7 @@ void PickUpBehaviour::Awake()
 
 void PickUpBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
 {
-	LOG_INFO("Body has entered {} trigger volume: {}", GetGameObject()->Name, body->GetGameObject()->Name);
+	//LOG_INFO("Body has entered {} trigger volume: {}", GetGameObject()->Name, body->GetGameObject()->Name);
 	if (body->GetGameObject()->Name == "Player 1" || body->GetGameObject()->Name == "Player 2")
 	{
 		if (cooldownTimer <= 0)
@@ -50,7 +50,7 @@ void PickUpBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Phy
 }
 
 void PickUpBehaviour::OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
-	LOG_INFO("Body has left {} trigger volume: {}", GetGameObject()->Name, body->GetGameObject()->Name);
+	//LOG_INFO("Body has left {} trigger volume: {}", GetGameObject()->Name, body->GetGameObject()->Name);
 }
 
 void PickUpBehaviour::RenderImGui() { }

@@ -88,24 +88,28 @@ namespace Gameplay {
 	}
 
 	void GameObject::OnEnteredTrigger(const std::shared_ptr<Physics::TriggerVolume>& trigger) {
+
 		for (auto& component : _components) {
 			component->OnEnteredTrigger(trigger);
 		}
 	}
 
 	void GameObject::OnLeavingTrigger(const std::shared_ptr<Physics::TriggerVolume>& trigger) {
+
 		for (auto& component : _components) {
 			component->OnLeavingTrigger(trigger);
 		}
 	}
 
 	void GameObject::OnTriggerVolumeEntered(const std::shared_ptr<Physics::RigidBody>& trigger) {
+
 		for (auto& component : _components) {
 			component->OnTriggerVolumeEntered(trigger);
 		}
 	}
 
 	void GameObject::OnTriggerVolumeLeaving(const std::shared_ptr<Physics::RigidBody>& trigger) {
+
 		for (auto& component : _components) {
 			component->OnTriggerVolumeLeaving(trigger);
 		}

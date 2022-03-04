@@ -8,6 +8,8 @@
 #include "../Timing.h"
 #include "Utils/Windows/FileDialogs.h"
 #include <filesystem>
+#include "RenderLayer.h"
+#include "../Windows/DebugWindow.h"
 
 ImGuiDebugLayer::ImGuiDebugLayer() :
 	ApplicationLayer(),
@@ -26,6 +28,7 @@ void ImGuiDebugLayer::OnAppLoad(const nlohmann::json& config)
 	// Register our windows
 	RegisterWindow<HierarchyWindow>();
 	RegisterWindow<InspectorWindow>();
+	RegisterWindow<DebugWindow>();
 }
 
 void ImGuiDebugLayer::OnAppUnload()
@@ -68,7 +71,7 @@ void ImGuiDebugLayer::OnRender()
 
 		// Our primary dock window (which will be hidden)
 		ImGui::Begin("Docker Window", nullptr, window_flags);
-		
+
 		// Pop styling variables so they don't effect other resources
 		ImGui::PopStyleVar(3);
 		ImGui::PopStyleColor();
@@ -92,7 +95,7 @@ void ImGuiDebugLayer::OnRender()
 			// Iterate over all the windows
 			for (const auto& window : _windows) {
 				// If the window is a child of the root node and is open
-				if (window->ParentName.empty() && window->Open) {
+				if (window->ParentName.empty() && window->Open && window->SplitDirection != ImGuiDir_None) {
 					// Split the main window depending on the window's direction and depth, store ID in window
 					ImGuiID dockId = ImGui::DockBuilderSplitNode(dock_main_id, window->SplitDirection, window->SplitDepth, nullptr, &dock_main_id);
 					window->DockId = dockId;
@@ -109,22 +112,25 @@ void ImGuiDebugLayer::OnRender()
 					ImGuiDir direction = window->SplitDirection;
 					float    dist = window->SplitDepth;
 					ImGuiID& parentDock = _FindOpenParentWindow(window, dock_main_id, &direction, &dist);
-					
-					// Split the parent node, store the ID in the window
-					ImGuiID dockId = ImGui::DockBuilderSplitNode(parentDock, direction, dist, nullptr, &parentDock);
-					window->DockId = dockId;
+
+					if (direction != ImGuiDir_None) {
+						// Split the parent node, store the ID in the window
+						ImGuiID dockId = ImGui::DockBuilderSplitNode(parentDock, direction, dist, nullptr, &parentDock);
+						window->DockId = dockId;
+					}
 				}
 			}
 
 			// Iterate over all windows yet again and add all open windows to the dock window
 			for (const auto& window : _windows) {
-				if (window->Open) {
+				if (window->Open && window->SplitDirection != ImGuiDir_None) {
 					ImGui::DockBuilderDockWindow(window->Name.c_str(), window->DockId);
 				}
 			}
 
 			// Add a specialized node for our game view
 			ImGui::DockBuilderDockWindow("Game View", dock_main_id);
+			ImGui::DockBuilderGetNode(dock_main_id)->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 
 			// We're done building docking nodes!
 			ImGui::DockBuilderFinish(dock_main_id);
@@ -167,6 +173,15 @@ void ImGuiDebugLayer::OnRender()
 				ImGui::EndMenu();
 			}
 
+			for (const auto& window : _windows) {
+				if (*(window->Requirements & EditorWindowRequirements::Menubar)) {
+					if (ImGui::BeginMenu(window->Name.c_str())) {
+						window->RenderMenuBar();
+						ImGui::EndMenu();
+					}
+				}
+			}
+
 			// Windows menu
 			if (ImGui::BeginMenu("Windows")) {
 				// We want to try and minimize how often the menu closes
@@ -174,7 +189,9 @@ void ImGuiDebugLayer::OnRender()
 
 				// Render checkbox items for all the windows we have (to open and close them)
 				for (const auto& window : _windows) {
-					ImGui::MenuItem(window->Name.c_str(), nullptr, &window->Open);
+					if (*(window->Requirements & EditorWindowRequirements::Window)) {
+						ImGui::MenuItem(window->Name.c_str(), nullptr, &window->Open);
+					}
 				}
 				ImGui::PopItemFlag();
 				ImGui::EndMenu();
@@ -198,35 +215,37 @@ void ImGuiDebugLayer::OnRender()
 		ImGui::End();
 
 		_dockInvalid = false;
-	}
 
-	// Handle rendering the primary game viewport
-	_RenderGameWindow();
 
-	// Iterate over all the windows
-	for (const auto& window : _windows) {
-		// Track whether the window was previously open, only render open windows
-		bool wasOpen = window->Open;
-		if (window->Open) {
-			bool open = ImGui::Begin(window->Name.c_str(), &window->Open);
+		// Handle rendering the primary game viewport
+		_RenderGameWindow();
 
-			// If the window was open or closed, mark our dock node as invalid
-			if (open != wasOpen) {
-				_dockInvalid = true;
+		// Iterate over all the windows
+		for (const auto& window : _windows) {
+			if (*(window->Requirements & EditorWindowRequirements::Window)) {
+				// Track whether the window was previously open, only render open windows
+				bool wasOpen = window->Open;
+				if (window->Open) {
+					bool open = ImGui::Begin(window->Name.c_str(), &window->Open);
+
+					// If the window was open or closed, mark our dock node as invalid
+					if (open != wasOpen) {
+						_dockInvalid = true;
+					}
+
+					// If window is closed, early bail and move to next window
+					if (!open) {
+						ImGui::End();
+						continue;
+					}
+
+					// Otherwise render the window
+					window->Render();
+					ImGui::End();
+				}
 			}
-
-			// If window is closed, early bail and move to next window
-			if (!open) {
-				ImGui::End();
-				continue;
-			}
-
-			// Otherwise render the window
-			window->Render();
-			ImGui::End();
 		}
 	}
-
 }
 
 void ImGuiDebugLayer::OnPostRender()
@@ -257,6 +276,7 @@ void ImGuiDebugLayer::_RenderGameWindow()
 
 	// Start the window, we can also let the app know whether it has focus by checking the ImGui window's focus
 	ImGui::Begin("Game View", nullptr, window_flags);
+	ImGui::PopStyleVar(3);
 	app.IsFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 	// Grab the current scene the application is displaying
@@ -297,7 +317,11 @@ void ImGuiDebugLayer::_RenderGameWindow()
 		Timing::SetTimeScale(newScale);
 	}
 
+	ImGui::SameLine();
+
 	ImGui::PopStyleVar();
+
+	ImGui::Text("FPS: %.*0f", 3, 1.0f / Timing::Current().DeltaTime());
 
 	// Determine the relative position of the window
 	ImVec2 subPos = ImGui::GetWindowPos();
@@ -321,7 +345,7 @@ void ImGuiDebugLayer::_RenderGameWindow()
 	ImGui::End();
 
 	// Pop all the styling changes
-	ImGui::PopStyleVar(3);
+	//ImGui::PopStyleVar(3);
 	ImGui::PopStyleColor();
 }
 

@@ -18,9 +18,11 @@
 
 RenderLayer::RenderLayer() :
 	ApplicationLayer(),
+	_primaryFBO(nullptr),
 	_blitFbo(true),
 	_frameUniforms(nullptr),
 	_instanceUniforms(nullptr),
+	_renderFlags(RenderFlags::EnableColorCorrection),
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
@@ -272,6 +274,10 @@ bool RenderLayer::IsBlitEnabled() const {
 	return _blitFbo;
 }
 
+Framebuffer::Sptr RenderLayer::GetRenderOutput() {
+	return _primaryFBO;
+}
+
 void RenderLayer::SetBlitEnabled(bool value) {
 	_blitFbo = value;
 }
@@ -282,4 +288,12 @@ const glm::vec4& RenderLayer::GetClearColor() const {
 
 void RenderLayer::SetClearColor(const glm::vec4 & value) {
 	_clearColor = value;
+}
+
+void RenderLayer::SetRenderFlags(RenderFlags value) {
+	_renderFlags = value;
+}
+
+RenderFlags RenderLayer::GetRenderFlags() const {
+	return _renderFlags;
 }

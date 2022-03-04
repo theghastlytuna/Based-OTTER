@@ -10,6 +10,7 @@
 #include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Gameplay/MeshResource.h"
+#include "Gameplay/Material.h"
 
 #include "Graphics/DebugDraw.h"
 #include "Graphics/TextureCube.h"
@@ -57,6 +58,10 @@ namespace Gameplay {
 
 	void Scene::SetPhysicsDebugDrawMode(BulletDebugMode mode) {
 		_bulletDebugDraw->setDebugMode((btIDebugDraw::DebugDrawModes)mode);
+	}
+
+	BulletDebugMode Scene::GetPhysicsDebugDrawMode() const {
+		return (BulletDebugMode)_bulletDebugDraw->getDebugMode();
 	}
 
 	void Scene::SetSkyboxShader(const std::shared_ptr<ShaderProgram>& shader) {

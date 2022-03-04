@@ -60,6 +60,7 @@ namespace Gameplay {
 		~Scene();
 
 		void SetPhysicsDebugDrawMode(BulletDebugMode mode);
+		BulletDebugMode GetPhysicsDebugDrawMode() const;
 
 		void SetSkyboxShader(const std::shared_ptr<ShaderProgram>& shader);
 		std::shared_ptr<ShaderProgram> GetSkyboxShader() const;
