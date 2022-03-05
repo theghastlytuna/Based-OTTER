@@ -45,4 +45,6 @@ protected:
 	bool _startingJump = false;
 
 	ControllerInput::Sptr _controller;
+
+	int _numGroundsEntered = 0;
 };
