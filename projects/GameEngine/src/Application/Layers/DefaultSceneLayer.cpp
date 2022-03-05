@@ -766,7 +766,7 @@ void DefaultSceneLayer::_CreateScene() {
 		GameObject::Sptr centerGround = scene->CreateGameObject("Center Ground");
 		{
 			// Set position in the scene
-			centerGround->SetPosition(glm::vec3(0.0f, -0.80f, -1.0f));
+			centerGround->SetPosition(glm::vec3(0.0f, 0.0f, -1.0f));
 			centerGround->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 			centerGround->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 

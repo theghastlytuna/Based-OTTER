@@ -74,6 +74,11 @@ public:
 		}
 	}
 
+	inline void LoadEvent(std::string name)
+	{
+
+	}
+
 	inline void StopSounds()
 	{
 		channel->stop();

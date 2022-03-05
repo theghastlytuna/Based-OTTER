@@ -12,6 +12,8 @@
 #include "Gameplay/Physics/RigidBody.h"
 #include "Application/Application.h"
 
+#include "Application/SoundManaging.h"
+
 PlayerControl::PlayerControl()
 	: IComponent(),
 	_mouseSensitivity({ 0.2f, 0.2f }),
@@ -115,6 +117,12 @@ void PlayerControl::Update(float deltaTime)
 		{
 			_isMoving = true;
 			input.x = leftX * -_moveSpeeds.y;
+		}
+
+		if (input.x == 0.0f && input.z == 0.0f)
+		{
+			_isMoving = false;
+			soundTime = 0.0f;
 		}
 
 		input *= deltaTime;
@@ -258,6 +266,18 @@ void PlayerControl::Update(float deltaTime)
 				worldMovement = 10.0f * glm::normalize(worldMovement);
 			}
 			GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
+		}
+	}
+
+	if (_isMoving)
+	{
+		SoundManaging& soundManaging = SoundManaging::Current();
+		soundTime += deltaTime;
+
+		if (soundTime >= 1.0f)
+		{
+			soundManaging.PlaySound("Step");
+			soundTime = 0.0f;
 		}
 	}
 }

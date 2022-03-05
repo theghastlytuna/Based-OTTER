@@ -235,6 +235,7 @@ void Application::_Run()
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
 	soundManaging.LoadSound("Sounds/pop.wav", "Pop");
+	soundManaging.LoadSound("Sounds/footsteps.fspro", "Step");
 
 	////////////////////////////////////////////////////////////////////////
 

@@ -48,6 +48,8 @@ protected:
 	bool _isSprinting = false;
 	bool _justThrew = false;
 	bool _charging = false;
+	float soundTime = 0.0f;
+
 	float _chargeAmount = 0.f;
 	float _initialFov;
 	float _spintVal = 5.0f;
