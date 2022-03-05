@@ -22,7 +22,7 @@ PlayerControl::PlayerControl()
 	_isMoving(false),
 	_isSprinting(false),
 	_spintVal(2.5f),
-	_controllerSensitivity({ 1.1f, 1.1f })
+	_controllerSensitivity({ 1.3f, 1.3f })
 { }
 
 PlayerControl::~PlayerControl() = default;

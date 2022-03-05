@@ -128,12 +128,14 @@ void DefaultSceneLayer::_CreateScene() {
 		app.LoadScene("scene.json");
 	}
 	else {
+		/*
 		// This time we'll have 2 different shaders, and share data between both of them using the UBO
 		// This shader will handle reflective materials 
 		ShaderProgram::Sptr reflectiveShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_environment_reflective.glsl" }
 		});
+		*/
 
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -152,18 +154,20 @@ void DefaultSceneLayer::_CreateScene() {
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/animFrag.glsl" }
 		});
 
+		
 		ShaderProgram::Sptr animShaderDepleted = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/depleteditem_vertlighting_frag.glsl" }
 		});
 
 		///////////////////// NEW SHADERS ////////////////////////////////////////////
-
+		/*
 		// This shader handles our foliage vertex shader example
 		ShaderProgram::Sptr foliageShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/foliage.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/screendoor_transparency.glsl" }
 		});
+		*/
 
 		// This shader handles our cel shading example
 		/*ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -440,7 +444,7 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
-
+		/*
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(reflectiveShader);
 		{
@@ -448,6 +452,7 @@ void DefaultSceneLayer::_CreateScene() {
 			monkeyMaterial->Set("u_Material.Diffuse", monkeyTex);
 			monkeyMaterial->Set("u_Material.Shininess", 0.5f);
 		}
+		*/
 
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		/*Material::Sptr testMaterial = ResourceManager::CreateAsset<Material>(specShader);
@@ -457,6 +462,7 @@ void DefaultSceneLayer::_CreateScene() {
 			testMaterial->Set("u_Material.Specular", boxSpec);
 		}*/
 
+		/*
 		// Our foliage vertex shader material
 		Material::Sptr foliageMaterial = ResourceManager::CreateAsset<Material>(foliageShader);
 		{
@@ -470,6 +476,7 @@ void DefaultSceneLayer::_CreateScene() {
 			foliageMaterial->Set("u_VerticalScale", 1.0f);
 			foliageMaterial->Set("u_WindSpeed", 1.0f);
 		}
+		*/
 
 		//// Our toon shader material
 		//Material::Sptr toonMaterial = ResourceManager::CreateAsset<Material>(toonShader);

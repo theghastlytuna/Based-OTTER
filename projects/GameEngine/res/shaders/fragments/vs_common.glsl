@@ -1,4 +1,5 @@
 
+
 // Vertex inputs
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
@@ -12,9 +13,9 @@ layout(location = 5) in vec3 inBiTangent;
 layout(location = 0) out vec3 outWorldPos;
 layout(location = 1) out vec3 outColor;
 layout(location = 2) out vec3 outNormal;
-layout(location = 3) noperspective out vec2 outUV;
+layout(location = 3) out vec2 outUV;
 layout(location = 4) out mat3 outTBN;
-layout(location = 7) out vec3 outLight;
 
 // Include the matrices and frame level parameters
+#include "frame_uniforms.glsl"
 #include "frame_uniforms.glsl"

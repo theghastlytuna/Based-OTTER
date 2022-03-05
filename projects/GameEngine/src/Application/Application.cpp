@@ -79,7 +79,7 @@ Application::Application() :
 	_window(nullptr),
 	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
 	_isRunning(false),
-	_isEditor(true),
+	_isEditor(false),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
 	_targetScene(nullptr)
@@ -209,6 +209,7 @@ void Application::_Run()
 	float p2HitTimer = 0.0f;
 
 	bool firstFrame = true;
+	bool started = false;
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
@@ -276,7 +277,7 @@ void Application::_Run()
 		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
-			
+			GetLayer<Menu>()->RepositionUI();
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
 
@@ -337,6 +338,8 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 
 				soundManaging.StopSounds();
+
+				started = true;
 			}
 
 			else if (options)
@@ -496,6 +499,13 @@ void Application::_Run()
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
 			//GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			if (started)
+			{
+				started = false;
+
+				GetLayer<DefaultSceneLayer>()->RepositionUI();
+			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{
