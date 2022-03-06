@@ -129,6 +129,20 @@ void PlayerControl::Update(float deltaTime)
 		}
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
+		if (Target)
+		{
+			if (playerID == 1) {
+				//Tracks Player 2
+				_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
+				//_boomerangBehavior->UpdateTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2")->GetPosition());
+			}
+			else {
+				//Tracks Player 1
+				_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
+				//_boomerangBehavior->UpdateTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1")->GetPosition());
+			}
+		}
+
 		//trigger input from controller goes from -1 to 1
 		//also makes sure that the controller is enabled since pausing sets trigger input to 0
 		if (rightTrigger > -1 && GetGameObject()->Get<ControllerInput>()->GetEnabled()) {
@@ -143,6 +157,9 @@ void PlayerControl::Update(float deltaTime)
 			}
 			else //tracking to raycasted point
 			{
+
+
+				/*
 				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
 				glm::vec3 playerPosition = GetGameObject()->GetPosition();
@@ -153,6 +170,17 @@ void PlayerControl::Update(float deltaTime)
 					_raycastPosition = glm::vec3(result.m_hitPointWorld.x(), result.m_hitPointWorld.y(), result.m_hitPointWorld.z());
 					_boomerangBehavior->UpdateTarget(_raycastPosition);
 					_boomerangBehavior->_triggerInput = rightTrigger;
+				}
+				*/
+				_boomerangBehavior->_triggerInput = rightTrigger;
+
+				if (playerID == 1) {
+					//Tracks Player 2
+					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
+				}
+				else {
+					//Tracks Player 1
+					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
 				}
 			}
 			/*
