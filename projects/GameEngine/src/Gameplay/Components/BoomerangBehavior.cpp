@@ -19,10 +19,12 @@ void BoomerangBehavior::Awake()
 	_scene = GetGameObject()->GetScene();
 	if (GetGameObject()->Name == "Boomerang 1") {
 		_player = _scene->FindObjectByName("Player 1");
+		_camera = GetGameObject()->GetScene()->PlayerCamera;
 	}
 	else
 	{
 		_player = _scene->FindObjectByName("Player 2");
+		_camera = GetGameObject()->GetScene()->PlayerCamera2;
 	}
 
 	_rigidBody->SetMass(1);
@@ -30,27 +32,11 @@ void BoomerangBehavior::Awake()
 
 void BoomerangBehavior::Update(float deltaTime)
 {
-	switch (_state) {
-	case(boomerangState::FORWARD):
-		defyGravity();
-		break;
-	case(boomerangState::POINTTRACK):
-		defyGravity();
-		Seek(deltaTime);
-		break;
-	case(boomerangState::LOCKTRACK):
-		defyGravity();
-		UpdateTarget(_targetEntity->GetPosition());
-		Seek(deltaTime);
-		break;
-	case(boomerangState::RETURNING):
-		defyGravity();
-		UpdateTarget(_player->GetPosition());
-		Seek(deltaTime);
-		break;
-	default:
-		break;
+	if (_state != boomerangState::INACTIVE) {
+		updateTrackingPoint(deltaTime);
 	}
+	defyGravity();
+	Seek(deltaTime);
 }
 
 void BoomerangBehavior::RenderImGui()
@@ -82,40 +68,13 @@ void BoomerangBehavior::Seek(float deltaTime)
 	//Might make it more interesting to control
 }
 
-void BoomerangBehavior::throwWang(glm::vec3 playerPosition, int playerNumber, float chargeLevel)
+void BoomerangBehavior::throwWang(glm::vec3 playerPosition, float chargeLevel)
 {
 	_state = boomerangState::FORWARD;
-	_targetLocked = false;
-	_returning = false;
-	glm::vec3 cameraLocalForward;
-	Gameplay::Camera::Sptr camera;
-	if (playerNumber == 1) {
-		camera = _scene->PlayerCamera;
-	}
-	else {
-		camera = _scene->PlayerCamera2;
-	}
-	cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
+	glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 	_boomerangEntity->SetPosition(playerPosition + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * _projectileSpacing);
 	_rigidBody->SetLinearVelocity(glm::vec3(0));
 	_rigidBody->SetLinearVelocity(cameraLocalForward * _boomerangLaunchForce * chargeLevel);
-}
-
-void BoomerangBehavior::UpdateTarget(glm::vec3 newTarget)
-{
-	_targetPoint = newTarget;
-	if (!_targetLocked) {
-		_state = boomerangState::POINTTRACK;
-	}
-}
-
-void BoomerangBehavior::LockTarget(Gameplay::GameObject::Sptr targetEntity)
-{
-	_targetEntity = targetEntity;
-	_targetLocked = true;
-	if (!_returning) {
-		_state = boomerangState::LOCKTRACK;
-	}
 }
 
 void BoomerangBehavior::defyGravity()
@@ -123,10 +82,20 @@ void BoomerangBehavior::defyGravity()
 	_rigidBody->ApplyForce(glm::vec3(0, 0, 12.81f));
 }
 
+void BoomerangBehavior::updateTrackingPoint(float deltaTime)
+{
+	if (_state == boomerangState::FORWARD) {
+		_distance += _distanceDelta * deltaTime;
+	}
+	else {
+		_distance -= _distanceDelta * deltaTime;
+	}
+	_targetPoint = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -_distance;
+
+}
+
 void BoomerangBehavior::returnBoomerang()
 {
-	_returning = true;
-	_targetLocked = true;
 	_state = boomerangState::RETURNING;
 }
 
@@ -153,22 +122,9 @@ bool BoomerangBehavior::getReadyToThrow()
 	return false;
 }
 
-bool BoomerangBehavior::isInactive()
-{
-	if (_state == boomerangState::INACTIVE)
-	{
-		return true;
-	}
-	else 
-	return false;
-}
-
 void BoomerangBehavior::OnCollisionEnter()
 {
 	returnBoomerang();
-
-	//Check if this is the owner, set state to INACTIVE
-	//Check if this is a player and do some DAMAGE
 }
 
 void BoomerangBehavior::makeBoomerangInactive()

@@ -143,54 +143,8 @@ void PlayerControl::Update(float deltaTime)
 			}
 			else //tracking to raycasted point
 			{
-				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
-				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
-				glm::vec3 playerPosition = GetGameObject()->GetPosition();
-				btVector3 btPlayerPosition = btVector3(playerPosition.x, playerPosition.y, playerPosition.z);
-				btCollisionWorld::AllHitsRayResultCallback result(btPlayerPosition, btCamLocF * 100);
-				GetGameObject()->GetScene()->GetPhysicsWorld()->rayTest(btPlayerPosition, btCamLocF * 100, result);
-
-
-				if (result.hasHit()) {
-					int index = 0;
-					glm::vec3 boomerPos = _boomerang->GetPosition();
-					float distance = 1;
-					distance = glm::vec3(boomerPos.x - result.m_hitPointWorld[index].x(), boomerPos.y - result.m_hitPointWorld[index].y(), boomerPos.z - result.m_hitPointWorld[index].z()).length();
-					std::cout << "Distance: " << distance << std::endl;
-
-					if (distance < 0.5) {
-						index = 1;
-					}
-					
-					_raycastPosition = glm::vec3(result.m_hitPointWorld[index].x(), result.m_hitPointWorld[index].y(), result.m_hitPointWorld[index].z());
-					_boomerangBehavior->UpdateTarget(_raycastPosition);
-					_boomerangBehavior->_triggerInput = rightTrigger;
-				}
+				_boomerangBehavior->returnBoomerang();
 			}
-			/*
-			else if (Point){
-				glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
-				btVector3 btCamLocF = btVector3(cameraLocalForward.x, cameraLocalForward.y, cameraLocalForward.z);
-				glm::vec3 playerPosition = GetGameObject()->GetPosition();
-				btVector3 btPlayerPosition = btVector3(playerPosition.x, playerPosition.y, playerPosition.z);
-				btCollisionWorld::ClosestRayResultCallback result(btPlayerPosition, btCamLocF * 100);
-				GetGameObject()->GetScene()->GetPhysicsWorld()->rayTest(btPlayerPosition, btCamLocF * 100, result);
-				if (result.hasHit()) {
-					_raycastPosition = glm::vec3(result.m_hitPointWorld.x(), result.m_hitPointWorld.y(), result.m_hitPointWorld.z());
-					_boomerangBehavior->UpdateTarget(_raycastPosition);
-				}
-			}
-			else if (Target) {
-				if (playerID == 1) {
-					//Tracks Player 2
-					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 2"));
-				}
-				else {
-					//Tracks Player 1
-					_boomerangBehavior->LockTarget(GetGameObject()->GetScene()->FindObjectByName("Player 1"));
-				}
-			}
-			*/
 		}
 		else if (rightTrigger == -1)
 		{
@@ -198,7 +152,7 @@ void PlayerControl::Update(float deltaTime)
 			if (_chargeAmount > 0.5)
 			{
 				//if the player is not holding the button, but has charged their throw above the minimum, throw the boomerang
-				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), playerID, _chargeAmount);
+				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), _chargeAmount);
 				_justThrew = true;
 				_chargeAmount = 0;
 				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov);
