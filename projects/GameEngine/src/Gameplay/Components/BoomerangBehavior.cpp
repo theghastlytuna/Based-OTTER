@@ -146,3 +146,13 @@ BoomerangBehavior::Sptr BoomerangBehavior::FromJson(const nlohmann::json& blob)
 	result->_boomerangLaunchForce = blob["Launch Force"];
 	return result;
 }
+
+bool BoomerangBehavior::isInactive()
+{
+	if (_state == boomerangState::INACTIVE)
+	{
+		return true;
+	}
+	else
+		return false;
+}
