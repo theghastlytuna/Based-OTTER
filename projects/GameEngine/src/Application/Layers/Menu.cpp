@@ -354,16 +354,16 @@ void Menu::RepositionUI()
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 200, app.GetWindowSize().y / 2 + 100  });
-	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y / 2 });
+	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 100, app.GetWindowSize().y / 2 + 100 });
+	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 300, app.GetWindowSize().y / 2 });
 	if (playBut->Get<MenuElement>()->IsSelected()) playBut->Get<MenuElement>()->GrowElement();
 
-	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x  - 350, app.GetWindowSize().y / 2  });
-	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x  + 50, app.GetWindowSize().y / 2 + 100 });
+	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 });
+	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 350, app.GetWindowSize().y / 2 + 100 });
 	if (optionsBut->Get<MenuElement>()->IsSelected()) optionsBut->Get<MenuElement>()->GrowElement();
 
-	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x  - 300, app.GetWindowSize().y / 2 + 100 });
-	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x  + 100, app.GetWindowSize().y / 2 + 200 });
+	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 2 + 100 });
+	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 400, app.GetWindowSize().y / 2 + 200 });
 	if (exitBut->Get<MenuElement>()->IsSelected()) exitBut->Get<MenuElement>()->GrowElement();
 	logo->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 6, 0});
 	logo->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - (app.GetWindowSize().x / 6), app.GetWindowSize().y / 3 });

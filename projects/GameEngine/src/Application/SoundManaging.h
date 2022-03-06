@@ -1,18 +1,32 @@
 #pragma once
 #include "fmod.hpp"
+#include "fmod_studio.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
+#include "common.h"
 
 /**
  * The timing class is a very simple singleton class that will store our timing values
  * per-frame
  */
+
 class SoundManaging final {
 public:
 	SoundManaging() {
+		Common_Init(&extradriverdata);
+
+		FMOD::Studio::System::create(&studioSystem);
+
+		FMOD::System* coreSystem = NULL;
+		(studioSystem->getCoreSystem(&coreSystem));
+		(coreSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0));
+
+		studioSystem->initialize(128, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extradriverdata);
+		
 		FMOD::System_Create(&system);
 		system->init(32, FMOD_INIT_NORMAL, extradriverdata);
+		
 	};
 	~SoundManaging() = default;
 
@@ -74,9 +88,57 @@ public:
 		}
 	}
 
-	inline void LoadEvent(std::string name)
+	inline void LoadBank(const char* filename)
 	{
+		ERRCHECK(studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &bank));
+		//bank->loadSampleData();
+		//bank->getSampleLoadingState(state1);
 
+		//bank->getEventList(&events1, 10, numEvents);
+		//bank->getEventCount(numEvents);
+	}
+
+	inline bool GetStatus()
+	{
+		return *state1 == FMOD_STUDIO_LOADING_STATE_ERROR;
+	}
+
+	inline void LoadStringBank(const char* filename)
+	{
+		ERRCHECK(studioSystem->loadBankFile('c', FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &stringBank));
+		//stringBank->loadSampleData();
+		//stringBank->getSampleLoadingState(state2);
+
+		//stringBank->getEventList(&events2, 10, numEvents2);
+		//stringBank->getEventCount(numEvents2);
+	}
+
+	inline void SetEvent(const char* path)
+	{
+		FMOD::Studio::EventDescription* tempDesc = NULL;
+		(studioSystem->getEvent("event:/Footsteps", &tempDesc));
+
+		(tempDesc->createInstance(&footsteps));
+	}
+
+	inline void PlayInstance()
+	{
+		(footsteps->start());
+	}
+
+	inline int GetNumEvents1()
+	{
+		return *numEvents;
+	}
+
+	inline int GetNumEvents2()
+	{
+		return *numEvents2;
+	}
+
+	inline void PlayEvent(std::string name)
+	{
+		bank->getEventCount(numEvents);
 	}
 
 	inline void StopSounds()
@@ -113,9 +175,23 @@ protected:
 
 	std::vector<soundData> sounds;
 
-	FMOD::System	*system;
-	FMOD::Channel	*channel = 0;
-	void			*extradriverdata = 0;
+	FMOD::Studio::System	*studioSystem;
+	FMOD::Studio::Bank		*bank;
+	FMOD::Studio::Bank		*stringBank;
+	int						*numEvents;
+	int						*numEvents2;
+	FMOD::Studio::EventDescription* events1;
+	FMOD::Studio::EventDescription* events2;
+
+	FMOD::Studio::EventInstance* footsteps;
+
+	FMOD_STUDIO_LOADING_STATE* state1;
+	FMOD_STUDIO_LOADING_STATE* state2;
+
+
+	FMOD::System			*system;
+	FMOD::Channel			*channel = 0;
+	void					*extradriverdata;
 
 	float volume = 0.5f;
 };

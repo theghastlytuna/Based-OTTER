@@ -212,6 +212,7 @@ void Application::_Run()
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
+	bool started = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -235,7 +236,15 @@ void Application::_Run()
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
 	soundManaging.LoadSound("Sounds/pop.wav", "Pop");
-	soundManaging.LoadSound("Sounds/footsteps.fspro", "Step");
+	//soundManaging.LoadSound("Sounds/footsteps.fspro", "Step");
+
+	soundManaging.LoadBank("Sounds/fmod/Banks/Master.bank");
+	soundManaging.LoadStringBank("Sounds/fmod/Banks/Master.strings.bank");
+
+	soundManaging.SetEvent("event: / Footsteps");
+
+	//int numEvents1 = soundManaging.GetNumEvents1();
+	//int numEvents2 = soundManaging.GetNumEvents2();
 
 	////////////////////////////////////////////////////////////////////////
 
@@ -248,6 +257,8 @@ void Application::_Run()
 
 		// Receive events like input and window position/size changes from GLFW
 		glfwPollEvents();
+
+		//std::cout << "Non-string: " << numEvents1 << "\nString: " << numEvents2 << '\n';
 
 		// Handle closing the app via the close button
 		if (glfwWindowShouldClose(_window)) {
@@ -278,7 +289,8 @@ void Application::_Run()
 		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
-			
+			GetLayer<Menu>()->RepositionUI();
+
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
 
@@ -288,6 +300,8 @@ void Application::_Run()
 
 			firstFrame = false;
 		}
+
+		//else 		std::cout << soundManaging.GetStatus() << '\n';
 
 		//If menu screen layer is active
 		if (GetLayer<Menu>()->IsActive())
@@ -339,6 +353,8 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 
 				soundManaging.StopSounds();
+
+				started = true;
 			}
 
 			else if (options)
@@ -432,6 +448,8 @@ void Application::_Run()
 
 					currentElement->GrowElement();
 					selectTime = 0.0f;
+
+					soundManaging.PlayInstance();
 				}
 
 				else if (upSelect && selectTime >= 0.3f)
@@ -444,6 +462,8 @@ void Application::_Run()
 
 					currentElement->GrowElement();
 					selectTime = 0.0f;
+
+					soundManaging.PlayInstance();
 				}
 
 				else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
@@ -512,6 +532,13 @@ void Application::_Run()
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
 			//GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			if (started)
+			{
+				started = false;
+
+				GetLayer<DefaultSceneLayer>()->RepositionUI();
+			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{
