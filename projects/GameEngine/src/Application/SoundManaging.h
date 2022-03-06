@@ -105,7 +105,7 @@ public:
 
 	inline void LoadStringBank(const char* filename)
 	{
-		ERRCHECK(studioSystem->loadBankFile('c', FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &stringBank));
+		ERRCHECK(studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &stringBank));
 		//stringBank->loadSampleData();
 		//stringBank->getSampleLoadingState(state2);
 
