@@ -29,6 +29,8 @@ public:
 		{
 			sampleSound.currentDurationMS += deltaT * 1000;
 		}
+
+		system->update();
 	}
 
 	inline void LoadSound(const char* filePath, std::string name)
@@ -63,11 +65,17 @@ public:
 				{
 					system->playSound(sampleSound.sound, 0, false, &channel);
 					sampleSound.currentDurationMS = 0.0f;
+					channel->setVolume(volume);
 				}
 
 				return;
 			}
 		}
+	}
+
+	inline void SetVolume(float inVolume)
+	{
+		volume = inVolume;
 	}
 
 	inline void StopSounds()
@@ -102,6 +110,8 @@ protected:
 	FMOD::System	*system;
 	FMOD::Channel	*channel = 0;
 	void			*extradriverdata = 0;
+
+	float volume = 0.5f;
 };
 
 inline SoundManaging SoundManaging::_singleton = SoundManaging();

@@ -93,3 +93,4 @@ SimpleCameraControl::Sptr SimpleCameraControl::FromJson(const nlohmann::json& bl
 	result->_shiftMultipler   = JsonGet(blob, "shift_mult", 2.0f);
 	return result;
 }
+
