@@ -80,12 +80,12 @@
 #include "Graphics/Textures/Texture1D.h"
 using namespace Gameplay::Physics;
 
-std::vector<MeshResource::Sptr> LoadTargets(int numTargets, std::string path)
+std::vector<Gameplay::MeshResource::Sptr>LoadTargets(int numTargets, std::string path)
 {
-	std::vector<MeshResource::Sptr> tempVec;
+	std::vector<Gameplay::MeshResource::Sptr> tempVec;
 	for (int i = 0; i < numTargets; i++)
 	{
-		tempVec.push_back(ResourceManager::CreateAsset<MeshResource>(path + std::to_string(i) + ".obj"));
+		tempVec.push_back(ResourceManager::CreateAsset<Gameplay::MeshResource>(path + std::to_string(i) + ".obj"));
 	}
 
 	return tempVec;
@@ -237,6 +237,10 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr	   catcusTex = ResourceManager::CreateAsset<Texture2D>("textures/cattusGood.png");
 		catcusTex->SetMinFilter(MinFilter::Unknown);
 		catcusTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
+		mainCharTex->SetMinFilter(MinFilter::Unknown);
+		mainCharTex->SetMagFilter(MagFilter::Nearest);
 
 		// Loading in a 1D LUT
 		Texture1D::Sptr toonLut = ResourceManager::CreateAsset<Texture1D>("luts/toon-1D.png"); 

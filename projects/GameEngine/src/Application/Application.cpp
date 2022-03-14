@@ -843,7 +843,6 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<RectTransform>();
 	ComponentManager::RegisterType<GuiPanel>();
 	ComponentManager::RegisterType<GuiText>();
-	ComponentManager::RegisterType<ParticleSystem>();
 	ComponentManager::RegisterType<ControllerInput>();
 	ComponentManager::RegisterType<FirstPersonCamera>();
 	ComponentManager::RegisterType<MovingPlatform>();

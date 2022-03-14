@@ -60,7 +60,7 @@ void InstancedRenderingTestLayer::OnSceneLoad() {
 		for (int iy = 0; iy < size.y; iy++) {
 			for (int iz = 0; iz < size.z; iz++) {
 				Gameplay::GameObject::Sptr instance = scene->CreateGameObject("Instanced");
-				instance->SetPostion({ ix * distance, iy * distance, iz * distance });
+				instance->SetPosition({ ix * distance, iy * distance, iz * distance });
 				instance->HideInHierarchy = true;
 				instance->Add<RotatingBehaviour>()->RotationSpeed = { 
 					(rand() / (float)RAND_MAX) * 90.0f, 
