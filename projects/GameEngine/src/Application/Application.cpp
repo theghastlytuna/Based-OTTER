@@ -11,19 +11,21 @@
 #include "Layers/GLAppLayer.h"
 #include "Utils/FileHelpers.h"
 #include "Utils/ResourceManager/ResourceManager.h"
+#include "Utils/ImGuiHelper.h"
 
 // Graphics
-#include "Graphics/IndexBuffer.h"
-#include "Graphics/VertexBuffer.h"
+#include "Graphics/Buffers/IndexBuffer.h"
+#include "Graphics/Buffers/VertexBuffer.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/ShaderProgram.h"
-#include "Graphics/Texture2D.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/Texture1D.h"
+#include "Graphics/Textures/Texture2D.h"
+#include "Graphics/Textures/Texture3D.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
 #include "Graphics/GuiBatcher.h"
-
-#include "Utils/ResourceManager/ResourceManager.h"
+#include "Graphics/Framebuffer.h"
 
 // Gameplay
 #include "Gameplay/Material.h"
@@ -54,13 +56,16 @@
 #include "Gameplay/Components/GUI/RectTransform.h"
 #include "Gameplay/Components/GUI/GuiPanel.h"
 #include "Gameplay/Components/GUI/GuiText.h"
+#include "Gameplay/Components/ComponentManager.h"
+
+// Layers
 #include "Layers/RenderLayer.h"
 #include "Layers/InterfaceLayer.h"
 #include "Layers/DefaultSceneLayer.h"
 #include "Layers/LogicUpdateLayer.h"
 #include "Layers/ImGuiDebugLayer.h"
 #include "Utils/ImGuiHelper.h"
-#include "Gameplay/Components/ComponentManager.h"
+#include "Layers/ParticleLayer.h"
 #include "Layers/Menu.h"
 #include "Layers/SecondMap.h"
 #include "Layers/EndScreen.h"
@@ -82,7 +87,8 @@ Application::Application() :
 	_isEditor(true),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
-	_targetScene(nullptr)
+	_targetScene(nullptr),
+	_renderOutput(nullptr)
 { }
 
 Application::~Application() = default;
@@ -814,12 +820,15 @@ void Application::_RegisterClasses()
 	ResourceManager::Init();
 
 	// Register all our resource types so we can load them from manifest files
+	ResourceManager::RegisterType<Texture1D>();
 	ResourceManager::RegisterType<Texture2D>();
+	ResourceManager::RegisterType<Texture3D>();
 	ResourceManager::RegisterType<TextureCube>();
 	ResourceManager::RegisterType<ShaderProgram>();
 	ResourceManager::RegisterType<Material>();
 	ResourceManager::RegisterType<MeshResource>();
 	ResourceManager::RegisterType<Font>();
+	ResourceManager::RegisterType<Framebuffer>();
 
 	// Register all of our component types so we can load them from files
 	ComponentManager::RegisterType<Camera>();
@@ -834,7 +843,7 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<RectTransform>();
 	ComponentManager::RegisterType<GuiPanel>();
 	ComponentManager::RegisterType<GuiText>();
-
+	ComponentManager::RegisterType<ParticleSystem>();
 	ComponentManager::RegisterType<ControllerInput>();
 	ComponentManager::RegisterType<FirstPersonCamera>();
 	ComponentManager::RegisterType<MovingPlatform>();
@@ -898,11 +907,16 @@ void Application::_PreRender()
 
 void Application::_RenderScene() {
 
+	Framebuffer::Sptr result = nullptr;
 	for (const auto& layer : _layers) {
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnRender)) {
-			layer->OnRender();
+			layer->OnRender(result);
+			Framebuffer::Sptr layerResult = layer->GetRenderOutput(); 
+			result = layerResult != nullptr ? layerResult : result;
 		}
 	}
+	_renderOutput = result;
+
 }
 
 void Application::_PostRender() {
@@ -911,7 +925,30 @@ void Application::_PostRender() {
 		const auto& layer = *it;
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnPostRender)) {
 			layer->OnPostRender();
+			Framebuffer::Sptr layerResult = layer->GetPostRenderOutput();
+			_renderOutput = layerResult != nullptr ? layerResult : _renderOutput;
 		}
+	}
+
+	// We can use the application's viewport to set our OpenGL viewport, as well as clip rendering to that area
+	const glm::uvec4& viewport = GetPrimaryViewport();
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+	glScissor(viewport.x, viewport.y, viewport.z, viewport.w); 
+
+	// If we have a final output, blit it to the screen
+	if (_renderOutput != nullptr) {
+		_renderOutput->Unbind();
+
+		glm::ivec2 windowSize = _windowSize;
+		if (_isEditor) {
+			glfwGetWindowSize(_window, &windowSize.x, &windowSize.y);
+		}
+		//glViewport(0, 0, windowSize.x, windowSize.y);
+		glm::ivec4 viewportMinMax ={ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w };
+
+		_renderOutput->Bind(FramebufferBinding::Read);
+		glBindFramebuffer(*FramebufferBinding::Write, 0);
+		Framebuffer::Blit({ 0, 0, _renderOutput->GetWidth(), _renderOutput->GetHeight() }, viewportMinMax, BufferFlags::All, MagFilter::Nearest);
 	}
 }
 

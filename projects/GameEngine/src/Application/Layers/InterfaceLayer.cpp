@@ -18,7 +18,7 @@ InterfaceLayer::InterfaceLayer() :
 InterfaceLayer::~InterfaceLayer()
 { }
 
-void InterfaceLayer::OnRender() {
+void InterfaceLayer::OnRender(const Framebuffer::Sptr& prevLayer) {
 	// Gets the application instance
 	Application& app = Application::Get();
 

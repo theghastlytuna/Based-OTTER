@@ -3,7 +3,7 @@
 #include "Graphics/GuiBatcher.h"
 #include "Gameplay/Components/Camera.h"
 #include "Graphics/DebugDraw.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "../Timing.h"
 #include "Gameplay/Components/ComponentManager.h"
 #include "Gameplay/Components/RenderComponent.h"
@@ -18,9 +18,11 @@
 
 RenderLayer::RenderLayer() :
 	ApplicationLayer(),
+	_primaryFBO(nullptr),
 	_blitFbo(true),
 	_frameUniforms(nullptr),
 	_instanceUniforms(nullptr),
+	_renderFlags(RenderFlags::EnableColorCorrection),
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
@@ -29,7 +31,7 @@ RenderLayer::RenderLayer() :
 
 RenderLayer::~RenderLayer() = default;
 
-void RenderLayer::OnRender()
+void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 {
 	using namespace Gameplay;
 
@@ -38,6 +40,8 @@ void RenderLayer::OnRender()
 
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
 	//glViewport(0, 240, 427, 240);
+	// We bind our framebuffer so we can render to it
+	_primaryFBO->Bind();
 
 	// Clear the color and depth buffers
 	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
@@ -64,7 +68,15 @@ void RenderLayer::OnRender()
 	// Bind the skybox texture to a reserved texture slot
 	// See Material.h and Material.cpp for how we're reserving texture slots
 	TextureCube::Sptr environment = app.CurrentScene()->GetSkyboxTexture();
-	if (environment) environment->Bind(0);
+	if (environment) {
+		environment->Bind(15);
+	}
+
+	// Binding the color correction LUT
+	Texture3D::Sptr colorLUT = app.CurrentScene()->GetColorLUT();
+	if (colorLUT) {
+		colorLUT->Bind(14);
+	}
 
 	// Here we'll bind all the UBOs to their corresponding slots
 	app.CurrentScene()->PreRender();
@@ -81,6 +93,8 @@ void RenderLayer::OnRender()
 	frameData.u_ViewProjection = camera->GetViewProjection();
 	frameData.u_CameraPos = glm::vec4(camera->GetGameObject()->GetPosition(), 1.0f);
 	frameData.u_Time = static_cast<float>(Timing::Current().TimeSinceSceneLoad());
+	frameData.u_DeltaTime = Timing::Current().DeltaTime();
+	frameData.u_RenderFlags = _renderFlags;
 	_frameUniforms->Update();
 
 	Material::Sptr defaultMat = app.CurrentScene()->DefaultMaterial;
@@ -248,6 +262,9 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 {
 	if (newSize.x * newSize.y == 0) return;
 
+	// Set viewport and resize our primary FBO
+	_primaryFBO->Resize(newSize);
+
 	// Update the main camera's projection
 	Application& app = Application::Get();
 	app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
@@ -262,11 +279,28 @@ void RenderLayer::OnAppLoad(const nlohmann::json& config)
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	// Create a new descriptor for our FBO
+	FramebufferDescriptor fboDescriptor;
+	fboDescriptor.Width = app.GetWindowSize().x;
+	fboDescriptor.Height = app.GetWindowSize().y;
+	fboDescriptor.GenerateUnsampled = false;
+	fboDescriptor.SampleCount = 1;
+
+	// Add a depth and color attachment (same as default)
+	fboDescriptor.RenderTargets[RenderTargetAttachment::DepthStencil] ={ true, RenderTargetType::DepthStencil };
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color0] ={ true, RenderTargetType::ColorRgb8 };
+
+	// Create the primary FBO
+	_primaryFBO = std::make_shared<Framebuffer>(fboDescriptor);
+
 	// Create our common uniform buffers
 	_frameUniforms = std::make_shared<UniformBuffer<FrameLevelUniforms>>(BufferUsage::DynamicDraw);
 	_instanceUniforms = std::make_shared<UniformBuffer<InstanceLevelUniforms>>(BufferUsage::DynamicDraw);
 }
 
+const Framebuffer::Sptr& RenderLayer::GetPrimaryFBO() const {
+	return _primaryFBO;
+}
 
 bool RenderLayer::IsBlitEnabled() const {
 	return _blitFbo;
@@ -276,10 +310,22 @@ void RenderLayer::SetBlitEnabled(bool value) {
 	_blitFbo = value;
 }
 
+Framebuffer::Sptr RenderLayer::GetRenderOutput() {
+	return _primaryFBO;
+}
+
 const glm::vec4& RenderLayer::GetClearColor() const {
 	return _clearColor;
 }
 
 void RenderLayer::SetClearColor(const glm::vec4 & value) {
 	_clearColor = value;
+}
+
+void RenderLayer::SetRenderFlags(RenderFlags value) {
+	_renderFlags = value;
+}
+
+RenderFlags RenderLayer::GetRenderFlags() const {
+	return _renderFlags;
 }

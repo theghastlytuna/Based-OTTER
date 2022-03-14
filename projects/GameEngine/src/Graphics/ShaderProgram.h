@@ -30,12 +30,14 @@ public:
 		ShaderDataType Type;
 		int            ArraySize;
 		int            Location;
+		int            Binding;
 		std::string    Name;
 
 		UniformInfo() :
 			Type(ShaderDataType::None),
 			ArraySize(0),
 			Location(-1),
+			Binding(-1),
 			Name("") {}
 	};
 
@@ -83,6 +85,14 @@ public:
 	bool LoadShaderPartFromFile(const char* path, ShaderPartType type);
 
 	/// <summary>
+	/// Registers a list of varying outputs to capture for transform feedback, must be called before Link
+	/// </summary>
+	/// <param name="names">An array of names to register as varying attributes for capture</param>
+	/// <param name="numVaryings">The number of names in the names array</param>
+	/// <param name="interleaved">True if the attributes should be interleaved into a single buffer</param>
+	void RegisterVaryings(const char* const* names, int numVaryings, bool interleaved = true);
+
+	/// <summary>
 	/// Links the vertex and fragment shader, and allows this shader program to be used
 	/// </summary>
 	/// <returns>True if the linking was successful, false if otherwise</returns>
@@ -96,6 +106,8 @@ public:
 	/// Unbinds all shader programs
 	/// </summary>
 	static void Unbind();
+
+	const std::unordered_map<std::string, UniformInfo>& GetUniforms() const { return _uniforms; }
 
 	// Inherited from IGraphicsResource
 

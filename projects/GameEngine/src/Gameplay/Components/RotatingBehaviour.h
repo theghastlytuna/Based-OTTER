@@ -18,9 +18,6 @@ public:
 	virtual nlohmann::json ToJson() const override;
 	static RotatingBehaviour::Sptr FromJson(const nlohmann::json& data);
 
-
-	glm::vec3 currentRotation = glm::vec3(0.0f, 0.0f, 0.0f);
-
 	MAKE_TYPENAME(RotatingBehaviour);
 };
 

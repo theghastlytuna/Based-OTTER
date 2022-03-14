@@ -10,15 +10,16 @@
 #include <filesystem>
 
 // Graphics
-#include "Graphics/IndexBuffer.h"
-#include "Graphics/VertexBuffer.h"
+#include "Graphics/Buffers/IndexBuffer.h"
+#include "Graphics/Buffers/VertexBuffer.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/ShaderProgram.h"
-#include "Graphics/Texture2D.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/Texture2D.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
 #include "Graphics/GuiBatcher.h"
+#include "Graphics/Framebuffer.h"
 
 // Utilities
 #include "Utils/MeshBuilder.h"
@@ -60,6 +61,7 @@
 #include "Gameplay/Physics/Colliders/PlaneCollider.h"
 #include "Gameplay/Physics/Colliders/SphereCollider.h"
 #include "Gameplay/Physics/Colliders/ConvexMeshCollider.h"
+#include "Gameplay/Physics/Colliders/CylinderCollider.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Graphics/DebugDraw.h"
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
@@ -74,8 +76,8 @@
 
 #include "Application/Application.h"
 
-// using namespace should generally be avoided, and if used, make sure it's ONLY in cpp files
-using namespace Gameplay;
+#include "Graphics/Textures/Texture3D.h"
+#include "Graphics/Textures/Texture1D.h"
 using namespace Gameplay::Physics;
 
 std::vector<MeshResource::Sptr> LoadTargets(int numTargets, std::string path)
@@ -134,12 +136,14 @@ void DefaultSceneLayer::_CreateScene() {
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_environment_reflective.glsl" }
 		});
+		reflectiveShader->SetDebugName("Reflective");
 
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
 		});
+		basicShader->SetDebugName("Blinn-phong");
 
 		// This shader handles our basic materials without reflections (cause they expensive)
 		/*ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -164,6 +168,7 @@ void DefaultSceneLayer::_CreateScene() {
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/foliage.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/screendoor_transparency.glsl" }
 		});
+		foliageShader->SetDebugName("Foliage");
 
 		// This shader handles our cel shading example
 		/*ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -233,9 +238,9 @@ void DefaultSceneLayer::_CreateScene() {
 		catcusTex->SetMinFilter(MinFilter::Unknown);
 		catcusTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
-		mainCharTex->SetMinFilter(MinFilter::Unknown);
-		mainCharTex->SetMagFilter(MagFilter::Nearest);
+		// Loading in a 1D LUT
+		Texture1D::Sptr toonLut = ResourceManager::CreateAsset<Texture1D>("luts/toon-1D.png"); 
+		toonLut->SetWrap(WrapMode::ClampToEdge);
 
 		//Stage Textures
 
@@ -352,6 +357,12 @@ void DefaultSceneLayer::_CreateScene() {
 		scene->SetSkyboxShader(skyboxShader);
 		// Since the skybox I used was for Y-up, we need to rotate it 90 deg around the X-axis to convert it to z-up
 		scene->SetSkyboxRotation(glm::rotate(MAT4_IDENTITY, glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f)));
+
+		// Loading in a color lookup table
+		Texture3D::Sptr lut = ResourceManager::CreateAsset<Texture3D>("luts/cool.CUBE");  
+
+		// Configure the color correction LUT
+		scene->SetColorLUT(lut);
 
 		// Create our materials
 		// This will be our box material, with no environment reflections

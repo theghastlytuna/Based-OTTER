@@ -10,9 +10,10 @@
 #include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Gameplay/MeshResource.h"
+#include "Gameplay/Material.h"
 
 #include "Graphics/DebugDraw.h"
-#include "Graphics/TextureCube.h"
+#include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Application/Application.h"
 
@@ -59,6 +60,10 @@ namespace Gameplay {
 		_bulletDebugDraw->setDebugMode((btIDebugDraw::DebugDrawModes)mode);
 	}
 
+	BulletDebugMode Scene::GetPhysicsDebugDrawMode() const {
+		return (BulletDebugMode)_bulletDebugDraw->getDebugMode();
+	}
+
 	void Scene::SetSkyboxShader(const std::shared_ptr<ShaderProgram>& shader) {
 		_skyboxShader = shader;
 	}
@@ -83,6 +88,14 @@ namespace Gameplay {
 
 	const glm::mat3& Scene::GetSkyboxRotation() const {
 		return _skyboxRotation;
+	}
+
+	void Scene::SetColorLUT(const Texture3D::Sptr& texture) {
+		_colorCorrection = texture;
+	}
+
+	const Texture3D::Sptr& Scene::GetColorLUT() const {
+		return _colorCorrection;
 	}
 
 	GameObject::Sptr Scene::CreateGameObject(const std::string& name)
@@ -159,7 +172,7 @@ namespace Gameplay {
 
 		if (IsPlaying) {
 
-			_physicsWorld->stepSimulation(dt, 15);
+			_physicsWorld->stepSimulation(dt, 1);
 
 			_components.Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
 				body->PhysicsPostStep(dt);
