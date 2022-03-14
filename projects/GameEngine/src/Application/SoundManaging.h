@@ -5,10 +5,9 @@
 #include <vector>
 #include <iostream>
 #include "common.h"
+#include "fmod_errors.h"
 
 /**
- * The timing class is a very simple singleton class that will store our timing values
- * per-frame
  */
 
 class SoundManaging final {
@@ -39,6 +38,13 @@ public:
 		float currentDurationMS;
 	};
 
+	struct eventData
+	{
+		FMOD::Studio::EventInstance* instance;
+		std::string name;
+		const char* path;
+	};
+
 	inline void UpdateSounds(float deltaT) {
 		for each (soundData sampleSound in sounds)
 		{
@@ -46,6 +52,8 @@ public:
 		}
 
 		system->update();
+		studioSystem->update();
+		Common_Update();
 	}
 
 	inline void LoadSound(const char* filePath, std::string name)
@@ -81,74 +89,77 @@ public:
 					system->playSound(sampleSound.sound, 0, false, &channel);
 					sampleSound.currentDurationMS = 0.0f;
 					channel->setVolume(volume);
-				}
 
-				return;
+					return;
+				}
 			}
 		}
 	}
 
 	inline void LoadBank(const char* filename)
 	{
-		ERRCHECK(studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &bank));
-		//bank->loadSampleData();
-		//bank->getSampleLoadingState(state1);
-
-		//bank->getEventList(&events1, 10, numEvents);
-		//bank->getEventCount(numEvents);
-	}
-
-	inline bool GetStatus()
-	{
-		return *state1 == FMOD_STUDIO_LOADING_STATE_ERROR;
+		studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
 	}
 
 	inline void LoadStringBank(const char* filename)
 	{
-		ERRCHECK(studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NONBLOCKING, &stringBank));
-		//stringBank->loadSampleData();
-		//stringBank->getSampleLoadingState(state2);
-
-		//stringBank->getEventList(&events2, 10, numEvents2);
-		//stringBank->getEventCount(numEvents2);
+		studioSystem->loadBankFile(filename, FMOD_STUDIO_LOAD_BANK_NORMAL, &stringBank);
 	}
 
-	inline void SetEvent(const char* path)
+	inline void SetEvent(const char* path, std::string name)
 	{
+
+		//FMOD_RESULT result;
+		FMOD::Studio::EventInstance* instance;
+
 		FMOD::Studio::EventDescription* tempDesc = NULL;
-		(studioSystem->getEvent("event:/Footsteps", &tempDesc));
+		
+		studioSystem->getEvent(path, &tempDesc);
 
-		(tempDesc->createInstance(&footsteps));
-	}
+		tempDesc->createInstance(&instance);
 
-	inline void PlayInstance()
-	{
-		(footsteps->start());
-	}
+		eventData newEvent;
+		newEvent.instance = instance;
+		newEvent.name = lowercase(name);
+		newEvent.path = path;
 
-	inline int GetNumEvents1()
-	{
-		return *numEvents;
-	}
-
-	inline int GetNumEvents2()
-	{
-		return *numEvents2;
+		events.push_back(newEvent);
 	}
 
 	inline void PlayEvent(std::string name)
 	{
-		bank->getEventCount(numEvents);
+		std::string tempStr = lowercase(name);
+
+		for each (eventData sampleEvent in events)
+		{
+			if (sampleEvent.name == tempStr)
+			{
+				sampleEvent.instance->start();
+
+				return;
+			}
+
+		}
 	}
 
 	inline void StopSounds()
 	{
 		channel->stop();
+
+		for each (eventData sampleEvent in events)
+		{
+			sampleEvent.instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+		}
 	}
 
 	inline void SetVolume(float inVolume)
 	{
 		volume = inVolume;
+
+		for each (eventData sampleEvent in events)
+		{
+			std::cout << "FMOD ERROR for setting volume: " << FMOD_ErrorString(sampleEvent.instance->setParameterByName("Volume", inVolume));
+		}
 	}
 
 	static inline SoundManaging& Current() { return _singleton; }
@@ -174,24 +185,15 @@ protected:
 	static SoundManaging _singleton;
 
 	std::vector<soundData> sounds;
+	std::vector<eventData> events;
 
-	FMOD::Studio::System	*studioSystem;
-	FMOD::Studio::Bank		*bank;
-	FMOD::Studio::Bank		*stringBank;
-	int						*numEvents;
-	int						*numEvents2;
-	FMOD::Studio::EventDescription* events1;
-	FMOD::Studio::EventDescription* events2;
+	FMOD::Studio::System	*studioSystem = NULL;
+	FMOD::Studio::Bank		*bank = nullptr;
+	FMOD::Studio::Bank		*stringBank = nullptr;
 
-	FMOD::Studio::EventInstance* footsteps;
-
-	FMOD_STUDIO_LOADING_STATE* state1;
-	FMOD_STUDIO_LOADING_STATE* state2;
-
-
-	FMOD::System			*system;
+	FMOD::System			*system = nullptr;
 	FMOD::Channel			*channel = 0;
-	void					*extradriverdata;
+	void					*extradriverdata = nullptr;
 
 	float volume = 0.5f;
 };

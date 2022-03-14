@@ -53,6 +53,7 @@ protected:
 	float _chargeAmount = 0.f;
 	float _initialFov;
 	float _spintVal = 5.0f;
+	float _timeBetStep = 0.0f;
 	GLFWwindow* _window;
 
 	ControllerInput::Sptr _controller;

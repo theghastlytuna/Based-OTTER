@@ -233,15 +233,11 @@ void Application::_Run()
 
 	soundInfo thisSoundInfo;
 
+	/*
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
 	soundManaging.LoadSound("Sounds/pop.wav", "Pop");
-	//soundManaging.LoadSound("Sounds/footsteps.fspro", "Step");
-
-	soundManaging.LoadBank("Sounds/fmod/Banks/Master.bank");
-	soundManaging.LoadStringBank("Sounds/fmod/Banks/Master.strings.bank");
-
-	soundManaging.SetEvent("event: / Footsteps");
+	*/
 
 	//int numEvents1 = soundManaging.GetNumEvents1();
 	//int numEvents2 = soundManaging.GetNumEvents2();
@@ -299,6 +295,18 @@ void Application::_Run()
 			menuItems.push_back(_currentScene->FindObjectByName("Exit Button")->Get<MenuElement>());
 
 			firstFrame = false;
+
+			soundManaging.LoadBank("fmod/Banks/Master.bank");
+			soundManaging.LoadBank("fmod/Banks/Sounds.bank");
+			soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
+
+			soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
+			soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
+			soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
+			soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
+			soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
+
+			//soundManaging.SetEvent("event:/Footsteps", "footsteps");
 		}
 
 		//else 		std::cout << soundManaging.GetStatus() << '\n';
@@ -340,7 +348,6 @@ void Application::_Run()
 
 			if (loading)
 			{
-				soundManaging.PlaySound("Scene Startup");
 
 				GetLayer<Menu>()->SetActive(false);
 
@@ -355,6 +362,8 @@ void Application::_Run()
 				soundManaging.StopSounds();
 
 				started = true;
+
+				soundManaging.PlayEvent("Map1Music");
 			}
 
 			else if (options)
@@ -384,7 +393,7 @@ void Application::_Run()
 
 						soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-						soundManaging.PlaySound("Pop");
+						soundManaging.PlayEvent("Pop");
 					}
 
 					selectTime = 0.0f;
@@ -398,7 +407,7 @@ void Application::_Run()
 
 						soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-						soundManaging.PlaySound("Pop");
+						soundManaging.PlayEvent("Pop");
 					}
 
 					selectTime = 0.0f;
@@ -448,8 +457,6 @@ void Application::_Run()
 
 					currentElement->GrowElement();
 					selectTime = 0.0f;
-
-					soundManaging.PlayInstance();
 				}
 
 				else if (upSelect && selectTime >= 0.3f)
@@ -462,8 +469,6 @@ void Application::_Run()
 
 					currentElement->GrowElement();
 					selectTime = 0.0f;
-
-					soundManaging.PlayInstance();
 				}
 
 				else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
@@ -477,6 +482,8 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
 
 					loading = true;
+
+					soundManaging.PlayEvent("LoadScene");
 				}
 
 				else if (currentElement == _currentScene->FindObjectByName("Options Button")->Get<MenuElement>() && confirm)

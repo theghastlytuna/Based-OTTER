@@ -133,8 +133,29 @@ void PlayerControl::Update(float deltaTime)
 		{
 			worldMovement = 10.0f * glm::normalize(worldMovement);
 
-			if (_isSprinting) worldMovement *= _spintVal;
+			_timeBetStep += deltaTime;
+
+			if (_isSprinting)
+			{
+				worldMovement *= _spintVal;
+				if (_timeBetStep >= 0.4)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
+
+			else
+			{
+				if (_timeBetStep >= 0.8f)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
 		}
+
+		else _timeBetStep = 1.5f;
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
 		//trigger input from controller goes from -1 to 1
