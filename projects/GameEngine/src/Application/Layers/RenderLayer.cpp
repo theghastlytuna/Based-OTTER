@@ -314,10 +314,6 @@ void RenderLayer::SetBlitEnabled(bool value) {
 	_blitFbo = value;
 }
 
-Framebuffer::Sptr RenderLayer::GetRenderOutput() {
-	return _primaryFBO;
-}
-
 const glm::vec4& RenderLayer::GetClearColor() const {
 	return _clearColor;
 }
