@@ -367,7 +367,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 		// Configure the color correction LUT
 		scene->SetColorLUT(lut);
-
+		//
 		// Create our materials
 		// This will be our box material, with no environment reflections
 		Material::Sptr boxMaterial = ResourceManager::CreateAsset<Material>(basicShader);
