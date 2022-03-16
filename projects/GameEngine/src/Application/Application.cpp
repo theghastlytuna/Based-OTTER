@@ -218,6 +218,7 @@ void Application::_Run()
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
+	bool started = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -238,8 +239,14 @@ void Application::_Run()
 
 	soundInfo thisSoundInfo;
 
+	/*
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
 	soundManaging.LoadSound("Sounds/Cartoon_Boing.wav", "Jump");
+	soundManaging.LoadSound("Sounds/pop.wav", "Pop");
+	*/
+
+	//int numEvents1 = soundManaging.GetNumEvents1();
+	//int numEvents2 = soundManaging.GetNumEvents2();
 
 	////////////////////////////////////////////////////////////////////////
 
@@ -252,6 +259,8 @@ void Application::_Run()
 
 		// Receive events like input and window position/size changes from GLFW
 		glfwPollEvents();
+
+		//std::cout << "Non-string: " << numEvents1 << "\nString: " << numEvents2 << '\n';
 
 		// Handle closing the app via the close button
 		if (glfwWindowShouldClose(_window)) {
@@ -282,7 +291,8 @@ void Application::_Run()
 		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
-			
+			GetLayer<Menu>()->RepositionUI();
+
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
 
@@ -291,7 +301,21 @@ void Application::_Run()
 			menuItems.push_back(_currentScene->FindObjectByName("Exit Button")->Get<MenuElement>());
 
 			firstFrame = false;
+
+			soundManaging.LoadBank("fmod/Banks/Master.bank");
+			soundManaging.LoadBank("fmod/Banks/Sounds.bank");
+			soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
+
+			soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
+			soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
+			soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
+			soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
+			soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
+
+			//soundManaging.SetEvent("event:/Footsteps", "footsteps");
 		}
+
+		//else 		std::cout << soundManaging.GetStatus() << '\n';
 
 		//If menu screen layer is active
 		if (GetLayer<Menu>()->IsActive())
@@ -330,7 +354,6 @@ void Application::_Run()
 
 			if (loading)
 			{
-				soundManaging.PlaySound("Scene Startup");
 
 				GetLayer<Menu>()->SetActive(false);
 
@@ -343,6 +366,10 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
 
 				soundManaging.StopSounds();
+
+				started = true;
+
+				soundManaging.PlayEvent("Map1Music");
 			}
 
 			else if (options)
@@ -366,14 +393,28 @@ void Application::_Run()
 					//If sound isn't at 0 yet, reduce it
 					//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
 					//Therefore, use > 0.00001 instead of > 0
-					if (thisSoundInfo.currentVol > 0.00001f) thisSoundInfo.currentVol -= 0.1f;
+					if (thisSoundInfo.currentVol > 0.00001f)
+					{
+						thisSoundInfo.currentVol -= 0.1f;
+
+						soundManaging.SetVolume(thisSoundInfo.currentVol);
+
+						soundManaging.PlayEvent("Pop");
+					}
 
 					selectTime = 0.0f;
 				}
 
 				else if (rightSelect && selectTime >= 0.2f)
 				{
-					if (thisSoundInfo.currentVol < 1.0f) thisSoundInfo.currentVol += 0.1f;
+					if (thisSoundInfo.currentVol < 1.0f)
+					{
+						thisSoundInfo.currentVol += 0.1f;
+
+						soundManaging.SetVolume(thisSoundInfo.currentVol);
+
+						soundManaging.PlayEvent("Pop");
+					}
 
 					selectTime = 0.0f;
 				}
@@ -447,6 +488,8 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
 
 					loading = true;
+
+					soundManaging.PlayEvent("LoadScene");
 				}
 
 				else if (currentElement == _currentScene->FindObjectByName("Options Button")->Get<MenuElement>() && confirm)
@@ -502,6 +545,13 @@ void Application::_Run()
 			GameObject::Sptr boomerang2 = _currentScene->FindObjectByName("Boomerang 2");
 
 			//GameObject::Sptr detachedCam = _currentScene->FindObjectByName("Detached Camera");
+
+			if (started)
+			{
+				started = false;
+
+				GetLayer<DefaultSceneLayer>()->RepositionUI();
+			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{

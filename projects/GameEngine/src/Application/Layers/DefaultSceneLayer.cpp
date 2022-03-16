@@ -204,6 +204,11 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr stagePillarMesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/stage_pillar.obj");
 		MeshResource::Sptr stagePillar2Mesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/stage_pillar2.obj");
 
+		MeshResource::Sptr rampHitboxMesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramps3.obj");
+
+		MeshResource::Sptr rampHitboxMesh1 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp1.obj");
+		MeshResource::Sptr rampHitboxMesh2 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp3.obj");
+
 		//Assets
 
 		MeshResource::Sptr barrelMesh = ResourceManager::CreateAsset<MeshResource>("barrel.obj");
@@ -786,8 +791,8 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(sandMaterial);
 
 
-			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(110.0f, 110.0f, 1.0f));
-			collider->SetPosition({ 0,0,-1 });
+			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(110.0f, 50.0f, 1.0f));
+			collider->SetPosition({ 0,-0.8,-1 });
 			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Attach a plane collider that extends infinitely along the X/Y axis
@@ -812,8 +817,67 @@ void DefaultSceneLayer::_CreateScene() {
 			RenderComponent::Sptr renderer = sideGround->Add<RenderComponent>();
 			renderer->SetMesh(stageSideFloorMesh);
 			renderer->SetMaterial(rockFloorMaterial);
+		}
+		
+		
+		//Stage Mesh - side floors
+		GameObject::Sptr sideGroundHB = scene->CreateGameObject("GroundSideHitbox");
+		{
+			// Set position in the scene
+			sideGroundHB->SetPosition(glm::vec3(0.0f, 0.0f, -1.0f));
+			sideGroundHB->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			sideGroundHB->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			int d = 35;
+
+			TriggerVolume::Sptr volume = sideGroundHB->Add<TriggerVolume>();
+			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 0.97, 7.82)))->SetPosition({ -37.86, 0.13, 19.41 })->SetRotation(glm::vec3(-5, -20, 18));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 1, 7.9)))->SetPosition({ -28.9, 3.46, 22.6 })->SetRotation(glm::vec3(-4, -14, 26));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17)))->SetPosition({ -20.83, 4.46, 21.86 })->SetRotation(glm::vec3(6, 36, 10));
+
+			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 0.97, 7.82)))->SetPosition(glm::vec3((-37.86 - d) * -1, 0.13, -19.41))->SetRotation(glm::vec3(5, -20, -18));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 1, 7.9)))->SetPosition(glm::vec3((-28.9 - d) * -1, 3.46, -22.6))->SetRotation(glm::vec3(4, -14, -26));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17)))->SetPosition(glm::vec3((-20.83 - d) * -1, 4.46, -21.86))->SetRotation(glm::vec3(-6, 36, -10));
+
+			sideGroundHB->Add<TriggerVolumeEnterBehaviour>();
+		}
+		
+		//Stage Mesh - side floors
+		GameObject::Sptr sideGroundHB1 = scene->CreateGameObject("GroundSideHitbox1");
+		{
+			// Set position in the scene
+			sideGroundHB1->SetPosition(glm::vec3(0.0f, 0.0f, -1.0f));
+			sideGroundHB1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			sideGroundHB1->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = sideGroundHB1->Add<RenderComponent>();
+			renderer->SetMesh(rampHitboxMesh1);
+			//renderer->SetMaterial(rockFloorMaterial);
+
+			RigidBody::Sptr physics = sideGroundHB1->Add<RigidBody>();
+
+			physics->AddCollider(ConvexMeshCollider::Create());
 
 		}
+		/*
+		GameObject::Sptr sideGroundHB2 = scene->CreateGameObject("GroundSideHitbox2");
+		{
+			// Set position in the scene
+			sideGroundHB2->SetPosition(glm::vec3(0.0f, -0.2f, -1.0f));
+			sideGroundHB2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			sideGroundHB2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = sideGroundHB2->Add<RenderComponent>();
+			renderer->SetMesh(rampHitboxMesh2);
+			//renderer->SetMaterial(rockFloorMaterial);
+
+			RigidBody::Sptr physics = sideGroundHB2->Add<RigidBody>();
+
+			physics->AddCollider(ConvexMeshCollider::Create());
+		}
+		*/
 
 		//Stage Mesh - walls
 		GameObject::Sptr centerWalls = scene->CreateGameObject("Center Walls");
@@ -887,8 +951,8 @@ void DefaultSceneLayer::_CreateScene() {
 			BoxCollider::Sptr collider13 = BoxCollider::Create(glm::vec3(1, 23, 9.93));
 			collider13->SetPosition(glm::vec3(44.1, 19, -28.05));
 			collider13->SetRotation(glm::vec3(0, 60, 0));
-
-			RigidBody::Sptr physics = centerWalls->Add<RigidBody>(/*static by default*/);
+			
+			RigidBody::Sptr physics = centerWalls->Add<RigidBody>();
 			physics->AddCollider(collider0);
 			physics->AddCollider(collider1);
 			physics->AddCollider(collider2);
@@ -919,6 +983,7 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMesh(stageSideWallsMesh);
 			renderer->SetMaterial(rockWallMaterial);
 
+			
 			//oh god the amount of work i did for this
 			BoxCollider::Sptr collider0 = BoxCollider::Create(glm::vec3(8, 10, 1));
 			collider0->SetPosition(glm::vec3(-30, 5, -15));
@@ -960,17 +1025,19 @@ void DefaultSceneLayer::_CreateScene() {
 			collider9->SetPosition(glm::vec3(-44, 5, 30));
 			collider9->SetRotation(glm::vec3(0, -16, 0));
 
+			/*
 			BoxCollider::Sptr collider10 = BoxCollider::Create(glm::vec3(5, 0.97, 7.82));
-			collider10->SetPosition(glm::vec3(-37.86, 0.13, 19.41));
-			collider10->SetRotation(glm::vec3(-5, -20, 18));
-
-			BoxCollider::Sptr collider11 = BoxCollider::Create(glm::vec3(5, 1, 7.9));
-			collider11->SetPosition(glm::vec3(-28.9, 3.46, 22.6));
-			collider11->SetRotation(glm::vec3(-4, -14, 26));
-
-			BoxCollider::Sptr collider12 = BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17));
-			collider12->SetPosition(glm::vec3(-21.420, 3.56, 24.51));
-			collider12->SetRotation(glm::vec3(0, -15, 1));
+			collider10->SetPosition(glm::vec3(-35.990, 0.280, 19.290));
+			collider10->SetRotation(glm::vec3(-7, -19, 17));
+			
+			BoxCollider::Sptr collider11 = BoxCollider::Create(glm::vec3(7.17, 1, 7.9));
+			collider11->SetPosition(glm::vec3(-30.70, 2.55, 21.3));
+			collider11->SetRotation(glm::vec3(-4, 4, 22));
+			
+			BoxCollider::Sptr collider12 = BoxCollider::Create(glm::vec3(3.20, 1.0, 5.17));
+			collider12->SetPosition(glm::vec3(-19.450, 6.05, 21.54));
+			collider12->SetRotation(glm::vec3(4.5, 33, 9));
+			*/
 
 			BoxCollider::Sptr collider13 = BoxCollider::Create(glm::vec3(3.76, 10, 1));
 			collider13->SetPosition(glm::vec3(-34.89, 5, 14.05));
@@ -1043,11 +1110,11 @@ void DefaultSceneLayer::_CreateScene() {
 			BoxCollider::Sptr collider28 = BoxCollider::Create(glm::vec3(1, 10, 5.5));
 			collider28->SetPosition(glm::vec3((-44 - d) * -1, 5, -30));
 			collider28->SetRotation(glm::vec3(0, -16, 0));//
-
+			/*
 			BoxCollider::Sptr collider29 = BoxCollider::Create(glm::vec3(5, 0.97, 7.82));
 			collider29->SetPosition(glm::vec3((-37.86 - d) * -1, 0.13, -19.41));
 			collider29->SetRotation(glm::vec3(5, -20, -18));//// Here!  
-
+			
 			BoxCollider::Sptr collider30 = BoxCollider::Create(glm::vec3(5, 1, 7.9));
 			collider30->SetPosition(glm::vec3((-28.9 - d) * -1, 3.46, -22.6));
 			collider30->SetRotation(glm::vec3(4, -14, -26));//// Here!
@@ -1055,6 +1122,7 @@ void DefaultSceneLayer::_CreateScene() {
 			BoxCollider::Sptr collider31 = BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17));
 			collider31->SetPosition(glm::vec3((-21.420 - d) * -1, 3.56, -24.51));
 			collider31->SetRotation(glm::vec3(0, -15, -1));//// Here!
+			*/
 
 			BoxCollider::Sptr collider32 = BoxCollider::Create(glm::vec3(3.76, 10, 1));
 			collider32->SetPosition(glm::vec3((-34.89 - d) * -1, 5, -14.05));
@@ -1080,19 +1148,20 @@ void DefaultSceneLayer::_CreateScene() {
 			collider37->SetPosition(glm::vec3((-19.01 - d) * -1, 5, -25.99));
 			collider37->SetRotation(glm::vec3(0, 34, 0));//
 
-			BoxCollider::Sptr collider38 = BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17));
-			collider38->SetPosition(glm::vec3(-20.830, 4.1, 23.51));
-			collider38->SetRotation(glm::vec3(0, -15, 1));
+			/*
+			BoxCollider::Sptr collider38 = BoxCollider::Create(glm::vec3(1.8, 1, 5.17));
+			collider38->SetPosition(glm::vec3(-22.54, 5.64, 23.51));
+			collider38->SetRotation(glm::vec3(-4, 3, 3));
 
 			BoxCollider::Sptr collider39 = BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17));
 			collider39->SetPosition(glm::vec3((-20.830 - d) * -1, 4.1, -23.51));
 			collider39->SetRotation(glm::vec3(0, -15, 1));
-
+			*/
 			/// <summary>
 			/// 
 			/// </summary>
 
-			RigidBody::Sptr physics = sideWalls->Add<RigidBody>(/*static by default*/);
+			RigidBody::Sptr physics = sideWalls->Add<RigidBody>();
 			physics->AddCollider(collider0);
 			physics->AddCollider(collider1);
 			physics->AddCollider(collider2);
@@ -1103,16 +1172,16 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider7);
 			physics->AddCollider(collider8);
 			physics->AddCollider(collider9);
-			physics->AddCollider(collider10);
-			physics->AddCollider(collider11);
-			physics->AddCollider(collider12);
+			//physics->AddCollider(collider10);
+			//physics->AddCollider(collider11);
+			//physics->AddCollider(collider12);
 			physics->AddCollider(collider13);
 			physics->AddCollider(collider14);
 			physics->AddCollider(collider15);
 			physics->AddCollider(collider16);
 			physics->AddCollider(collider17);
 			physics->AddCollider(collider18);
-			physics->AddCollider(collider38);
+			//physics->AddCollider(collider38);
 
 			//The other side lul
 
@@ -1126,9 +1195,9 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider26);
 			physics->AddCollider(collider27);
 			physics->AddCollider(collider28);
-			physics->AddCollider(collider29);
-			physics->AddCollider(collider30);
-			physics->AddCollider(collider31);
+			//physics->AddCollider(collider29);
+			//physics->AddCollider(collider30);
+			//physics->AddCollider(collider31);
 			physics->AddCollider(collider32);
 			physics->AddCollider(collider33);
 			physics->AddCollider(collider34);
@@ -1136,18 +1205,8 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider36);
 			physics->AddCollider(collider37);
 			//physics->AddCollider(collider39);
-
-			TriggerVolume::Sptr volume = sideWalls->Add<TriggerVolume>();
-			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 0.97, 7.82)))->SetPosition({ -37.86, 0.13, 19.41 })->SetRotation(glm::vec3(-5, -20, 18));//
-			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 1, 7.9)))->SetPosition({ -28.9, 3.46, 22.6 })->SetRotation(glm::vec3(-4, -14, 26));//
-			volume->AddCollider(BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17)))->SetPosition({ -20.83, 4.46, 21.86 })->SetRotation(glm::vec3(6, 36, 10));//
-
-			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 0.97, 7.82)))->SetPosition(glm::vec3((-37.86 - d) * -1, 0.13, -19.41))->SetRotation(glm::vec3(5, -20, -18));//
-			volume->AddCollider(BoxCollider::Create(glm::vec3(5, 1, 7.9)))->SetPosition(glm::vec3((-28.9 - d) * -1, 3.46, -22.6))->SetRotation(glm::vec3(4, -14, -26));
-			volume->AddCollider(BoxCollider::Create(glm::vec3(3.64, 2.67, 5.17)))->SetPosition(glm::vec3((-20.83 - d) * -1, 4.46, -21.86))->SetRotation(glm::vec3(-6, 36, -10));
-
-			sideWalls->Add<TriggerVolumeEnterBehaviour>();
 		}
+		
 
 		//Stage Mesh - bridge
 		GameObject::Sptr bridge = scene->CreateGameObject("Bridge Ground");
@@ -1162,7 +1221,7 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMesh(stageBridgeMesh);
 			renderer->SetMaterial(bridgeMaterial);
 
-			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(40.4, 0.5, 2.12));
+			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(39.8, 0.5, 2.12));
 			collider->SetPosition(glm::vec3(17.13, 6.97, -0.7));
 			collider->SetRotation(glm::vec3(0, 29, 0));
 

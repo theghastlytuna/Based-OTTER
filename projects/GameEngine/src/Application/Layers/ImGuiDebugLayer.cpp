@@ -75,7 +75,7 @@ void ImGuiDebugLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 
 		// Our primary dock window (which will be hidden)
 		ImGui::Begin("Docker Window", nullptr, window_flags);
-		
+
 		// Pop styling variables so they don't effect other resources
 		ImGui::PopStyleVar(3);
 		ImGui::PopStyleColor();

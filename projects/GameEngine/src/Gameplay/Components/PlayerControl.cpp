@@ -12,6 +12,8 @@
 #include "Gameplay/Physics/RigidBody.h"
 #include "Application/Application.h"
 
+#include "Application/SoundManaging.h"
+
 PlayerControl::PlayerControl()
 	: IComponent(),
 	_mouseSensitivity({ 0.2f, 0.2f }),
@@ -117,6 +119,12 @@ void PlayerControl::Update(float deltaTime)
 			input.x = leftX * -_moveSpeeds.y;
 		}
 
+		if (input.x == 0.0f && input.z == 0.0f)
+		{
+			_isMoving = false;
+			soundTime = 0.0f;
+		}
+
 		input *= deltaTime;
 
 		glm::vec3 worldMovement = glm::vec3((currentRot * glm::vec4(input, 1.0f)).x, (currentRot * glm::vec4(input, 1.0f)).y, 0.0f);
@@ -125,8 +133,29 @@ void PlayerControl::Update(float deltaTime)
 		{
 			worldMovement = 10.0f * glm::normalize(worldMovement);
 
-			if (_isSprinting) worldMovement *= _spintVal;
+			_timeBetStep += deltaTime;
+
+			if (_isSprinting)
+			{
+				worldMovement *= _spintVal;
+				if (_timeBetStep >= 0.4)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
+
+			else
+			{
+				if (_timeBetStep >= 0.8f)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
 		}
+
+		else _timeBetStep = 1.5f;
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
 		//trigger input from controller goes from -1 to 1
@@ -258,6 +287,18 @@ void PlayerControl::Update(float deltaTime)
 				worldMovement = 10.0f * glm::normalize(worldMovement);
 			}
 			GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
+		}
+	}
+
+	if (_isMoving)
+	{
+		SoundManaging& soundManaging = SoundManaging::Current();
+		soundTime += deltaTime;
+
+		if (soundTime >= 1.0f)
+		{
+			soundManaging.PlaySound("Step");
+			soundTime = 0.0f;
 		}
 	}
 }

@@ -29,13 +29,25 @@ void JumpBehaviour::RenderImGui() {
 void JumpBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
 {
 	LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
-	if (trigger->GetGameObject()->Name.find("Ground") != std::string::npos) _onGround = true;
+	if (trigger->GetGameObject()->Name.find("Ground") != std::string::npos)
+	{
+		_onGround = true;
+		_numGroundsEntered++;
+	}
 }
 
 void JumpBehaviour::OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
 {
 	LOG_INFO("Exited trigger: {}", trigger->GetGameObject()->Name);
-	if (trigger->GetGameObject()->Name.find("Ground") != std::string::npos) _onGround = false;
+	if (trigger->GetGameObject()->Name.find("Ground") != std::string::npos)
+	{
+		_numGroundsEntered--;
+		if (_numGroundsEntered <= 0)
+		{
+			_numGroundsEntered = 0;
+			_onGround = false;
+		}
+	}
 }
 
 nlohmann::json JumpBehaviour::ToJson() const {
@@ -70,7 +82,7 @@ void JumpBehaviour::Update(float deltaTime) {
 			_jumpCooldown = 0.5f;
 			_startingJump = true;
 
-			SoundManaging::Current().PlaySound("Jump");
+			SoundManaging::Current().PlayEvent("Jump");
 		}
 	}
 	

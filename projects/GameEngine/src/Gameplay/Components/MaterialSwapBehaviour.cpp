@@ -14,14 +14,14 @@ void MaterialSwapBehaviour::OnEnteredTrigger(const Gameplay::Physics::TriggerVol
 	if (_renderer && EnterMaterial) {
 		_renderer->SetMaterial(EnterMaterial);
 	}
-	LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
+	//LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
 }
 
 void MaterialSwapBehaviour::OnLeavingTrigger(const Gameplay::Physics::TriggerVolume::Sptr& trigger) {
 	if (_renderer && ExitMaterial) {
 		_renderer->SetMaterial(ExitMaterial);
 	}
-	LOG_INFO("Left trigger: {}", trigger->GetGameObject()->Name);
+	//LOG_INFO("Left trigger: {}", trigger->GetGameObject()->Name);
 }
 
 void MaterialSwapBehaviour::Awake() {

@@ -306,6 +306,10 @@ bool RenderLayer::IsBlitEnabled() const {
 	return _blitFbo;
 }
 
+Framebuffer::Sptr RenderLayer::GetRenderOutput() {
+	return _primaryFBO;
+}
+
 void RenderLayer::SetBlitEnabled(bool value) {
 	_blitFbo = value;
 }

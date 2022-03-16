@@ -33,6 +33,11 @@ void HierarchyWindow::Render()
 
 void HierarchyWindow::_RenderObjectNode(Gameplay::GameObject::Sptr object, int depth) {
 	using namespace Gameplay;
+	/*
+	if (object->HideInHierarchy) {
+		return;
+	}
+	*/
 
 	if (object->HideInHierarchy) {
 		return;
