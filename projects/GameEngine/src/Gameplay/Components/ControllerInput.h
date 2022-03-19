@@ -34,6 +34,14 @@ public:
 
 	bool GetButtonPressed(int ID);
 
+	void ControllerInput::SetSensitivity(float inSensitivity);
+
+	float ControllerInput::GetSensitivity();
+
+	float ControllerInput::GetMinSensitivity();
+
+	float ControllerInput::GetMaxSensitivity();
+
 protected:
 	bool _controllerConnected = false;
 	int _controllerID;
@@ -41,6 +49,10 @@ protected:
 	int _axesCount;
 
 	bool _enabled;
+
+	float _sensitivity;
+	float _minSensitivity;
+	float _maxSensitivity;
 
 	std::vector<char> buttonList;
 	std::vector<char> prevButtonList;

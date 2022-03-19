@@ -19,7 +19,7 @@ FirstPersonCamera::FirstPersonCamera()
 	_shiftMultipler(2.0f),
 	_currentRot(glm::vec2(0.0f, 180.0f)),
 	_isMousePressed(false),
-	_controllerSensitivity({ 1.1f, 1.1f })
+	_controllerSensitivity({ 1.5f, 1.5f })
 
 {}
 
@@ -42,6 +42,8 @@ void FirstPersonCamera::Update(float deltaTime)
 {
 	if (_controller->IsValid())
 	{
+		_controllerSensitivity = { _controller->GetSensitivity(), _controller->GetSensitivity() };
+
 		float rightX = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_X);
 		float rightY = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_Y);
 

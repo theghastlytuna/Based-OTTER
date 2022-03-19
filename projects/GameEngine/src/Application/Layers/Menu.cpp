@@ -257,8 +257,8 @@ void Menu::_CreateScene() {
 			volumeText->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = volumeText->Add<RectTransform>();
-			transform->SetMin({ 50, 100 });
-			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
+			transform->SetMin({ 120, 100 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 5 });
 
 			volumeText->Add<MenuElement>();
 
@@ -274,9 +274,9 @@ void Menu::_CreateScene() {
 
 			RectTransform::Sptr transform = volumeBar->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x / 2, 100 });
-			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4});
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 5});
 
-			volumeBar->Add<MenuElement>();
+			//volumeBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeBar->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
@@ -290,15 +290,64 @@ void Menu::_CreateScene() {
 
 			RectTransform::Sptr transform = volumeSelector->Add<RectTransform>();
 			transform->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });
-			transform->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 4 });
+			transform->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 5 });
 
-			volumeSelector->Add<MenuElement>();
+			//volumeSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeSelector->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
+
+		GameObject::Sptr sensText = scene->CreateGameObject("Sensitivity Text");
+		{
+			sensText->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = sensText->Add<RectTransform>();
+			transform->SetMin({ 120, 400 });
+			transform->SetMax({ app.GetWindowSize().x / 3, 2 * app.GetWindowSize().y / 5 });
+
+			sensText->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensText->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensBar = scene->CreateGameObject("Sensitivity Bar");
+		{
+			sensBar->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = sensBar->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, 400 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  2 * app.GetWindowSize().y / 5 });
+
+			//sensBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensBar->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensSelector = scene->CreateGameObject("Sensitivity Selector");
+		{
+			sensSelector->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = sensSelector->Add<RectTransform>();
+			transform->SetMin({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
+			transform->SetMax({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+
+			//sensSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensSelector->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
 		///////////////////////////////////////////////
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -351,6 +400,10 @@ void Menu::RepositionUI()
 	Gameplay::GameObject::Sptr volumeBar = app.CurrentScene()->FindObjectByName("Volume Bar");
 	Gameplay::GameObject::Sptr volumeSelector = app.CurrentScene()->FindObjectByName("Volume Selector");
 
+	Gameplay::GameObject::Sptr sensText = app.CurrentScene()->FindObjectByName("Sensitivity Text");
+	Gameplay::GameObject::Sptr sensBar = app.CurrentScene()->FindObjectByName("Sensitivity Bar");
+	Gameplay::GameObject::Sptr sensSelector = app.CurrentScene()->FindObjectByName("Sensitivity Selector");
+
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
@@ -371,11 +424,19 @@ void Menu::RepositionUI()
 	loadingScreen->Get<RectTransform>()->SetMin({ 0, 0 });
 	loadingScreen->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-	volumeText->Get<RectTransform>()->SetMin({ 50, 100 });
-	volumeText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
+	volumeText->Get<RectTransform>()->SetMin({ 120, 100 });
+	volumeText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 5 });
+	if (volumeText->Get<MenuElement>()->IsSelected()) volumeText->Get<MenuElement>()->GrowElement();
 
 	volumeBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 100 });
-	volumeBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4 });
+	volumeBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 5 });
+
+	sensText->Get<RectTransform>()->SetMin({ 120, 400 });
+	sensText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, 2 * app.GetWindowSize().y / 5 });
+	if (sensText->Get<MenuElement>()->IsSelected()) sensText->Get<MenuElement>()->GrowElement();
+
+	sensBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 400 });
+	sensBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  2 * app.GetWindowSize().y / 5 });
 	
 	/*
 	volumeSelector->Get<RectTransform>()->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });

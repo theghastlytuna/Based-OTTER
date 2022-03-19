@@ -24,7 +24,7 @@ PlayerControl::PlayerControl()
 	_isMoving(false),
 	_isSprinting(false),
 	_spintVal(2.5f),
-	_controllerSensitivity({ 1.1f, 1.1f })
+	_controllerSensitivity({ 1.5f, 1.5f })
 { }
 
 PlayerControl::~PlayerControl() = default;
@@ -70,6 +70,8 @@ void PlayerControl::Update(float deltaTime)
 	//If there is a valid controller connected, then use it to find input
 	if (_controller->IsValid())
 	{
+		_controllerSensitivity = { _controller->GetSensitivity(), _controller->GetSensitivity() };
+
 		_isMoving = false;
 		_justThrew = false;
 

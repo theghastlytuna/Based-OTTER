@@ -12,7 +12,10 @@
 ControllerInput::ControllerInput()
 	: IComponent(),
 	_controllerConnected(false),
-	_enabled(true)
+	_enabled(true),
+	_sensitivity(2.0f),
+	_minSensitivity(1.0f),
+	_maxSensitivity(3.0f)
 { }
 
 ControllerInput::~ControllerInput() = default;
@@ -112,4 +115,34 @@ bool ControllerInput::GetEnabled()
 bool ControllerInput::GetButtonPressed(int ID)
 {
 	return (prevButtonList[ID] == false) && (buttonList[ID] == true);
+}
+
+void ControllerInput::SetSensitivity(float inSensitivity)
+{
+	if (inSensitivity >= _maxSensitivity)
+	{
+		_sensitivity = _maxSensitivity;
+	}
+
+	else if (inSensitivity <= _minSensitivity)
+	{
+		_sensitivity = _minSensitivity;
+	}
+
+	else _sensitivity = inSensitivity;
+}
+
+float ControllerInput::GetSensitivity()
+{
+	return _sensitivity;
+}
+
+float ControllerInput::GetMinSensitivity()
+{
+	return _minSensitivity;
+}
+
+float ControllerInput::GetMaxSensitivity()
+{
+	return _maxSensitivity;
 }

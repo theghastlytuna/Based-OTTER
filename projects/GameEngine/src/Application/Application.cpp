@@ -223,10 +223,14 @@ void Application::_Run()
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 
 	float selectTime = 0.5f;
+	float barSelectTime = 0.2f;
 
 	MenuElement::Sptr currentElement;
 	std::vector<MenuElement::Sptr> menuItems;
 	int currentItemInd = 0;
+
+	std::vector<MenuElement::Sptr> optionItems;
+	float currentSensitivity = 2.0f; //This is just used to pass sensitivity from one scene to another; use ControllerInput::SetSensitivity to change a controller's sensitivity
 
 	///////Grab the sound manager and load all the sounds we want///////////
 	SoundManaging& soundManaging = SoundManaging::_singleton;
@@ -299,6 +303,9 @@ void Application::_Run()
 			menuItems.push_back(_currentScene->FindObjectByName("Play Button")->Get<MenuElement>());
 			menuItems.push_back(_currentScene->FindObjectByName("Options Button")->Get<MenuElement>());
 			menuItems.push_back(_currentScene->FindObjectByName("Exit Button")->Get<MenuElement>());
+
+			optionItems.push_back(_currentScene->FindObjectByName("Volume Text")->Get<MenuElement>());
+			optionItems.push_back(_currentScene->FindObjectByName("Sensitivity Text")->Get<MenuElement>());
 
 			firstFrame = false;
 
@@ -374,6 +381,34 @@ void Application::_Run()
 
 			else if (options)
 			{
+				ControllerInput::Sptr thisController = CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>();
+				
+				if (downSelect && selectTime >= 0.3f)
+				{
+					currentElement->ShrinkElement();
+					currentItemInd++;
+
+					if (currentItemInd >= optionItems.size()) currentItemInd = 0;
+					currentElement = optionItems[currentItemInd];
+
+					currentElement->GrowElement();
+					selectTime = 0.0f;
+				}
+
+				else if (upSelect && selectTime >= 0.3f)
+				{
+					currentElement->ShrinkElement();
+					currentItemInd--;
+					if (currentItemInd < 0) currentItemInd = optionItems.size() - 1;
+
+					currentElement = optionItems[currentItemInd];
+
+					currentElement->GrowElement();
+					selectTime = 0.0f;
+				}
+
+				else selectTime += dt;
+
 				if (back)
 				{
 					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(1.0f);
@@ -385,41 +420,90 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Volume Bar")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Volume Selector")->Get<GuiPanel>()->SetTransparency(0.0f);
 
+					CurrentScene()->FindObjectByName("Sensitivity Text")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<GuiPanel>()->SetTransparency(0.0f);
+
+					currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
+					currentElement->GrowElement();
+					currentItemInd = 0;
+
 					options = false;
 				}
 
-				else if (leftSelect && selectTime >= 0.2f)
+				else if (currentElement == _currentScene->FindObjectByName("Volume Text")->Get<MenuElement>())
 				{
-					//If sound isn't at 0 yet, reduce it
-					//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
-					//Therefore, use > 0.00001 instead of > 0
-					if (thisSoundInfo.currentVol > 0.00001f)
+
+					if (leftSelect && barSelectTime >= 0.2f)
 					{
-						thisSoundInfo.currentVol -= 0.1f;
+						//If sound isn't at 0 yet, reduce it
+						//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
+						//Therefore, use > 0.00001 instead of > 0
+						if (thisSoundInfo.currentVol > 0.00001f)
+						{
+							thisSoundInfo.currentVol -= 0.1f;
 
-						soundManaging.SetVolume(thisSoundInfo.currentVol);
+							soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-						soundManaging.PlayEvent("Pop");
+							soundManaging.PlayEvent("Pop");
+						}
+
+						barSelectTime = 0.0f;
 					}
 
-					selectTime = 0.0f;
-				}
-
-				else if (rightSelect && selectTime >= 0.2f)
-				{
-					if (thisSoundInfo.currentVol < 1.0f)
+					else if (rightSelect && barSelectTime >= 0.2f)
 					{
-						thisSoundInfo.currentVol += 0.1f;
+						if (thisSoundInfo.currentVol < 1.0f)
+						{
+							thisSoundInfo.currentVol += 0.1f;
 
-						soundManaging.SetVolume(thisSoundInfo.currentVol);
+							soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-						soundManaging.PlayEvent("Pop");
+							soundManaging.PlayEvent("Pop");
+						}
+
+						barSelectTime = 0.0f;
 					}
 
-					selectTime = 0.0f;
+					else barSelectTime += dt;
 				}
 
-				else selectTime += dt;
+				else if (currentElement == _currentScene->FindObjectByName("Sensitivity Text")->Get<MenuElement>())
+				{
+
+					if (leftSelect && barSelectTime >= 0.2f)
+					{
+						//If sound isn't at 0 yet, reduce it
+						//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
+						//Therefore, use > 0.00001 instead of > 0
+						if (thisController->GetSensitivity() > thisController->GetMinSensitivity())
+						{
+							thisController->SetSensitivity(thisController->GetSensitivity() - 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = thisController->GetSensitivity();
+						}
+
+						barSelectTime = 0.0f;
+					}
+
+					else if (rightSelect && barSelectTime >= 0.2f)
+					{
+						if (thisController->GetSensitivity() < thisController->GetMaxSensitivity())
+						{
+							thisController->SetSensitivity(thisController->GetSensitivity() + 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = thisController->GetSensitivity();
+						}
+
+						barSelectTime = 0.0f;
+					}
+
+					else barSelectTime += dt;
+				}
 
 				//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
 				float currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Volume Bar")->Get<RectTransform>()->GetMin().x + 10, 
@@ -427,7 +511,15 @@ void Application::_Run()
 					thisSoundInfo.currentVol);
 			
 				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 100 });
-				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 4 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 5 });
+
+				//Lerp between the two ends of the sensitivity bar, with the current sensitivity being the lerp parameter
+				currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMin().x + 10,
+					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMax().x - 10,
+					(thisController->GetSensitivity() - thisController->GetMinSensitivity()) / (thisController->GetMaxSensitivity() - thisController->GetMinSensitivity()));
+
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 400 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, 2 * GetWindowSize().y / 5 });
 			}
 
 			/*
@@ -504,6 +596,14 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Volume Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Volume Bar")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Volume Selector")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+					CurrentScene()->FindObjectByName("Sensitivity Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+					currentElement = _currentScene->FindObjectByName("Volume Text")->Get<MenuElement>();
+					currentElement->GrowElement();
+					currentItemInd = 0;
 				}
 
 				else selectTime += dt;
@@ -551,6 +651,8 @@ void Application::_Run()
 				started = false;
 
 				GetLayer<DefaultSceneLayer>()->RepositionUI();
+				player1->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
+				player2->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
 			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
