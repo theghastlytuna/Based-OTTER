@@ -72,8 +72,8 @@
 #include "Gameplay/InputEngine.h"
 
 #include "Application/Application.h"
-/*
-std::vector<Gameplay::MeshResource::Sptr> LoadTargets(int numTargets, std::string path)
+
+std::vector<Gameplay::MeshResource::Sptr>LoadTargets2(int numTargets, std::string path)
 {
 	std::vector<Gameplay::MeshResource::Sptr> tempVec;
 	for (int i = 0; i < numTargets; i++)
@@ -83,7 +83,6 @@ std::vector<Gameplay::MeshResource::Sptr> LoadTargets(int numTargets, std::strin
 
 	return tempVec;
 }
-*/
 
 SecondMap::SecondMap() :
 	ApplicationLayer()
@@ -129,6 +128,11 @@ void SecondMap::_CreateScene() {
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
 		});
 
+		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/animFrag.glsl" }
+		});
+
 #pragma endregion
 #pragma region loadMeshes
 
@@ -137,6 +141,25 @@ void SecondMap::_CreateScene() {
 		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Pick_Up.obj");
 		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Trees.obj");
 		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Raised_Platorm.obj");
+		MeshResource::Sptr mainCharMesh = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
+		MeshResource::Sptr mainCharMesh2 = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
+		MeshResource::Sptr boomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+		MeshResource::Sptr boomerangMesh2 = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+		MeshResource::Sptr displayBoomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+
+		std::vector<MeshResource::Sptr> mainIdle = LoadTargets2(3, "MainCharacterAnims/Idle/Char_Idle_00");
+
+		std::vector<MeshResource::Sptr> mainWalk = LoadTargets2(5, "MainCharacterAnims/Walk/Char_Walk_00");
+
+		std::vector<MeshResource::Sptr> mainRun = LoadTargets2(5, "MainCharacterAnims/Run/Char_Run_00");
+
+		std::vector<MeshResource::Sptr> mainJump = LoadTargets2(3, "MainCharacterAnims/Jump/Char_Jump_00");
+
+		std::vector<MeshResource::Sptr> mainDeath = LoadTargets2(4, "MainCharacterAnims/Death/Char_Death_00");
+
+		std::vector<MeshResource::Sptr> mainAttack = LoadTargets2(5, "MainCharacterAnims/Attack/Char_Throw_00");
+
+		std::vector<MeshResource::Sptr> boomerangSpin = LoadTargets2(4, "BoomerangAnims/Boomerang_Active_00");
 
 #pragma endregion
 #pragma region loadTextures
@@ -156,6 +179,14 @@ void SecondMap::_CreateScene() {
 		Texture2D::Sptr    treeTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Tree.png");
 		treeTex->SetMinFilter(MinFilter::Unknown);
 		treeTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
+		mainCharTex->SetMinFilter(MinFilter::Unknown);
+		mainCharTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   boomerangTex = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang.png");
+		boomerangTex->SetMinFilter(MinFilter::Unknown);
+		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
 #pragma endregion
 #pragma region Skybox
@@ -201,6 +232,48 @@ void SecondMap::_CreateScene() {
 			treeMat->Name = "Box";
 			treeMat->Set("u_Material.Diffuse", treeTex);
 			treeMat->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr mainCharMaterial = ResourceManager::CreateAsset<Material>(animShader);
+		{
+			mainCharMaterial->Name = "MainCharacter";
+			mainCharMaterial->Set("u_Material.Diffuse", mainCharTex);
+			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr mainCharMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
+		{
+			mainCharMaterial2->Name = "MainCharacter2";
+			mainCharMaterial2->Set("u_Material.Diffuse", mainCharTex);
+			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(animShader);
+		{
+			boomerangMaterial->Name = "Boomerang1";
+			boomerangMaterial->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
+		{
+			boomerangMaterial2->Name = "Boomerang2";
+			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			displayBoomerangMaterial1->Name = "Display Boomerang1";
+			displayBoomerangMaterial1->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr displayBoomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			displayBoomerangMaterial2->Name = "Display Boomerang1";
+			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
 
 #pragma endregion
@@ -375,6 +448,600 @@ void SecondMap::_CreateScene() {
 			renderer->SetMaterial(treeMat);
 		}
 		
+		GameObject::Sptr player1 = scene->CreateGameObject("Player 1");
+		{
+			ControllerInput::Sptr controller1 = player1->Add<ControllerInput>();
+			controller1->SetController(GLFW_JOYSTICK_1);
+
+			player1->SetPosition(glm::vec3(0.f, 0.f, 4.f));
+			player1->SetRotation(glm::vec3(0.f, 90.f, 0.f));
+
+			RenderComponent::Sptr renderer = player1->Add<RenderComponent>();
+			renderer->SetMesh(mainCharMesh);
+			renderer->SetMaterial(mainCharMaterial);
+			player1->SetRenderFlag(2);
+
+			player1->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+
+			RigidBody::Sptr physics = player1->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(BoxCollider::Create(glm::vec3(0.4f, 1.2f, 0.4f)))->SetPosition(glm::vec3(0.0f, 0.95f, 0.0f));
+			physics->SetAngularFactor(glm::vec3(0.f));
+			physics->SetLinearDamping(0.6f);
+			physics->SetMass(1.f);
+
+			PlayerControl::Sptr controller = player1->Add<PlayerControl>();
+
+			JumpBehaviour::Sptr jumping = player1->Add<JumpBehaviour>();
+
+			player1->AddChild(detachedCam);
+
+			// Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = player1->Add<MorphAnimator>();
+
+			//Add the clips
+			animator->AddClip(mainIdle, 0.8f, "Idle");
+			animator->AddClip(mainWalk, 0.4f, "Walk");
+			animator->AddClip(mainRun, 0.25f, "Run");
+			animator->AddClip(mainAttack, 0.1f, "Attack");
+			animator->AddClip(mainDeath, 0.5f, "Die");
+			animator->AddClip(mainJump, 0.1f, "Jump");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+
+			player1->Add<HealthManager>();
+
+			player1->Add<ScoreCounter>();
+
+			player1->SetRenderFlag(2);
+		}
+
+		GameObject::Sptr player2 = scene->CreateGameObject("Player 2");
+		{
+			ControllerInput::Sptr controller2 = player2->Add<ControllerInput>();
+			controller2->SetController(GLFW_JOYSTICK_2);
+
+			player2->SetPosition(glm::vec3(10.f, 0.f, 4.f));
+
+			RenderComponent::Sptr renderer = player2->Add<RenderComponent>();
+			renderer->SetMesh(mainCharMesh2);
+			renderer->SetMaterial(mainCharMaterial2);
+			player2->SetRenderFlag(1);
+
+			player2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+
+			RigidBody::Sptr physics = player2->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(BoxCollider::Create(glm::vec3(0.4f, 1.2f, 0.4f)))->SetPosition(glm::vec3(0.0f, 0.95f, 0.0f));
+			physics->SetAngularFactor(glm::vec3(0.f));
+			physics->SetLinearDamping(0.6f);
+			physics->SetMass(1.f);
+
+			PlayerControl::Sptr controller = player2->Add<PlayerControl>();
+
+			JumpBehaviour::Sptr jumping = player2->Add<JumpBehaviour>();
+
+			player2->AddChild(detachedCam2);
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = player2->Add<MorphAnimator>();
+
+			//Add the clips
+			animator->AddClip(mainIdle, 0.8f, "Idle");
+			animator->AddClip(mainWalk, 0.4f, "Walk");
+			animator->AddClip(mainRun, 0.25f, "Run");
+			animator->AddClip(mainAttack, 0.1f, "Attack");
+			animator->AddClip(mainDeath, 0.5f, "Die");
+			animator->AddClip(mainJump, 0.1f, "Jump");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+
+			player2->Add<HealthManager>();
+
+			player2->Add<ScoreCounter>();
+
+			player2->SetRenderFlag(1);
+		}
+
+		GameObject::Sptr boomerang = scene->CreateGameObject("Boomerang 1");
+		{
+			// Set position in the scene
+			boomerang->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
+			boomerang->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = boomerang->Add<RenderComponent>();
+			renderer->SetMesh(boomerangMesh);
+			renderer->SetMaterial(boomerangMaterial);
+
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
+			//collider->SetExtents(glm::vec3(0.8f, 0.8f, 0.8f));
+
+			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+
+			TriggerVolume::Sptr volume = boomerang->Add<TriggerVolume>();
+			boomerang->Add<TriggerVolumeEnterBehaviour>();
+			volume->AddCollider(colliderTrigger);
+
+			RigidBody::Sptr physics = boomerang->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(collider);
+
+			boomerang->Add<BoomerangBehavior>();
+
+			boomerang->Add<MorphAnimator>();
+			boomerang->Get<MorphAnimator>()->AddClip(boomerangSpin, 0.1, "Spin");
+
+			boomerang->Get<MorphAnimator>()->ActivateAnim("spin");
+
+		}
+
+		GameObject::Sptr boomerang2 = scene->CreateGameObject("Boomerang 2");
+		{
+			// Set position in the scene
+			boomerang2->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
+			boomerang2->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
+			renderer->SetMesh(boomerangMesh2);
+			renderer->SetMaterial(boomerangMaterial2);
+
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
+
+			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+
+			TriggerVolume::Sptr volume = boomerang2->Add<TriggerVolume>();
+			boomerang2->Add<TriggerVolumeEnterBehaviour>();
+			volume->AddCollider(colliderTrigger);
+
+			RigidBody::Sptr physics = boomerang2->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(collider);
+
+			boomerang2->Add<BoomerangBehavior>();
+
+			boomerang2->Add<MorphAnimator>();
+			boomerang2->Get<MorphAnimator>()->AddClip(boomerangSpin, 0.1, "Spin");
+
+			boomerang2->Get<MorphAnimator>()->ActivateAnim("spin");
+		}
+
+		GameObject::Sptr displayBoomerang1 = scene->CreateGameObject("Display Boomerang 1");
+		{
+			glm::vec3 displacement = (glm::vec3(0.6f, -0.1f, -0.7f));
+			// Set position in the scene
+			displayBoomerang1->SetPosition(glm::vec3(player1->GetPosition()));
+			displayBoomerang1->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			displayBoomerang1->SetRotation(glm::vec3(-178.0f, -15.0f, -110.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
+			renderer->SetMesh(displayBoomerangMesh);
+			renderer->SetMaterial(displayBoomerangMaterial1);
+
+			detachedCam->AddChild(displayBoomerang1);
+			displayBoomerang1->SetPosition(displacement);
+		}
+
+		GameObject::Sptr displayBoomerang2 = scene->CreateGameObject("Display Boomerang 2");
+		{
+
+
+			glm::vec3 displacement = (glm::vec3(0.6f, -0.1f, -0.7f));
+			// Set position in the scene
+
+			displayBoomerang2->SetPosition(glm::vec3(player2->GetPosition()));
+			displayBoomerang2->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			displayBoomerang2->SetRotation(glm::vec3(-178.0f, -15.0f, -110.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = displayBoomerang2->Add<RenderComponent>();
+			renderer->SetMesh(displayBoomerangMesh);
+			renderer->SetMaterial(displayBoomerangMaterial1);
+
+			detachedCam2->AddChild(displayBoomerang2);
+			displayBoomerang2->SetPosition(displacement);
+		}
+
+#pragma endregion
+#pragma region UI
+		GameObject::Sptr healthbar1 = scene->CreateGameObject("HealthBackPanel1");
+		{
+			healthbar1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = healthbar1->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ 200, 50 });
+
+			GuiPanel::Sptr canPanel = healthbar1->Add<GuiPanel>();
+			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
+
+			GameObject::Sptr subPanel1 = scene->CreateGameObject("Player1Health");
+			{
+				subPanel1->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
+				transform->SetMin({ 5, 5 });
+				transform->SetMax({ 195, 45 });
+
+				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
+				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+
+			healthbar1->AddChild(subPanel1);
+		}
+
+		GameObject::Sptr healthbar2 = scene->CreateGameObject("HealthBackPanel2");
+		{
+			healthbar2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = healthbar2->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ 200, 50 });
+
+			GuiPanel::Sptr canPanel = healthbar2->Add<GuiPanel>();
+			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("Player2Health");
+			{
+				subPanel2->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 5, 5 });
+				transform->SetMax({ 195, 45 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+			}
+
+			healthbar2->AddChild(subPanel2);
+		}
+
+		GameObject::Sptr damageFlash1 = scene->CreateGameObject("DamageFlash1");
+		{
+			damageFlash1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = damageFlash1->Add<RectTransform>();
+			transform->SetMin({ -10, -10 });
+			transform->SetMax({ 10000, 10000 });
+
+			GuiPanel::Sptr canPanel = damageFlash1->Add<GuiPanel>();
+			canPanel->SetColor(glm::vec4(1.f, 1.f, 1.f, 0.f));
+		}
+
+		GameObject::Sptr damageFlash2 = scene->CreateGameObject("DamageFlash2");
+		{
+			damageFlash2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = damageFlash2->Add<RectTransform>();
+			transform->SetMin({ -10, -10 });
+			transform->SetMax({ 10000, 10000 });
+
+			GuiPanel::Sptr canPanel = damageFlash2->Add<GuiPanel>();
+			canPanel->SetColor(glm::vec4(1.f, 1.f, 1.f, 0.f));
+		}
+
+		GameObject::Sptr crosshairs = scene->CreateGameObject("Crosshairs");
+		{
+			RectTransform::Sptr transform = crosshairs->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+
+			crosshairs->SetRenderFlag(1);
+
+			GuiPanel::Sptr panel = crosshairs->Add<GuiPanel>();
+			panel->SetBorderRadius(4);
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
+		}
+
+		GameObject::Sptr crosshairs2 = scene->CreateGameObject("Crosshairs 2");
+		{
+			RectTransform::Sptr transform = crosshairs2->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+			transform->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+
+			crosshairs2->SetRenderFlag(2);
+
+			GuiPanel::Sptr panel = crosshairs2->Add<GuiPanel>();
+			panel->SetBorderRadius(4);
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/CrossHairs.png"));
+		}
+
+		GameObject::Sptr scoreCounter1 = scene->CreateGameObject("Score Counter 1"); /// HERE!!!!!
+		{
+			scoreCounter1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = scoreCounter1->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x, 5 });
+			transform->SetMax({ app.GetWindowSize().x - 20, 100 });
+
+			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
+
+			GameObject::Sptr subPanel1 = scene->CreateGameObject("1-0");
+			{
+				subPanel1->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/0.png"));
+			}
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("1-1");
+			{
+				subPanel2->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/1.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel3 = scene->CreateGameObject("1-2");
+			{
+				subPanel3->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel3->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/2.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel4 = scene->CreateGameObject("1-3");
+			{
+				subPanel4->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel4->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/3.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel5 = scene->CreateGameObject("1-4");
+			{
+				subPanel5->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel5->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/4.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel6 = scene->CreateGameObject("1-5");
+			{
+				subPanel6->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel6->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/5.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel7 = scene->CreateGameObject("1-6");
+			{
+				subPanel7->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel7->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/6.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel8 = scene->CreateGameObject("1-7");
+			{
+				subPanel8->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel8->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/7.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel9 = scene->CreateGameObject("1-8");
+			{
+				subPanel9->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel9->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/8.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel10 = scene->CreateGameObject("1-9");
+			{
+				subPanel10->SetRenderFlag(1);
+				RectTransform::Sptr transform = subPanel10->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/9.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+		}
+
+		GameObject::Sptr scoreCounter2 = scene->CreateGameObject("Score Counter 2");
+		{
+			scoreCounter2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = scoreCounter2->Add<RectTransform>();
+			transform->SetMin({ 2 * app.GetWindowSize().x - 280, 5 });
+			transform->SetMax({ 2 * app.GetWindowSize().x - 100, 100 });
+
+			GuiPanel::Sptr panel = scoreCounter2->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
+
+			GameObject::Sptr subPanel1 = scene->CreateGameObject("2-0");
+			{
+				subPanel1->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/0.png"));
+			}
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("2-1");
+			{
+				subPanel2->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/1.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel3 = scene->CreateGameObject("2-2");
+			{
+				subPanel3->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel3->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel3->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/2.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel4 = scene->CreateGameObject("2-3");
+			{
+				subPanel4->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel4->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel4->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/3.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel5 = scene->CreateGameObject("2-4");
+			{
+				subPanel5->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel5->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel5->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/4.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel6 = scene->CreateGameObject("2-5");
+			{
+				subPanel6->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel6->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel6->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/5.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel7 = scene->CreateGameObject("2-6");
+			{
+				subPanel7->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel7->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel7->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/6.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel8 = scene->CreateGameObject("2-7");
+			{
+				subPanel8->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel8->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel8->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/7.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel9 = scene->CreateGameObject("2-8");
+			{
+				subPanel9->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel9->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel9->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/8.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+
+			GameObject::Sptr subPanel10 = scene->CreateGameObject("2-9");
+			{
+				subPanel10->SetRenderFlag(2);
+				RectTransform::Sptr transform = subPanel10->Add<RectTransform>();
+				transform->SetMin({ 2 * app.GetWindowSize().x - 85, 10 });
+				transform->SetMax({ 2 * app.GetWindowSize().x - 10, 95 });
+
+				GuiPanel::Sptr panel = subPanel10->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/UI/9.png"));
+				panel->SetColor(glm::vec4(panel->GetColor().x, panel->GetColor().y, panel->GetColor().z, 0.0f));
+			}
+		}
+
+		GameObject::Sptr pauseMenu = scene->CreateGameObject("PauseBackground");
+		{
+
+			RectTransform::Sptr transform = pauseMenu->Add<RectTransform>();
+			transform->SetMin({ 0, 0 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+			GuiPanel::Sptr panel = pauseMenu->Add<GuiPanel>();
+			panel->SetColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+			GameObject::Sptr subPanel2 = scene->CreateGameObject("PauseText");
+			{
+				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
+				transform->SetMin({ 0, 0 });
+				transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
+				panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/pauseTextTemp.png"));
+
+				panel->SetColor(glm::vec4(
+					panel->GetColor().x,
+					panel->GetColor().y,
+					panel->GetColor().z,
+					0.0f));
+
+				subPanel2->SetRenderFlag(5);
+			}
+
+			pauseMenu->AddChild(subPanel2);
+			pauseMenu->SetRenderFlag(5);
+		}
+
 #pragma endregion
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
