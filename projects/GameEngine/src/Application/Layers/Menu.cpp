@@ -398,11 +398,9 @@ void Menu::RepositionUI()
 	////////Options elements
 	Gameplay::GameObject::Sptr volumeText = app.CurrentScene()->FindObjectByName("Volume Text");
 	Gameplay::GameObject::Sptr volumeBar = app.CurrentScene()->FindObjectByName("Volume Bar");
-	Gameplay::GameObject::Sptr volumeSelector = app.CurrentScene()->FindObjectByName("Volume Selector");
 
 	Gameplay::GameObject::Sptr sensText = app.CurrentScene()->FindObjectByName("Sensitivity Text");
 	Gameplay::GameObject::Sptr sensBar = app.CurrentScene()->FindObjectByName("Sensitivity Bar");
-	Gameplay::GameObject::Sptr sensSelector = app.CurrentScene()->FindObjectByName("Sensitivity Selector");
 
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
@@ -437,9 +435,4 @@ void Menu::RepositionUI()
 
 	sensBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 400 });
 	sensBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  2 * app.GetWindowSize().y / 5 });
-	
-	/*
-	volumeSelector->Get<RectTransform>()->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });
-	volumeSelector->Get<RectTransform>()->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 4 });
-	*/
 }

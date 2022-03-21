@@ -30,8 +30,12 @@ void ImGuiDebugLayer::OnAppLoad(const nlohmann::json& config)
 	// Register our windows
 	RegisterWindow<HierarchyWindow>();
 	RegisterWindow<InspectorWindow>();
-	RegisterWindow<MaterialsWindow>();
-	RegisterWindow<TextureWindow>();
+
+	//Temporarily disable, these tabs are causing weird rendering issues
+	//RegisterWindow<MaterialsWindow>();
+	//RegisterWindow<TextureWindow>();
+	//////////////////////////////////////
+
 	RegisterWindow<DebugWindow>();
 }
 

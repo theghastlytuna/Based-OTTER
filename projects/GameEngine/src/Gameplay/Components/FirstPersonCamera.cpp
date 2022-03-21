@@ -44,8 +44,20 @@ void FirstPersonCamera::Update(float deltaTime)
 	{
 		_controllerSensitivity = { _controller->GetSensitivity(), _controller->GetSensitivity() };
 
-		float rightX = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_X);
-		float rightY = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+		float rightX;
+		float rightY;
+
+		if (_controller->GetEnabled())
+		{
+			rightX = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_X);
+			rightY = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+		}
+
+		else
+		{
+			rightX = 0.0f;
+			rightY = 0.0f;
+		}
 
 		//Since controller joysticks are physical, they often won't be perfect, meaning at a neutral state it might still have slight movement.
 		//Check to make sure that the axes aren't outputting an extremely small number, and if they are then set the input to 0.

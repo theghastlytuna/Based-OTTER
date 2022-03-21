@@ -89,7 +89,23 @@ void PlayerControl::Update(float deltaTime)
 		float leftTrigger = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_TRIGGER);
 		float rightTrigger = _controller->GetAxisValue(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
 
-		_isSprinting = _controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
+		//_isSprinting = _controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
+
+		_isSprinting = (leftTrigger >= 1.0f);
+
+		if (!_controller->GetEnabled())
+		{
+			Wang = false;
+			Point = false;
+			Target = false;
+			returnaloni = false;
+			leftX = 0.0f;
+			leftY = 0.0f;
+			rightX = 0.0f;
+			rightY = 0.0f;
+			leftTrigger = 0.0f;
+			rightTrigger = 0.0f;
+		}
 
 		//Since controller joysticks are physical, they often won't be perfect, meaning at a neutral state it might still have slight movement.
 		//Check to make sure that the axes aren't outputting an extremely small number, and if they are then set the input to 0.

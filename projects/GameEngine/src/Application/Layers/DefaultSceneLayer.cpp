@@ -207,7 +207,7 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr rampHitboxMesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramps3.obj");
 
 		MeshResource::Sptr rampHitboxMesh1 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp1.obj");
-		MeshResource::Sptr rampHitboxMesh2 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp3.obj");
+		//MeshResource::Sptr rampHitboxMesh2 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp3.obj");
 
 		//Assets
 
@@ -2192,6 +2192,102 @@ void DefaultSceneLayer::_CreateScene() {
 			pauseMenu->SetRenderFlag(5);
 		}
 
+		GameObject::Sptr sensText1 = scene->CreateGameObject("Sensitivity Text1");
+		{
+			sensText1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensText1->Add<RectTransform>();
+			transform->SetMin({ 120, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
+
+			sensText1->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensText1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensBar1 = scene->CreateGameObject("Sensitivity Bar1");
+		{
+			sensBar1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensBar1->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+			//sensBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensBar1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensSelector1 = scene->CreateGameObject("Sensitivity Selector1");
+		{
+			sensSelector1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensSelector1->Add<RectTransform>();
+			transform->SetMin({ (sensBar1->Get<RectTransform>()->GetMin().x + sensBar1->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
+			transform->SetMax({ (sensBar1->Get<RectTransform>()->GetMin().x + sensBar1->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+
+			//sensSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensSelector1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensText2 = scene->CreateGameObject("Sensitivity Text2");
+		{
+			sensText2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensText2->Add<RectTransform>();
+			transform->SetMin({ 120, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
+
+			sensText2->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensText2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensBar2 = scene->CreateGameObject("Sensitivity Bar2");
+		{
+			sensBar2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensBar2->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+			//sensBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensBar2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensSelector2 = scene->CreateGameObject("Sensitivity Selector2");
+		{
+			sensSelector2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensSelector2->Add<RectTransform>();
+			transform->SetMin({ (sensBar2->Get<RectTransform>()->GetMin().x + sensBar2->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
+			transform->SetMax({ (sensBar2->Get<RectTransform>()->GetMin().x + sensBar2->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+
+			//sensSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensSelector2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
@@ -2234,6 +2330,22 @@ void DefaultSceneLayer::RepositionUI()
 	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
 	killUI2->Get<RectTransform>()->SetMin({0, app.GetWindowSize().y - 195 });
 	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
+
+	//Grab pause menu elements
+	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");
+	Gameplay::GameObject::Sptr sensBar1 = app.CurrentScene()->FindObjectByName("Sensitivity Bar1");
+	Gameplay::GameObject::Sptr sensText2 = app.CurrentScene()->FindObjectByName("Sensitivity Text2");
+	Gameplay::GameObject::Sptr sensBar2 = app.CurrentScene()->FindObjectByName("Sensitivity Bar2");
+
+	sensText1->Get<RectTransform>()->SetMin({ 120, app.GetWindowSize().y / 4 });
+	sensText1->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3,  app.GetWindowSize().y / 2 });
+	sensBar1->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+	sensBar1->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+	sensText2->Get<RectTransform>()->SetMin({ 120, app.GetWindowSize().y / 4 });
+	sensText2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3,  app.GetWindowSize().y / 2 });
+	sensBar2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+	sensBar2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
 
 	//Reposition the score UI elements
 	for (int i = 0; i < 10; i++)

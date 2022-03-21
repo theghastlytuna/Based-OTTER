@@ -92,14 +92,14 @@ bool ControllerInput::GetButtonDown(int ID)
 {
 	auto buttons = glfwGetJoystickButtons(_controllerID, &_buttonCount);
 
-	return _enabled ? buttons[ID] : false;
+	return buttons[ID];
 }
 
 float ControllerInput::GetAxisValue(int ID)
 {
 	auto axes = glfwGetJoystickAxes(_controllerID, &_axesCount);
 
-	return _enabled ? axes[ID] : 0.0f;
+	return axes[ID];
 }
 
 void ControllerInput::SetEnabled(bool enabled)

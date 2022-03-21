@@ -76,7 +76,7 @@ void JumpBehaviour::Update(float deltaTime) {
 
 	if (_controller->IsValid())
 	{
-		if (_controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_A) && _onGround && _jumpCooldown <= 0)
+		if (_controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_A) && _onGround && _jumpCooldown <= 0 && _controller->GetEnabled())
 		{
 			_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
 			_jumpCooldown = 0.5f;

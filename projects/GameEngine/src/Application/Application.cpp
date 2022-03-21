@@ -230,6 +230,7 @@ void Application::_Run()
 	int currentItemInd = 0;
 
 	std::vector<MenuElement::Sptr> optionItems;
+	
 	float currentSensitivity = 2.0f; //This is just used to pass sensitivity from one scene to another; use ControllerInput::SetSensitivity to change a controller's sensitivity
 
 	///////Grab the sound manager and load all the sounds we want///////////
@@ -242,6 +243,16 @@ void Application::_Run()
 	};
 
 	soundInfo thisSoundInfo;
+
+	std::vector<MenuElement::Sptr> p1OptionItems;
+	std::vector<MenuElement::Sptr> p2OptionItems;
+	int p1ItemInd = 0;
+	int p2ItemInd = 0;
+	MenuElement::Sptr p1CurrentElement;
+	MenuElement::Sptr p2CurrentElement;
+
+	float selectTimes[2];
+	float barSelectTimes[2];
 
 	/*
 	soundManaging.LoadSound("Sounds/CD_Drive.wav", "Scene Startup");
@@ -411,6 +422,8 @@ void Application::_Run()
 
 				if (back)
 				{
+					currentElement->ShrinkElement();
+
 					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(1.0f);
@@ -588,6 +601,8 @@ void Application::_Run()
 				{
 					options = true;
 
+					currentElement->ShrinkElement();
+
 					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
@@ -653,6 +668,24 @@ void Application::_Run()
 				GetLayer<DefaultSceneLayer>()->RepositionUI();
 				player1->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
 				player2->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
+
+				p1CurrentElement = _currentScene->FindObjectByName("Sensitivity Text1")->Get<MenuElement>();
+				p2CurrentElement = _currentScene->FindObjectByName("Sensitivity Text2")->Get<MenuElement>();
+
+				p1OptionItems.push_back(p1CurrentElement);
+				p2OptionItems.push_back(p2CurrentElement);
+
+				p1CurrentElement->GrowElement();
+				p2CurrentElement->GrowElement();
+
+				p1ItemInd = 0;
+				p2ItemInd = 0;
+
+				selectTimes[0] = 0.3f;
+				selectTimes[1] = 0.3f;
+				barSelectTimes[0] = 0.2f;
+				barSelectTimes[1] = 0.2f;
+
 			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
@@ -660,21 +693,228 @@ void Application::_Run()
 				if (paused)
 				{
 					player1->Get<ControllerInput>()->SetEnabled(true);
+					player2->Get<ControllerInput>()->SetEnabled(true);
 					timing.SetTimeScale(1.0f);
 					paused = false;
-					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(0.0f);
+					//CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.0f);
+
+					CurrentScene()->FindObjectByName("Sensitivity Text1")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector1")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Text2")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar2")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector2")->Get<GuiPanel>()->SetTransparency(0.0f);
 				}
 
 				else
 				{
 					player1->Get<ControllerInput>()->SetEnabled(false);
+					player2->Get<ControllerInput>()->SetEnabled(false);
 					timing.SetTimeScale(0.0f);
 					paused = true;
 
-					CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(1.0f);
-					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.6f);
+					//CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.4f);
+
+					CurrentScene()->FindObjectByName("Sensitivity Text1")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector1")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Text2")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Bar2")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Sensitivity Selector2")->Get<GuiPanel>()->SetTransparency(1.0f);
 				}
+			}
+
+			if (paused)
+			{
+				bool downSelect[2];
+				bool upSelect[2];
+				bool leftSelect[2];
+				bool rightSelect[2];
+				bool confirm[2];
+
+				//Grab p1's controls and find the corresponding values
+				ControllerInput::Sptr p1Control = _currentScene->FindObjectByName("Player 1")->Get<ControllerInput>();
+				if (p1Control->IsValid())
+				{
+					downSelect[0] = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
+					upSelect[0] = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+					leftSelect[0] = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
+					rightSelect[0] = p1Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
+					confirm[0] = p1Control->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+				}
+
+				else
+				{
+					downSelect[0] = glfwGetKey(_window, GLFW_KEY_S);
+					upSelect[0] = glfwGetKey(_window, GLFW_KEY_W);
+					confirm[0] = glfwGetKey(_window, GLFW_KEY_ENTER);
+
+				}
+
+				//Grab p2's controls and find the corresponding values
+				ControllerInput::Sptr p2Control = _currentScene->FindObjectByName("Player 2")->Get<ControllerInput>();
+				if (p1Control->IsValid())
+				{
+					downSelect[1] = p2Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) > 0.2f;
+					upSelect[1] = p2Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_Y) < -0.2f;
+					leftSelect[1] = p2Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
+					rightSelect[1] = p2Control->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
+					confirm[1] = p2Control->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
+				}
+
+				else
+				{
+					downSelect[1] = glfwGetKey(_window, GLFW_KEY_S);
+					upSelect[1] = glfwGetKey(_window, GLFW_KEY_W);
+					confirm[1] = glfwGetKey(_window, GLFW_KEY_ENTER);
+				}
+
+				//Player 1 pause menu control
+				if (downSelect[0] && selectTimes[0] >= 0.3f)
+				{
+					p1CurrentElement->ShrinkElement();
+					p1ItemInd++;
+
+					if (p1ItemInd >= p1OptionItems.size()) p1ItemInd = 0;
+					p1CurrentElement = p1OptionItems[p1ItemInd];
+
+					p1CurrentElement->GrowElement();
+					selectTimes[0] = 0.0f;
+				}
+
+				else if (upSelect[0] && selectTimes[0] >= 0.3f)
+				{
+					p1CurrentElement->ShrinkElement();
+					p1ItemInd--;
+					if (p1ItemInd < 0) p1ItemInd = p1OptionItems.size() - 1;
+
+					p1CurrentElement = p1OptionItems[p1ItemInd];
+
+					p1CurrentElement->GrowElement();
+					selectTimes[0] = 0.0f;
+				}
+
+				else selectTimes[0]++;
+
+				if (p1CurrentElement == _currentScene->FindObjectByName("Sensitivity Text1")->Get<MenuElement>())
+				{
+
+					if (leftSelect[0] && barSelectTimes[0] >= 0.2f)
+					{
+						//If sound isn't at 0 yet, reduce it
+						//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
+						//Therefore, use > 0.00001 instead of > 0
+						if (p1Control->GetSensitivity() > p1Control->GetMinSensitivity())
+						{
+							p1Control->SetSensitivity(p1Control->GetSensitivity() - 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = p1Control->GetSensitivity();
+						}
+
+						barSelectTimes[0] = 0.0f;
+					}
+
+					else if (rightSelect[0] && barSelectTimes[0] >= 0.2f)
+					{
+						if (p1Control->GetSensitivity() < p1Control->GetMaxSensitivity())
+						{
+							p1Control->SetSensitivity(p1Control->GetSensitivity() + 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = p1Control->GetSensitivity();
+						}
+
+						barSelectTimes[0] = 0.0f;
+					}
+
+					else barSelectTimes[0] += dt;
+				}
+
+				//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
+				float currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMin().x + 10,
+					CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMax().x - 10,
+					(p1Control->GetSensitivity() - p1Control->GetMinSensitivity()) / (p1Control->GetMaxSensitivity() - p1Control->GetMinSensitivity()));
+
+				CurrentScene()->FindObjectByName("Sensitivity Selector1")->Get<RectTransform>()->SetMin({ currentLoc - 10, GetWindowSize().y / 4 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector1")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
+
+				//Player 2 pause menu control
+				if (downSelect[1] && selectTimes[1] >= 0.3f)
+				{
+					p2CurrentElement->ShrinkElement();
+					p2ItemInd++;
+
+					if (p2ItemInd >= p2OptionItems.size()) p2ItemInd = 0;
+					p2CurrentElement = p2OptionItems[p2ItemInd];
+
+					p2CurrentElement->GrowElement();
+					selectTimes[1] = 0.0f;
+				}
+
+				else if (upSelect[1] && selectTimes[1] >= 0.3f)
+				{
+					p2CurrentElement->ShrinkElement();
+					p2ItemInd--;
+					if (p2ItemInd < 0) p2ItemInd = p2OptionItems.size() - 1;
+
+					p2CurrentElement = p2OptionItems[p1ItemInd];
+
+					p2CurrentElement->GrowElement();
+					selectTimes[1] = 0.0f;
+				}
+
+				else selectTimes[1]++;
+
+				if (p2CurrentElement == _currentScene->FindObjectByName("Sensitivity Text2")->Get<MenuElement>())
+				{
+
+					if (leftSelect[1] && barSelectTimes[1] >= 0.2f)
+					{
+						//If sound isn't at 0 yet, reduce it
+						//Note: something is weird with computations in the back-end, causing currentVol to have a miniscule decimal added to the end.
+						//Therefore, use > 0.00001 instead of > 0
+						if (p2Control->GetSensitivity() > p2Control->GetMinSensitivity())
+						{
+							p2Control->SetSensitivity(p2Control->GetSensitivity() - 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = p2Control->GetSensitivity();
+						}
+
+						barSelectTimes[1] = 0.0f;
+					}
+
+					else if (rightSelect[1] && barSelectTimes[1] >= 0.2f)
+					{
+						if (p2Control->GetSensitivity() < p2Control->GetMaxSensitivity())
+						{
+							p2Control->SetSensitivity(p2Control->GetSensitivity() + 0.2f);
+
+							soundManaging.PlayEvent("Pop");
+
+							currentSensitivity = p2Control->GetSensitivity();
+						}
+
+						barSelectTimes[1] = 0.0f;
+					}
+
+					else barSelectTimes[1] += dt;
+				}
+
+				//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
+				currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar2")->Get<RectTransform>()->GetMin().x + 10,
+					CurrentScene()->FindObjectByName("Sensitivity Bar2")->Get<RectTransform>()->GetMax().x - 10,
+					(p2Control->GetSensitivity() - p2Control->GetMinSensitivity()) / (p2Control->GetMaxSensitivity() - p2Control->GetMinSensitivity()));
+
+				CurrentScene()->FindObjectByName("Sensitivity Selector2")->Get<RectTransform>()->SetMin({ currentLoc - 10, GetWindowSize().y / 4 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector2")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
+
 			}
 
 			//Boomerang Visual indicator!!!
