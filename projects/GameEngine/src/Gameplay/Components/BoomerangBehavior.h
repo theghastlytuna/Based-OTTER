@@ -33,7 +33,7 @@ private:
     int BoomerangID;
 
     float _distance = 0;
-    float _distanceDelta = 0.1;
+    float _distanceDelta = 0.1f;
 
 
     /// <summary>

@@ -17,6 +17,7 @@ void BoomerangBehavior::Awake()
 	_boomerangEntity = GetGameObject()->SelfRef();
 	_rigidBody = GetGameObject()->Get<Gameplay::Physics::RigidBody>();
 	_scene = GetGameObject()->GetScene();
+
 	if (GetGameObject()->Name == "Boomerang 1") {
 		_player = _scene->FindObjectByName("Player 1");
 		_camera = GetGameObject()->GetScene()->PlayerCamera;
@@ -34,9 +35,9 @@ void BoomerangBehavior::Update(float deltaTime)
 {
 	if (_state != boomerangState::INACTIVE) {
 		updateTrackingPoint(deltaTime);
+		defyGravity();
+		Seek(deltaTime);
 	}
-	defyGravity();
-	Seek(deltaTime);
 }
 
 void BoomerangBehavior::RenderImGui()
@@ -54,23 +55,14 @@ void BoomerangBehavior::Seek(float deltaTime)
 	currentVector = glm::normalize(currentVector);
 
 	glm::vec3 appliedVector = glm::normalize(desiredVector - currentVector);
-	if (_state == boomerangState::RETURNING)
-	{
-		appliedVector = appliedVector * _boomerangAcceleration * deltaTime;
-	}
-	else
-	{
-		appliedVector = appliedVector * _boomerangAcceleration * deltaTime * ((_triggerInput + 1) / 2);
-	}
+	appliedVector = appliedVector * _boomerangAcceleration * deltaTime;
 	_rigidBody->ApplyForce(appliedVector);
-
-	//TODO: Limit Angle of the applied vector to enforce turning speeds?
-	//Might make it more interesting to control
 }
 
 void BoomerangBehavior::throwWang(glm::vec3 playerPosition, float chargeLevel)
 {
 	_state = boomerangState::FORWARD;
+	_distance = 0;
 	glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 	_boomerangEntity->SetPosition(playerPosition + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * _projectileSpacing);
 	_rigidBody->SetLinearVelocity(glm::vec3(0));
@@ -84,14 +76,18 @@ void BoomerangBehavior::defyGravity()
 
 void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 {
+	std::cout << "Updating Tracking Point" << std::endl;
+
 	if (_state == boomerangState::FORWARD) {
-		_distance += _distanceDelta * deltaTime;
+		_distance += _distanceDelta;// *deltaTime;
 	}
 	else {
-		_distance -= _distanceDelta * deltaTime;
+		_distance -= _distanceDelta;// *deltaTime;
 	}
-	_targetPoint = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -_distance;
 
+	glm::vec3 cameraLocalRot = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]);
+	_targetPoint = _player->GetPosition() + glm::normalize(cameraLocalRot) * -_distance;
+	std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
 }
 
 void BoomerangBehavior::returnBoomerang()

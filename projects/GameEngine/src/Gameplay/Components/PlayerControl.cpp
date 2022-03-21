@@ -129,11 +129,15 @@ void PlayerControl::Update(float deltaTime)
 		}
 		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
 
+
+
+
+		//Wang Throwing
 		//trigger input from controller goes from -1 to 1
 		//also makes sure that the controller is enabled since pausing sets trigger input to 0
-		if (rightTrigger > -1 && GetGameObject()->Get<ControllerInput>()->GetEnabled()) {
-			if (_boomerangBehavior->getReadyToThrow()) {
-				if (_chargeAmount < 3.f)
+		if (rightTrigger > -1 && GetGameObject()->Get<ControllerInput>()->GetEnabled()) { //If Trigger Pulled Down
+			if (_boomerangBehavior->getReadyToThrow()) { //If it's unthrown
+				if (_chargeAmount < 3.f) //Charge it up
 				{
 				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
 				_chargeAmount += 0.02;
@@ -146,7 +150,7 @@ void PlayerControl::Update(float deltaTime)
 				_boomerangBehavior->returnBoomerang();
 			}
 		}
-		else if (rightTrigger == -1)
+		else if (rightTrigger == -1) //Release Trigger
 		{
 			_boomerangBehavior->_triggerInput = -1;
 			if (_chargeAmount > 0.5)
@@ -155,13 +159,14 @@ void PlayerControl::Update(float deltaTime)
 				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), _chargeAmount);
 				_justThrew = true;
 				_chargeAmount = 0;
-				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov);
+				
 			}
 			else
 			{
 				//else, just reset the charge level (so players can't "prime" a throw)
 				_chargeAmount = 0;
 			}
+			GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov);
 		}
 
 		if (returnaloni) {
