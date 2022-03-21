@@ -429,7 +429,7 @@ namespace Gameplay {
 			glDepthFunc(GL_LEQUAL);
 
 			_skyboxShader->Bind();
-			_skyboxShader->SetUniformMatrix("u_View", cam->GetProjection() * glm::mat4(glm::mat3(cam->GetView())));
+			_skyboxShader->SetUniformMatrix("u_ClippedView", cam->GetProjection() * glm::mat4(glm::mat3(cam->GetView())));
 			_skyboxShader->SetUniformMatrix("u_EnvironmentRotation", _skyboxRotation);
 			_skyboxTexture->Bind(0);
 			_skyboxMesh->Mesh->Draw();

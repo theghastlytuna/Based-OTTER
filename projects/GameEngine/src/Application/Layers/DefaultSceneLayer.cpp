@@ -213,8 +213,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 		MeshResource::Sptr barrelMesh = ResourceManager::CreateAsset<MeshResource>("barrel.obj");
 
-		MeshResource::Sptr cactusMesh = ResourceManager::CreateAsset<MeshResource>("cactus_straight.obj");
-		MeshResource::Sptr roundCactusMesh = ResourceManager::CreateAsset<MeshResource>("cactus_round.obj");
+		MeshResource::Sptr cactusMesh = ResourceManager::CreateAsset<MeshResource>("cactus.obj");
+		MeshResource::Sptr roundCactusMesh = ResourceManager::CreateAsset<MeshResource>("cactus2.obj");
 		MeshResource::Sptr grassMesh = ResourceManager::CreateAsset<MeshResource>("grass.obj");
 
 
@@ -274,11 +274,11 @@ void DefaultSceneLayer::_CreateScene() {
 		rockWallsTexture->SetMagFilter(MagFilter::Nearest);
 
 		//asset textures
-
+		
 		Texture2D::Sptr    barrelTex = ResourceManager::CreateAsset<Texture2D>("textures/barrelTex.png");
 		barrelTex->SetMinFilter(MinFilter::Unknown);
 		barrelTex->SetMagFilter(MagFilter::Nearest);
-
+		
 		Texture2D::Sptr	   healthPackTex = ResourceManager::CreateAsset<Texture2D>("textures/vegemiteTex.png");
 		healthPackTex->SetMinFilter(MinFilter::Unknown);
 		healthPackTex->SetMagFilter(MagFilter::Nearest);
@@ -291,7 +291,7 @@ void DefaultSceneLayer::_CreateScene() {
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTex.png");
+		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTexture.png");
 		cactusTex->SetMinFilter(MinFilter::Unknown);
 		cactusTex->SetMagFilter(MagFilter::Nearest);
 
@@ -448,14 +448,14 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			displayBoomerangMaterial1->Name = "Display Boomerang1";
 			displayBoomerangMaterial1->Set("u_Material.Diffuse", boomerangTex);
-			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.1f);
+			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.0f);
 		}
 
 		Material::Sptr displayBoomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			displayBoomerangMaterial2->Name = "Display Boomerang2";
 			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
-			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.0f);
 		}
 
 		// This will be the reflective material, we'll make the whole thing 90% reflective
@@ -557,7 +557,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			cactusMaterial->Name = "Cactus";
 			cactusMaterial->Set("u_Material.Diffuse", cactusTex);
-			cactusMaterial->Set("u_Material.Shininess", 0.1f);
+			cactusMaterial->Set("u_Material.Shininess", 0.0f);
 		}
 
 		Material::Sptr grassMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -599,10 +599,11 @@ void DefaultSceneLayer::_CreateScene() {
 		scene->Lights.resize(4);
 		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 1000.0f;
-
+		scene->Lights[0].Range = 500.0f;
+		
 		scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
 		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
+		
 
 		scene->Lights[2].Position = glm::vec3(9.0f, 1.0f, 50.0f);
 		scene->Lights[2].Color = glm::vec3(1.0f, 0.57f, 0.1f);
@@ -1333,7 +1334,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			grass->SetPosition(glm::vec3(-16.75, -17.85, -1));
-			grass->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//grass->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			grass->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1346,7 +1347,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			grass2->SetPosition(glm::vec3(-7.08, 12, -1));
-			grass2->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//grass2->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			grass2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1359,7 +1360,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			grass3->SetPosition(glm::vec3(-0.26, 4, -1));
-			grass3->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//grass3->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			grass3->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1372,7 +1373,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			grass4->SetPosition(glm::vec3(21.71, 8, -1));
-			grass4->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//grass4->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			grass4->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1385,7 +1386,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			grass5->SetPosition(glm::vec3(51.5, 10, -1));
-			grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			grass5->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1400,7 +1401,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			cactus->SetPosition(glm::vec3(-17.73, -13.07, -1));
-			cactus->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//cactus->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			cactus->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
@@ -1421,7 +1422,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			roundCactus->SetPosition(glm::vec3(52.82, 10, -1));
-			roundCactus->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			//roundCactus->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
 			roundCactus->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer

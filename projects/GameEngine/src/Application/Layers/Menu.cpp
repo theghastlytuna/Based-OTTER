@@ -246,7 +246,7 @@ void Menu::_CreateScene() {
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = loadingScreen->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/loadingScreen.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/gameLoad.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
