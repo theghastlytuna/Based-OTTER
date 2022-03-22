@@ -19,12 +19,14 @@ void HealthManager::Awake()
 	{
 		_playerID = 1;
 		_enemyID = 2;
+		_player = GetGameObject()->GetScene()->FindObjectByName("Player 1");
 	}
 
 	else
 	{
 		_playerID = 2;
 		_enemyID = 1;
+		_player = GetGameObject()->GetScene()->FindObjectByName("Player 2");
 	}
 }
 
@@ -65,6 +67,27 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 
 		//Find the value of the boomerang ID, assign it to the enemy boomerang ID
 		_enemyBoomerangID = trigger->GetGameObject()->Name[trigger->GetGameObject()->Name.length() - 1] - '0';
+
+		//Get the boomerang's direction reletive to the player, and store the damage scaling number. Front is 0.1x as a minimum, back is 1.2x as a max, defining a sin curve
+
+		//Step 1: Get the vector from the player to the wang and the player's current heading
+		glm::vec3 playerToWang = glm::normalize(trigger->GetGameObject()->GetPosition() - _player->GetPosition());
+		//glm::vec3 playerDir = glm::normalize(_player->GetRotationEuler());
+
+		glm::vec3 cameraLocalForward;
+		Gameplay::Camera::Sptr camera;
+		if (_playerID == 1) {
+			camera = GetGameObject()->GetScene()->PlayerCamera;
+		}
+		else {
+			camera = GetGameObject()->GetScene()->PlayerCamera2;
+		}
+		cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
+		
+		//Calculate the angle between the vectors
+		auto angle = glm::acos((glm::dot<glm::vec3>(playerToWang, cameraLocalForward)) / (glm::abs(cameraLocalForward) * glm::abs(playerToWang)));
+		
+		
 	}
 
 	else if (trigger->GetGameObject()->Name == "Boomerang " + std::to_string(_playerID))
