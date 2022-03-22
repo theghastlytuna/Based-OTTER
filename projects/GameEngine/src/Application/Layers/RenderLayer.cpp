@@ -267,7 +267,7 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 
 	// Update the main camera's projection
 	Application& app = Application::Get();
-	app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
+	//app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
 }
 
 void RenderLayer::OnAppLoad(const nlohmann::json& config)

@@ -142,7 +142,6 @@ namespace Gameplay {
 		glm::ivec2 windowSize = app.GetWindowSize();
 		if (MainCamera != nullptr) {
 			//MainCamera->ResizeWindow(windowSize.x, windowSize.y);
-			MainCamera->ResizeWindow(16, 9);
 		}
 
 		if (_skyboxMesh == nullptr) {

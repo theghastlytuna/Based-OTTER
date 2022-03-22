@@ -596,23 +596,30 @@ void DefaultSceneLayer::_CreateScene() {
 		}
 
 		// Create some lights for our scene
-		scene->Lights.resize(4);
-		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
+		scene->Lights.resize(6);
+		scene->Lights[0].Position = glm::vec3(0.0f, 0.0f, 50.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 		scene->Lights[0].Range = 500.0f;
-		
-		scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
-		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
-		
 
-		scene->Lights[2].Position = glm::vec3(9.0f, 1.0f, 50.0f);
-		scene->Lights[2].Color = glm::vec3(1.0f, 0.57f, 0.1f);
-		scene->Lights[2].Range = 200.0f;
+		scene->Lights[1].Position = glm::vec3(50.0f, 0.0f, 50.0f);
+		scene->Lights[1].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[1].Range = 500.0f;
 
-		scene->Lights[3].Position = glm::vec3(-67.73f, 15.73f, 3.5f);
-		scene->Lights[3].Color = glm::vec3(0.81f, 0.62f, 0.61f);
-		scene->Lights[3].Range = 200.0f;
+		scene->Lights[2].Position = glm::vec3(-50.0f, 0.0f, 50.0f);
+		scene->Lights[2].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[2].Range = 500.0f;
 
+		scene->Lights[3].Position = glm::vec3(0.0f, 50.0f, 50.0f);
+		scene->Lights[3].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[3].Range = 500.0f;
+
+		scene->Lights[4].Position = glm::vec3(0.0f, -50.0f, 50.0f);
+		scene->Lights[4].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[4].Range = 500.0f;
+
+		scene->Lights[5].Position = glm::vec3(9.0f, 1.0f, 50.0f);
+		scene->Lights[5].Color = glm::vec3(1.0f, 0.57f, 0.1f);
+		scene->Lights[5].Range = 500.0f;
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -659,10 +666,10 @@ void DefaultSceneLayer::_CreateScene() {
 			Camera::Sptr cam = detachedCam->Add<Camera>();
 			scene->PlayerCamera = cam;
 			scene->MainCamera = cam;
-			scene->MainCamera->ResizeWindow(16, 9);
-			scene->PlayerCamera->ResizeWindow(16, 9);
-			scene->MainCamera->SetFovDegrees(90);
-			scene->PlayerCamera->SetFovDegrees(90);
+			scene->MainCamera->ResizeWindow(32, 9);
+			scene->PlayerCamera->ResizeWindow(32, 9);
+			scene->MainCamera->SetFovDegrees(75);
+			scene->PlayerCamera->SetFovDegrees(75);
 		}
 
 		GameObject::Sptr player1 = scene->CreateGameObject("Player 1");
@@ -725,10 +732,10 @@ void DefaultSceneLayer::_CreateScene() {
 			Camera::Sptr cam = detachedCam2->Add<Camera>();
 			scene->PlayerCamera2 = cam;
 			scene->MainCamera2 = cam;
-			scene->MainCamera2->ResizeWindow(16, 9);
-			scene->PlayerCamera2->ResizeWindow(16, 9);
-			scene->MainCamera2->SetFovDegrees(90);
-			scene->PlayerCamera2->SetFovDegrees(90);
+			scene->MainCamera2->ResizeWindow(32, 9);
+			scene->PlayerCamera2->ResizeWindow(32, 9);
+			scene->MainCamera2->SetFovDegrees(75);
+			scene->PlayerCamera2->SetFovDegrees(75);
 		}
 
 		GameObject::Sptr player2 = scene->CreateGameObject("Player 2");
