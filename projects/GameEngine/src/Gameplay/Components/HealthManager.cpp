@@ -82,10 +82,14 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 		else {
 			camera = GetGameObject()->GetScene()->PlayerCamera2;
 		}
-		cameraLocalForward = glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f;
+		cameraLocalForward = glm::normalize(glm::vec3(camera->GetView()[0][2], camera->GetView()[1][2], camera->GetView()[2][2]) * -1.0f);
 		
 		//Calculate the angle between the vectors
-		auto angle = glm::acos((glm::dot<glm::vec3>(playerToWang, cameraLocalForward)) / (glm::abs(cameraLocalForward) * glm::abs(playerToWang)));
+		float dot = cameraLocalForward.x * playerToWang.x + cameraLocalForward.y * playerToWang.y + cameraLocalForward.z * playerToWang.z;
+		float divisor = glm::length(playerToWang) * glm::length(cameraLocalForward);
+		float angle = glm::acos(dot / divisor);
+		float damageScaler = (-0.55 * glm::cos(angle)) + 0.65;
+		std::cout << damageScaler << std::endl;
 		
 		
 	}
