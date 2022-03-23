@@ -219,7 +219,7 @@ void Application::_Run()
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
-	bool started = false;
+	//bool started = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
 

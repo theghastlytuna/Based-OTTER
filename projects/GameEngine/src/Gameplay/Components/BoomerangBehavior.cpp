@@ -76,7 +76,7 @@ void BoomerangBehavior::defyGravity()
 
 void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 {
-	std::cout << "Updating Tracking Point" << std::endl;
+	//std::cout << "Updating Tracking Point" << std::endl;
 
 	if (_state == boomerangState::FORWARD) {
 		_distance += _distanceDelta;// *deltaTime;
@@ -87,7 +87,7 @@ void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 
 	glm::vec3 cameraLocalRot = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]);
 	_targetPoint = _player->GetPosition() + glm::normalize(cameraLocalRot) * -_distance;
-	std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
+	//std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
 }
 
 void BoomerangBehavior::returnBoomerang()
@@ -151,14 +151,4 @@ BoomerangBehavior::Sptr BoomerangBehavior::FromJson(const nlohmann::json& blob)
 	BoomerangBehavior::Sptr result = std::make_shared<BoomerangBehavior>();
 	result->_boomerangLaunchForce = blob["Launch Force"];
 	return result;
-}
-
-bool BoomerangBehavior::isInactive()
-{
-	if (_state == boomerangState::INACTIVE)
-	{
-		return true;
-	}
-	else
-		return false;
 }

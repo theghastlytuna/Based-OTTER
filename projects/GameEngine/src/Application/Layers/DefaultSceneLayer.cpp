@@ -130,7 +130,7 @@ void DefaultSceneLayer::_CreateScene() {
 		app.LoadScene("scene.json");
 	}
 	else {
-		/*
+		
 		// This time we'll have 2 different shaders, and share data between both of them using the UBO
 		// This shader will handle reflective materials 
 		ShaderProgram::Sptr reflectiveShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -147,10 +147,10 @@ void DefaultSceneLayer::_CreateScene() {
 		basicShader->SetDebugName("Blinn-phong");
 
 		// This shader handles our basic materials without reflections (cause they expensive)
-		/*ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/textured_specular.glsl" }
-		});*/
+		});
 
 		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
@@ -164,7 +164,7 @@ void DefaultSceneLayer::_CreateScene() {
 		});
 
 		///////////////////// NEW SHADERS ////////////////////////////////////////////
-		/*
+		
 		// This shader handles our foliage vertex shader example
 		ShaderProgram::Sptr foliageShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/foliage.glsl" },
@@ -173,10 +173,10 @@ void DefaultSceneLayer::_CreateScene() {
 		foliageShader->SetDebugName("Foliage");
 
 		// This shader handles our cel shading example
-		/*ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/toon_shading.glsl" }
-		});*/
+		});
 
 		// Load in the meshes
 		MeshResource::Sptr monkeyMesh = ResourceManager::CreateAsset<MeshResource>("Monkey.obj");

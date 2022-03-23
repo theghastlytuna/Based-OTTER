@@ -47,6 +47,7 @@ protected:
 	bool _gotHit = false;
 	int _playerID;
 	int _enemyID;
+	float _damage;
 
 	int _enemyBoomerangID;
 

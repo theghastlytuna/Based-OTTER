@@ -34,7 +34,7 @@ void HealthManager::Update(float deltaTime)
 {
 	if (_loseHealth)
 	{
-		_healthVal -= 1.0f;
+		_healthVal -= _damage;
 	}
 
 	if (_gotHit)
@@ -89,7 +89,7 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 		float divisor = glm::length(playerToWang) * glm::length(cameraLocalForward);
 		float angle = glm::acos(dot / divisor);
 		float damageScaler = (-0.55 * glm::cos(angle)) + 0.65;
-		std::cout << damageScaler << std::endl;
+		_damage = damageScaler;
 		
 		
 	}
