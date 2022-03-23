@@ -215,6 +215,7 @@ void Application::_Run()
 	float p2HitTimer = 0.0f;
 
 	bool firstFrame = true;
+	bool started = false;
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
@@ -307,7 +308,6 @@ void Application::_Run()
 		if (firstFrame)
 		{
 			GetLayer<Menu>()->RepositionUI();
-
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
 

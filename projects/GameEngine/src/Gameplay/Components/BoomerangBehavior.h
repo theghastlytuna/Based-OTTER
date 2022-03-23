@@ -14,15 +14,13 @@ private:
     Gameplay::GameObject::Sptr _boomerangEntity; //The freekin' wang 'imself
     glm::vec3 _targetPoint; //This is the position we are tracking to (point tracking)
     Gameplay::Scene* _scene;
+    Gameplay::Camera::Sptr _camera;
 
 
     enum class boomerangState {
         FORWARD = 0,
-        POINTTRACK = 1, //Will chase after a point in 3D space
-        LOCKTRACK = 2, //Will chase an entity, automatically updating the 3D position
-        //of that target as it goes
-        RETURNING = 3, //Chases the player so that it can become inactive
-        INACTIVE = 4 //Ready to be thrown again
+        RETURNING = 1, //Chases the player so that it can become inactive
+        INACTIVE = 2 //Ready to be thrown again
     };
 
     //-----Boomerang Properies-----//
@@ -34,6 +32,9 @@ private:
     float _projectileSpacing = 1.f;
     int BoomerangID;
 
+    float _distance = 0;
+    float _distanceDelta = 0.1f;
+
 
     /// <summary>
     /// Seeks the _targetPoint. This always set before the seek function is called.
@@ -41,6 +42,8 @@ private:
     void Seek(float deltaTime);
 
     void defyGravity();
+
+    void updateTrackingPoint(float deltaTime);
 
 
 public:
@@ -70,7 +73,7 @@ public:
     /// <param name="playerNumber">the number the player throwing it (for camera shit)</param>
     /// <param name="chargeLevel">The charge level from holding down the throw button (see PlayerControl.cpp)</param>
 
-    void throwWang(glm::vec3 playerPosition, int playerNumber, float chargeLevel);
+    void throwWang(glm::vec3 playerPosition, float chargeLevel);
 
     /// <summary>
     /// Steers the projecile towards this new point in 3D Space.
