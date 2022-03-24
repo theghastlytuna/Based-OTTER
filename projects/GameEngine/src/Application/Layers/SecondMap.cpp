@@ -1156,6 +1156,9 @@ void SecondMap::_CreateScene() {
 		}
 #pragma endregion
 
+		
+#pragma endregion
+
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
