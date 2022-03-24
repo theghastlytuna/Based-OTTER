@@ -535,7 +535,7 @@ void Application::_Run()
 				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, 2 * GetWindowSize().y / 5 });
 			}
 
-			/*
+			
 			else if (secondMapSelect)
 			{
 				GetLayer<Menu>()->SetActive(false);
@@ -553,7 +553,7 @@ void Application::_Run()
 				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
 
 			}
-			*/
+			
 
 			else
 			{
