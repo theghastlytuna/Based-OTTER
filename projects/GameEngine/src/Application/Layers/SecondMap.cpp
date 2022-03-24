@@ -14,7 +14,9 @@
 #include "Graphics/Buffers/VertexBuffer.h"
 #include "Graphics/VertexArrayObject.h"
 #include "Graphics/ShaderProgram.h"
+#include "Graphics/Textures/Texture1D.h"
 #include "Graphics/Textures/Texture2D.h"
+#include "Graphics/Textures/Texture3D.h"
 #include "Graphics/Textures/TextureCube.h"
 #include "Graphics/VertexTypes.h"
 #include "Graphics/Font.h"
@@ -188,6 +190,12 @@ void SecondMap::_CreateScene() {
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
+		// Loading in a color lookup table
+		Texture3D::Sptr lut = ResourceManager::CreateAsset<Texture3D>("luts/cool.CUBE");
+
+		// Configure the color correction LUT
+		scene->SetColorLUT(lut);
+
 #pragma endregion
 #pragma region Skybox
 
@@ -317,7 +325,7 @@ void SecondMap::_CreateScene() {
 			// Make sure that the camera is set as the scene's main camera!
 
 			scene->WorldCamera = cam;
-			scene->WorldCamera->ResizeWindow(1920, 500);
+			//scene->WorldCamera->ResizeWindow(1920, 500);
 		}
 
 		//Set up the scene's camera 
@@ -329,7 +337,7 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = camera2->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera! 
 
-			cam->ResizeWindow(1920, 500);
+			//cam->ResizeWindow(1920, 500);
 		}
 
 		GameObject::Sptr detachedCam = scene->CreateGameObject("Detached Camera");
@@ -344,10 +352,10 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = detachedCam->Add<Camera>();
 			scene->PlayerCamera = cam;
 			scene->MainCamera = cam;
-			scene->MainCamera->ResizeWindow(1920, 500);
-			scene->PlayerCamera->ResizeWindow(1920, 500);
-			scene->MainCamera->SetFovDegrees(90);
-			scene->PlayerCamera->SetFovDegrees(90);
+			scene->MainCamera->ResizeWindow(32, 9);
+			scene->PlayerCamera->ResizeWindow(32, 9);
+			scene->MainCamera->SetFovDegrees(75);
+			scene->PlayerCamera->SetFovDegrees(75);
 		}
 
 		GameObject::Sptr detachedCam2 = scene->CreateGameObject("Detached Camera 2");
@@ -362,10 +370,10 @@ void SecondMap::_CreateScene() {
 			Camera::Sptr cam = detachedCam2->Add<Camera>();
 			scene->PlayerCamera2 = cam;
 			scene->MainCamera2 = cam;
-			scene->MainCamera2->ResizeWindow(1920, 500);
-			scene->PlayerCamera2->ResizeWindow(1920, 500);
-			scene->MainCamera2->SetFovDegrees(90);
-			scene->PlayerCamera2->SetFovDegrees(90);
+			scene->MainCamera2->ResizeWindow(32, 9);
+			scene->PlayerCamera2->ResizeWindow(32, 9);
+			scene->MainCamera2->SetFovDegrees(75);
+			scene->PlayerCamera2->SetFovDegrees(75);
 		}
 
 #pragma endregion
@@ -381,6 +389,15 @@ void SecondMap::_CreateScene() {
 			RenderComponent::Sptr renderer = groundObj->Add<RenderComponent>();
 			renderer->SetMesh(groundMesh);
 			renderer->SetMaterial(grassMat);
+
+			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(110.0f, 50.0f, 1.0f));
+			collider->SetPosition({ 0,-0.8,-1 });
+			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Attach a plane collider that extends infinitely along the X/Y axis
+			RigidBody::Sptr physics = groundObj->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider);
+
 		}
 
 		GameObject::Sptr wallObj = scene->CreateGameObject("Walls");
@@ -1042,6 +1059,101 @@ void SecondMap::_CreateScene() {
 			pauseMenu->SetRenderFlag(5);
 		}
 
+		GameObject::Sptr sensText1 = scene->CreateGameObject("Sensitivity Text1");
+		{
+			sensText1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensText1->Add<RectTransform>();
+			transform->SetMin({ 120, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
+
+			sensText1->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensText1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensBar1 = scene->CreateGameObject("Sensitivity Bar1");
+		{
+			sensBar1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensBar1->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+			//sensBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensBar1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensSelector1 = scene->CreateGameObject("Sensitivity Selector1");
+		{
+			sensSelector1->SetRenderFlag(1);
+
+			RectTransform::Sptr transform = sensSelector1->Add<RectTransform>();
+			transform->SetMin({ (sensBar1->Get<RectTransform>()->GetMin().x + sensBar1->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
+			transform->SetMax({ (sensBar1->Get<RectTransform>()->GetMin().x + sensBar1->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+
+			//sensSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensSelector1->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensText2 = scene->CreateGameObject("Sensitivity Text2");
+		{
+			sensText2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensText2->Add<RectTransform>();
+			transform->SetMin({ 120, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
+
+			sensText2->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensText2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensBar2 = scene->CreateGameObject("Sensitivity Bar2");
+		{
+			sensBar2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensBar2->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+			//sensBar->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensBar2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr sensSelector2 = scene->CreateGameObject("Sensitivity Selector2");
+		{
+			sensSelector2->SetRenderFlag(2);
+
+			RectTransform::Sptr transform = sensSelector2->Add<RectTransform>();
+			transform->SetMin({ (sensBar2->Get<RectTransform>()->GetMin().x + sensBar2->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
+			transform->SetMax({ (sensBar2->Get<RectTransform>()->GetMin().x + sensBar2->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+
+			//sensSelector->Add<MenuElement>();
+
+			GuiPanel::Sptr canPanel = sensSelector2->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+
+			canPanel->SetTransparency(0.0f);
+		}
 #pragma endregion
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -1073,5 +1185,63 @@ bool SecondMap::IsActive()
 
 void SecondMap::RepositionUI()
 {
+	Application& app = Application::Get();
+
+	//Grab all the UI elements
+	Gameplay::GameObject::Sptr crosshair = app.CurrentScene()->FindObjectByName("Crosshairs");
+	Gameplay::GameObject::Sptr crosshair2 = app.CurrentScene()->FindObjectByName("Crosshairs 2");
+	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
+	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
+
+	//Reposition the elements
+	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
+	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
+	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
+	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
+	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+
+	//Grab pause menu elements
+	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");
+	Gameplay::GameObject::Sptr sensBar1 = app.CurrentScene()->FindObjectByName("Sensitivity Bar1");
+	Gameplay::GameObject::Sptr sensText2 = app.CurrentScene()->FindObjectByName("Sensitivity Text2");
+	Gameplay::GameObject::Sptr sensBar2 = app.CurrentScene()->FindObjectByName("Sensitivity Bar2");
+
+	sensText1->Get<RectTransform>()->SetMin({ 120, app.GetWindowSize().y / 4 });
+	sensText1->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3,  app.GetWindowSize().y / 2 });
+	sensBar1->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+	sensBar1->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+	sensText2->Get<RectTransform>()->SetMin({ 120, app.GetWindowSize().y / 4 });
+	sensText2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3,  app.GetWindowSize().y / 2 });
+	sensBar2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 4 });
+	sensBar2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
+
+	//Reposition the score UI elements
+	for (int i = 0; i < 10; i++)
+	{
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+
+		//keeping this jus in case
+		/*
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ app.GetWindowSize().x - 85, 10 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 10, 95 });
+		*/
+	}
+
+	Gameplay::GameObject::Sptr pauseText = app.CurrentScene()->FindObjectByName("PauseText");
+	Gameplay::GameObject::Sptr pauseBG = app.CurrentScene()->FindObjectByName("PauseBackground");
+
+	pauseText->Get<RectTransform>()->SetMin({ 0, 0 });
+	pauseText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
+
+	pauseBG->Get<RectTransform>()->SetMin({ 0, 0 });
+	pauseBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
 }
