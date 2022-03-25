@@ -6,9 +6,30 @@
 #include <iostream>
 #include "common.h"
 #include "fmod_errors.h"
+#include "Gameplay/GameObject.h"
+#include "Gameplay/Scene.h"
 
-/**
- */
+/**/
+inline FMOD_VECTOR GlmToFmod3D(glm::vec3 inVec)
+{
+	FMOD_VECTOR tempVec;
+	tempVec.x = inVec.x;
+	tempVec.y = inVec.y;
+	tempVec.z = inVec.z;
+
+	return tempVec;
+}
+
+inline FMOD_VECTOR Normalize(FMOD_VECTOR inVec)
+{
+	FMOD_VECTOR tempVec;
+
+	tempVec.x = 1 / glm::sqrt(inVec.x * inVec.x + inVec.y * inVec.y + inVec.z * inVec.z) * inVec.x;
+	tempVec.y = 1 / glm::sqrt(inVec.x * inVec.x + inVec.y * inVec.y + inVec.z * inVec.z) * inVec.y;
+	tempVec.z = 1 / glm::sqrt(inVec.x * inVec.x + inVec.y * inVec.y + inVec.z * inVec.z) * inVec.z;
+
+	return tempVec;
+}
 
 class SoundManaging final {
 public:
@@ -43,12 +64,37 @@ public:
 		FMOD::Studio::EventInstance* instance;
 		std::string name;
 		const char* path;
+		Gameplay::GameObject* object = nullptr;
 	};
 
 	inline void UpdateSounds(float deltaT) {
 		for each (soundData sampleSound in sounds)
 		{
 			sampleSound.currentDurationMS += deltaT * 1000;
+		}
+
+		if (listener1Object != nullptr)
+		{
+
+			Gameplay::Camera::Sptr p1Cam = listener1Object->GetScene()->PlayerCamera;
+
+			glm::vec3 cameraLocalForward = glm::vec3(p1Cam->GetView()[0][2], p1Cam->GetView()[1][2], p1Cam->GetView()[2][2]);
+			glm::vec3 cameraLocalUp = glm::vec3(p1Cam->GetView()[0][1], p1Cam->GetView()[1][1], p1Cam->GetView()[2][1]);
+
+			listener1Attribs.forward = Normalize(GlmToFmod3D(cameraLocalForward));
+			listener1Attribs.up = Normalize(GlmToFmod3D(cameraLocalUp));
+
+			listener1Attribs.position = GlmToFmod3D(listener1Object->GetPosition());
+			studioSystem->setListenerAttributes(0, &listener1Attribs);
+
+			for each (eventData sampleEvent in events)
+			{
+				if (sampleEvent.object != nullptr)
+				{
+					listener1Attribs.position = GlmToFmod3D(sampleEvent.object->GetPosition());
+					sampleEvent.instance->set3DAttributes(&listener1Attribs);
+				}
+			}
 		}
 
 		system->update();
@@ -118,6 +164,10 @@ public:
 
 		tempDesc->createInstance(&instance);
 
+		if (name == "Jump") tempDesc->is3D(&is3D);
+
+		std::cout << path << ' ' << is3D << std::endl;
+
 		eventData newEvent;
 		newEvent.instance = instance;
 		newEvent.name = lowercase(name);
@@ -126,15 +176,28 @@ public:
 		events.push_back(newEvent);
 	}
 
-	inline void PlayEvent(std::string name)
+
+	/*
+	* Play an event that has been loaded through SetEvent
+	* name: the name of the event to be played
+	* object: the object that corresponds to the event being played. This is for 3D sound, so if the event being played should not be 3D, leave this blank
+	*/
+	inline void PlayEvent(std::string name, Gameplay::GameObject *object = nullptr)
 	{
 		std::string tempStr = lowercase(name);
 
-		for each (eventData sampleEvent in events)
+		for (int i = 0; i < events.size(); i++)
 		{
-			if (sampleEvent.name == tempStr)
+			if (events[i].name == tempStr)
 			{
-				sampleEvent.instance->start();
+				events[i].instance->start();
+				
+				if (object != nullptr)
+				{
+					listener1Attribs.position = GlmToFmod3D(object->GetPosition());
+					std::cout << "FMOD ERROR for setting event attribs: " << FMOD_ErrorString(events[i].instance->set3DAttributes(&listener1Attribs)) << std::endl;
+					events[i].object = object;
+				}
 
 				return;
 			}
@@ -162,6 +225,12 @@ public:
 		}
 	}
 
+	inline void SetListenerObjects(Gameplay::GameObject::Sptr inObject1, Gameplay::GameObject::Sptr inObject2)
+	{
+		listener1Object = inObject1;
+		listener2Object = inObject2;
+	}
+
 	static inline SoundManaging& Current() { return _singleton; }
 
 	std::string lowercase(std::string origStr)
@@ -184,18 +253,34 @@ protected:
 
 	static SoundManaging _singleton;
 
+	//Vectors for holding sound/event data
 	std::vector<soundData> sounds;
 	std::vector<eventData> events;
 
+	//Systems
 	FMOD::Studio::System	*studioSystem = NULL;
+	FMOD::System* system = nullptr;
+
+	//Banks
 	FMOD::Studio::Bank		*bank = nullptr;
 	FMOD::Studio::Bank		*stringBank = nullptr;
 
-	FMOD::System			*system = nullptr;
+	//Extra shit
 	FMOD::Channel			*channel = 0;
 	void					*extradriverdata = nullptr;
-
 	float volume = 0.5f;
+
+	//Listener stuff
+	Gameplay::GameObject::Sptr listener1Object = nullptr;
+	FMOD_3D_ATTRIBUTES listener1Attribs = { { 0 } };
+
+	Gameplay::GameObject::Sptr listener2Object = nullptr;
+	FMOD_3D_ATTRIBUTES listener2Attribs = { { 0 } };
+
+	FMOD_3D_ATTRIBUTES eventAttribs = { { 0 } };
+
+	bool is3D;
+
 };
 
 inline SoundManaging SoundManaging::_singleton = SoundManaging();

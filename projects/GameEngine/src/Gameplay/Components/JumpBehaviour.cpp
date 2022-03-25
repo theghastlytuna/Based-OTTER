@@ -82,7 +82,7 @@ void JumpBehaviour::Update(float deltaTime) {
 			_jumpCooldown = 0.5f;
 			_startingJump = true;
 
-			SoundManaging::Current().PlayEvent("Jump");
+			SoundManaging::Current().PlayEvent("Jump", GetGameObject());
 		}
 	}
 	

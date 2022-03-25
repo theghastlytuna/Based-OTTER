@@ -245,6 +245,16 @@ void Application::_Run()
 
 	soundInfo thisSoundInfo;
 
+	soundManaging.LoadBank("fmod/Banks/Master.bank");
+	soundManaging.LoadBank("fmod/Banks/Sounds.bank");
+	soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
+
+	soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
+	soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
+	soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
+	soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
+	soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
+
 	std::vector<MenuElement::Sptr> p1OptionItems;
 	std::vector<MenuElement::Sptr> p2OptionItems;
 	int p1ItemInd = 0;
@@ -318,17 +328,10 @@ void Application::_Run()
 			optionItems.push_back(_currentScene->FindObjectByName("Volume Text")->Get<MenuElement>());
 			optionItems.push_back(_currentScene->FindObjectByName("Sensitivity Text")->Get<MenuElement>());
 
+			soundManaging.SetListenerObjects(_currentScene->FindObjectByName("MainCam1"), _currentScene->FindObjectByName("MainCam2"));
+
 			firstFrame = false;
 
-			soundManaging.LoadBank("fmod/Banks/Master.bank");
-			soundManaging.LoadBank("fmod/Banks/Sounds.bank");
-			soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
-
-			soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
-			soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
-			soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
-			soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
-			soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
 
 			//soundManaging.SetEvent("event:/Footsteps", "footsteps");
 		}
@@ -685,6 +688,8 @@ void Application::_Run()
 				selectTimes[1] = 0.3f;
 				barSelectTimes[0] = 0.2f;
 				barSelectTimes[1] = 0.2f;
+
+				soundManaging.SetListenerObjects(player1, player2);
 
 			}
 
