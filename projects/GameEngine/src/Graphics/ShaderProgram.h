@@ -131,6 +131,10 @@ public:
 	void SetUniform(int location, const glm::ivec2* value, int count = 1);
 	void SetUniform(int location, const glm::ivec3* value, int count = 1);
 	void SetUniform(int location, const glm::ivec4* value, int count = 1);
+	void SetUniform(int location, const uint32_t* value, int count = 1);
+	void SetUniform(int location, const glm::uvec2* value, int count = 1);
+	void SetUniform(int location, const glm::uvec3* value, int count = 1);
+	void SetUniform(int location, const glm::uvec4* value, int count = 1);
 	void SetUniform(int location, const bool* value, int count = 1);
 	void SetUniform(int location, const glm::bvec2* value, int count = 1); 
 	void SetUniform(int location, const glm::bvec3* value, int count = 1);
@@ -159,7 +163,7 @@ public:
 	void SetUniform(const std::string& name, const T* values, int count = 1) {
 		int location = __GetUniformLocation(name);
 		if (location != -1) {
-			SetUniform(location, &values, count);
+			SetUniform(location, values, count);
 		} else {
 			LOG_WARN("Ignoring uniform \"{}\"", name);
 		}

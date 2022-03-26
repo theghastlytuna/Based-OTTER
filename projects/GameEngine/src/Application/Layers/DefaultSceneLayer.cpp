@@ -36,6 +36,7 @@
 #include "Gameplay/Material.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
+#include "Gameplay/Components/Light.h"
 
 // Components
 #include "Gameplay/Components/IComponent.h"
@@ -2306,7 +2307,7 @@ void DefaultSceneLayer::_CreateScene() {
 		GuiBatcher::SetDefaultBorderRadius(8);
 
 		// Save the asset manifest for all the resources we just loaded
-		ResourceManager::SaveManifest("manifest.json");
+		ResourceManager::SaveManifest("scene-manifest.json");
 		// Save the scene to a JSON file
 		scene->Save("scene.json");
 

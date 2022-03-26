@@ -66,7 +66,7 @@ void InspectorWindow::Render()
 		selection->_isLocalTransformDirty |= LABEL_LEFT(ImGui::DragFloat3, "Scale   ", &selection->_scale.x, 0.01f, 0.0f);
 
 		// For if we're not in play mode
-		selection->_RecalcLocalTransform();
+		selection->_RecalcLocalTransform(); 
 		selection->_RecalcWorldTransform();
 
 		ImGui::Separator();
@@ -105,13 +105,6 @@ void InspectorWindow::Render()
 			selection->Add(selectedType.value());
 			selectedType.reset();
 			preview = "";
-		}
-
-		if (ImGui::Button("Print Component")) {
-			std::cout << "Collider Co-oridnates: \n" <<
-				"BoxCollider::Sptr collider_ = BoxCollider::Create(glm::vec3 (" << &selection->_scale.x << ", " << &selection->_scale.y << ", " << &selection->_scale.z << " ));\n"
-				<< "collider->SetPosition(glm::vec3(" << &selection->_position.x << "," << &selection->_position.y << "," << &selection->_position.z << ")); \n"
-				<< "collider->SetRotation(glm::vec3(" << &selection->_rotation.x << ", " << &selection->_rotation.y << ", " << &selection->_rotation.z << ")); ";
 		}
 
 		ImGui::PopID();

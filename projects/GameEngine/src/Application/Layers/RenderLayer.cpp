@@ -7,6 +7,7 @@
 #include "../Timing.h"
 #include "Gameplay/Components/ComponentManager.h"
 #include "Gameplay/Components/RenderComponent.h"
+#include "Gameplay/Components/Light.h"
 
 // GLM math library
 #include <GLM/glm.hpp>
@@ -14,6 +15,7 @@
 #include <GLM/gtc/type_ptr.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <GLM/gtx/common.hpp> // for fmod (floating modulus)
+#include "Gameplay/Components/ShadowCamera.h"
 
 
 RenderLayer::RenderLayer() :
@@ -22,11 +24,14 @@ RenderLayer::RenderLayer() :
 	_blitFbo(true),
 	_frameUniforms(nullptr),
 	_instanceUniforms(nullptr),
-	_renderFlags(RenderFlags::EnableColorCorrection),
+	_renderFlags(RenderFlags::None),
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
-	Overrides = AppLayerFunctions::OnAppLoad | AppLayerFunctions::OnRender | AppLayerFunctions::OnWindowResize;
+	Overrides = 
+		AppLayerFunctions::OnAppLoad | 
+		AppLayerFunctions::OnPreRender | AppLayerFunctions::OnRender | AppLayerFunctions::OnPostRender | 
+		AppLayerFunctions::OnWindowResize;
 }
 
 RenderLayer::~RenderLayer() = default;
@@ -262,8 +267,10 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 {
 	if (newSize.x * newSize.y == 0) return;
 
-	// Set viewport and resize our primary FBO
+	// Set viewport and resize our primary FBO and light accumulation FBO
 	_primaryFBO->Resize(newSize);
+	_lightingFBO->Resize(newSize);
+	_outputBuffer->Resize(newSize);
 
 	// Update the main camera's projection
 	Application& app = Application::Get();
@@ -283,19 +290,74 @@ void RenderLayer::OnAppLoad(const nlohmann::json& config)
 	FramebufferDescriptor fboDescriptor;
 	fboDescriptor.Width = app.GetWindowSize().x;
 	fboDescriptor.Height = app.GetWindowSize().y;
-	fboDescriptor.GenerateUnsampled = false;
-	fboDescriptor.SampleCount = 1;
 
-	// Add a depth and color attachment (same as default)
-	fboDescriptor.RenderTargets[RenderTargetAttachment::DepthStencil] ={ true, RenderTargetType::DepthStencil };
-	fboDescriptor.RenderTargets[RenderTargetAttachment::Color0] ={ true, RenderTargetType::ColorRgb8 };
-
+	// We want to use a 32 bit depth buffer, we'll ignore the stencil buffer for now
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Depth] = RenderTargetDescriptor(RenderTargetType::Depth32);
+	// Color layer 0 (albedo, specular)
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color0] = RenderTargetDescriptor(RenderTargetType::ColorRgba8);
+	// Color layer 1 (normals, metallic)
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color1] = RenderTargetDescriptor(RenderTargetType::ColorRgba8);
+	// Color layer 2 (emissive)  
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color2] = RenderTargetDescriptor(RenderTargetType::ColorRgba8);
+	// Color layer 3 (view space position)  
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color3] = RenderTargetDescriptor(RenderTargetType::ColorRgba16F);
+	 
 	// Create the primary FBO
 	_primaryFBO = std::make_shared<Framebuffer>(fboDescriptor);
+
+	fboDescriptor.RenderTargets.clear();
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color0] = RenderTargetDescriptor(RenderTargetType::ColorRgba8); // Diffuse
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color1] = RenderTargetDescriptor(RenderTargetType::ColorRgba8); // Specular
+
+	_lightingFBO = std::make_shared<Framebuffer>(fboDescriptor);
+
+	// Create an FBO to store final output
+	fboDescriptor.RenderTargets.clear();
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Depth] = RenderTargetDescriptor(RenderTargetType::Depth32);
+	fboDescriptor.RenderTargets[RenderTargetAttachment::Color0] = RenderTargetDescriptor(RenderTargetType::ColorRgba8);
+
+	_outputBuffer = std::make_shared<Framebuffer>(fboDescriptor);
+
+	// We'll use one shader for light accumulation for now
+	_lightAccumulationShader = ShaderProgram::Create();
+	_lightAccumulationShader->LoadShaderPartFromFile("shaders/vertex_shaders/fullscreen_quad.glsl", ShaderPartType::Vertex);
+	_lightAccumulationShader->LoadShaderPartFromFile("shaders/fragment_shaders/light_accumulation.glsl", ShaderPartType::Fragment);
+	_lightAccumulationShader->Link();
+
+	_compositingShader = ShaderProgram::Create();
+	_compositingShader->LoadShaderPartFromFile("shaders/vertex_shaders/fullscreen_quad.glsl", ShaderPartType::Vertex);
+	_compositingShader->LoadShaderPartFromFile("shaders/fragment_shaders/deferred_composite.glsl", ShaderPartType::Fragment);
+	_compositingShader->Link();
+
+	_clearShader = ShaderProgram::Create();
+	_clearShader->LoadShaderPartFromFile("shaders/vertex_shaders/fullscreen_quad.glsl", ShaderPartType::Vertex);
+	_clearShader->LoadShaderPartFromFile("shaders/fragment_shaders/clear.glsl", ShaderPartType::Fragment);
+	_clearShader->Link();
+
+	_shadowShader = ShaderProgram::Create();
+	_shadowShader->LoadShaderPartFromFile("shaders/vertex_shaders/fullscreen_quad.glsl", ShaderPartType::Vertex);
+	_shadowShader->LoadShaderPartFromFile("shaders/fragment_shaders/shadow_composite.glsl", ShaderPartType::Fragment);
+	_shadowShader->Link();
+
+	// We need a mesh for drawing fullscreen quads
+
+	glm::vec2 positions[6] = {
+		{ -1.0f,  1.0f }, { -1.0f, -1.0f }, { 1.0f, 1.0f },
+		{ -1.0f, -1.0f }, {  1.0f, -1.0f }, { 1.0f, 1.0f }
+	};
+
+	VertexBuffer::Sptr vbo = std::make_shared<VertexBuffer>();
+	vbo->LoadData(positions, 6);
+
+	_fullscreenQuad = VertexArrayObject::Create();
+	_fullscreenQuad->AddVertexBuffer(vbo, {
+		BufferAttribute(0, 2, AttributeType::Float, sizeof(glm::vec2), 0, AttribUsage::Position)
+	});
 
 	// Create our common uniform buffers
 	_frameUniforms = std::make_shared<UniformBuffer<FrameLevelUniforms>>(BufferUsage::DynamicDraw);
 	_instanceUniforms = std::make_shared<UniformBuffer<InstanceLevelUniforms>>(BufferUsage::DynamicDraw);
+	_lightingUbo = std::make_shared<UniformBuffer<LightingUboStruct>>(BufferUsage::DynamicDraw);
 }
 
 const Framebuffer::Sptr& RenderLayer::GetPrimaryFBO() const {
@@ -303,15 +365,15 @@ const Framebuffer::Sptr& RenderLayer::GetPrimaryFBO() const {
 }
 
 bool RenderLayer::IsBlitEnabled() const {
-	return _blitFbo;
-}
-
-Framebuffer::Sptr RenderLayer::GetRenderOutput() {
-	return _primaryFBO;
+	return false;
 }
 
 void RenderLayer::SetBlitEnabled(bool value) {
 	_blitFbo = value;
+}
+
+const Framebuffer::Sptr& RenderLayer::GetRenderOutput() const {
+	return _outputBuffer;
 }
 
 const glm::vec4& RenderLayer::GetClearColor() const {
@@ -329,3 +391,107 @@ void RenderLayer::SetRenderFlags(RenderFlags value) {
 RenderFlags RenderLayer::GetRenderFlags() const {
 	return _renderFlags;
 }
+
+const Framebuffer::Sptr& RenderLayer::GetLightingBuffer() const {
+	return _lightingFBO;
+}
+
+const Framebuffer::Sptr& RenderLayer::GetGBuffer() const
+{
+	return _primaryFBO;
+}
+
+void RenderLayer::_InitFrameUniforms()
+{
+	using namespace Gameplay;
+
+	Application& app = Application::Get();
+
+	// Grab shorthands to the camera and shader from the scene
+	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+
+	// Cache the camera's viewprojection
+	glm::mat4 viewProj = camera->GetViewProjection();
+	glm::mat4 view = camera->GetView();
+
+	// Upload frame level uniforms
+	auto& frameData = _frameUniforms->GetData();
+	frameData.u_Projection = camera->GetProjection();
+	frameData.u_View = camera->GetView();
+	frameData.u_ViewProjection = camera->GetViewProjection();
+	frameData.u_CameraPos = glm::vec4(camera->GetGameObject()->GetPosition(), 1.0f);
+	frameData.u_Time = static_cast<float>(Timing::Current().TimeSinceSceneLoad());
+	frameData.u_DeltaTime = Timing::Current().DeltaTime();
+	frameData.u_RenderFlags = _renderFlags;
+	frameData.u_ZNear = camera->GetNearPlane();
+	frameData.u_ZFar = camera->GetFarPlane();
+	_frameUniforms->Update();
+}
+
+void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projection)
+{
+	using namespace Gameplay;
+
+	Application& app = Application::Get();
+
+	glm::mat4 viewProj = projection * view;
+
+	// The current material that is bound for rendering
+	Material::Sptr currentMat = nullptr;
+	ShaderProgram::Sptr shader = nullptr;
+
+	Material::Sptr defaultMat = app.CurrentScene()->DefaultMaterial;
+
+	auto& frameData = _frameUniforms->GetData();
+	frameData.u_Projection = projection;
+	frameData.u_View = view;
+	frameData.u_ViewProjection = viewProj;
+	frameData.u_CameraPos = view * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_frameUniforms->Update();
+
+	// Render all our objects
+	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
+		// Early bail if mesh not set
+		if (renderable->GetMesh() == nullptr) {
+			return;
+		}
+
+		// If we don't have a material, try getting the scene's fallback material
+		// If none exists, do not draw anything
+		if (renderable->GetMaterial() == nullptr) {
+			if (defaultMat != nullptr) {
+				renderable->SetMaterial(defaultMat);
+			}
+			else {
+				return;
+			}
+		}
+
+		// If the material has changed, we need to bind the new shader and set up our material and frame data
+		// Note: This is a good reason why we should be sorting the render components in ComponentManager
+		if (renderable->GetMaterial() != currentMat) {
+			currentMat = renderable->GetMaterial();
+			shader = currentMat->GetShader();
+
+			shader->Bind();
+			currentMat->Apply();
+		}
+
+		// Grab the game object so we can do some stuff with it
+		GameObject* object = renderable->GetGameObject();
+
+		// Use our uniform buffer for our instance level uniforms
+		auto& instanceData = _instanceUniforms->GetData();
+		instanceData.u_Model = object->GetTransform();
+		instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
+		instanceData.u_ModelView = view * object->GetTransform();
+		instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
+		_instanceUniforms->Update();
+
+		// Draw the object
+		renderable->GetMesh()->Draw();
+
+	});
+
+}
+
