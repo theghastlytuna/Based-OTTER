@@ -219,7 +219,7 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr roundCactusMesh = ResourceManager::CreateAsset<MeshResource>("cactus2.obj");
 		MeshResource::Sptr grassMesh = ResourceManager::CreateAsset<MeshResource>("grass.obj");
 
-
+		
 		//MeshResource::Sptr wiltedTreeMesh = ResourceManager::CreateAsset<MeshResource>("tree_straight.obj");
 
 		//MeshResource::Sptr wiltedTree2Mesh = ResourceManager::CreateAsset<MeshResource>("tree_slanted.obj");
