@@ -31,6 +31,7 @@ namespace Gameplay {
 		_skyboxMesh(nullptr),
 		_skyboxTexture(nullptr),
 		_skyboxRotation(glm::mat3(1.0f)),
+		_ambientLight(glm::vec3(0.1f)),
 		_gravity(glm::vec3(0.0f, 0.0f, -12.81f))
 	{
 		GameObject::Sptr mainCam = CreateGameObject("Main Camera");		
@@ -193,7 +194,6 @@ namespace Gameplay {
 		_FlushDeleteQueue();
 	}
 
-	void Scene::PreRender() {
 	void Scene::RenderGUI(int viewportID)
 	{
 		for (auto& obj : _objects) {

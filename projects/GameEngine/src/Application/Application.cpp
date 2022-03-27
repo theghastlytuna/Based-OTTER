@@ -41,6 +41,7 @@
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
+#include "Gameplay/Components/ParticleSystem.h"
 #include "Gameplay/Components/FirstPersonCamera.h"
 #include "Gameplay/Components/MovingPlatform.h"
 #include "Gameplay/Components/PlayerControl.h"
@@ -51,6 +52,8 @@
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
 #include "Gameplay/Components/PickUpBehaviour.h"
+#include "Gameplay/Components/Light.h"
+#include "Gameplay/Components/ShadowCamera.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"
@@ -71,14 +74,13 @@
 #include "Layers/EndScreen.h"
 
 #include "SoundManaging.h"
+#include "Layers/PostProcessingLayer.h" 
 
 Application* Application::_singleton = nullptr;
 std::string Application::_applicationName = "INFR-2350U - DEMO";
 
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
-
-using namespace Gameplay;
 
 Application::Application() :
 	_window(nullptr),
@@ -87,8 +89,7 @@ Application::Application() :
 	_isEditor(true),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
-	_targetScene(nullptr),
-	_renderOutput(nullptr)
+	_targetScene(nullptr)
 { }
 
 Application::~Application() = default;
@@ -177,9 +178,11 @@ void Application::_Run()
 	_layers.push_back(std::make_shared<DefaultSceneLayer>());
 	_layers.push_back(std::make_shared<SecondMap>());
 	_layers.push_back(std::make_shared<EndScreen>());
-	_layers.push_back(std::make_shared<RenderLayer>());
-	_layers.push_back(std::make_shared<InterfaceLayer>());
 	_layers.push_back(std::make_shared<LogicUpdateLayer>());
+	_layers.push_back(std::make_shared<RenderLayer>());
+	_layers.push_back(std::make_shared<ParticleLayer>());
+	_layers.push_back(std::make_shared<PostProcessingLayer>());
+	_layers.push_back(std::make_shared<InterfaceLayer>());
 
 	// If we're in editor mode, we add all the editor layers
 	if (_isEditor) {
@@ -1245,6 +1248,10 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<ScoreCounter>();
 	ComponentManager::RegisterType<MenuElement>();
 	ComponentManager::RegisterType<PickUpBehaviour>();
+
+	ComponentManager::RegisterType<ParticleSystem>();
+	ComponentManager::RegisterType<Light>();
+	ComponentManager::RegisterType<ShadowCamera>();
 }
 
 void Application::_Load() {
@@ -1302,44 +1309,17 @@ void Application::_RenderScene() {
 	for (const auto& layer : _layers) {
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnRender)) {
 			layer->OnRender(result);
-			Framebuffer::Sptr layerResult = layer->GetRenderOutput(); 
-			result = layerResult != nullptr ? layerResult : result;
 		}
 	}
-	_renderOutput = result;
-
 }
 
 void Application::_PostRender() {
 	// Note that we use a reverse iterator for post render
-	for (auto it = _layers.crbegin(); it != _layers.crend(); it++) {
+	for (auto it = _layers.begin(); it != _layers.end(); it++) {
 		const auto& layer = *it;
 		if (layer->Enabled && *(layer->Overrides & AppLayerFunctions::OnPostRender)) {
 			layer->OnPostRender();
-			Framebuffer::Sptr layerResult = layer->GetPostRenderOutput();
-			_renderOutput = layerResult != nullptr ? layerResult : _renderOutput;
 		}
-	}
-
-	// We can use the application's viewport to set our OpenGL viewport, as well as clip rendering to that area
-	const glm::uvec4& viewport = GetPrimaryViewport();
-	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
-	glScissor(viewport.x, viewport.y, viewport.z, viewport.w); 
-
-	// If we have a final output, blit it to the screen
-	if (_renderOutput != nullptr) {
-		_renderOutput->Unbind();
-
-		glm::ivec2 windowSize = _windowSize;
-		if (_isEditor) {
-			glfwGetWindowSize(_window, &windowSize.x, &windowSize.y);
-		}
-		//glViewport(0, 0, windowSize.x, windowSize.y);
-		glm::ivec4 viewportMinMax ={ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w };
-
-		_renderOutput->Bind(FramebufferBinding::Read);
-		glBindFramebuffer(*FramebufferBinding::Write, 0);
-		Framebuffer::Blit({ 0, 0, _renderOutput->GetWidth(), _renderOutput->GetHeight() }, viewportMinMax, BufferFlags::All, MagFilter::Nearest);
 	}
 }
 

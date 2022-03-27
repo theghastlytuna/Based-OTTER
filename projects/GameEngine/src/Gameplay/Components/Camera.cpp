@@ -124,6 +124,28 @@ namespace Gameplay {
 		_clearColor = color;
 	}
 
+	float Camera::GetNearPlane() const
+	{
+		return _nearPlane;
+	}
+
+	float Camera::GetFarPlane() const
+	{
+		return _farPlane;
+	}
+
+	void Camera::SetNearPlane(float value)
+	{
+		_nearPlane = value;
+		__CalculateProjection();
+	}
+
+	void Camera::SetFarPlane(float value)
+	{
+		_farPlane = value;
+		__CalculateProjection();
+	}
+
 	const glm::mat4& Camera::__CalculateProjection() const
 	{
 		if (_isProjectionDirty) {

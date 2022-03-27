@@ -4,6 +4,7 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
+#include <GLM/gtc/random.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <GLM/gtx/common.hpp> // for fmod (floating modulus)
 
@@ -45,6 +46,8 @@
 #include "Gameplay/Components/JumpBehaviour.h"
 #include "Gameplay/Components/RenderComponent.h"
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
+#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
+#include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Components/FirstPersonCamera.h"
 #include "Gameplay/Components/MovingPlatform.h"
 #include "Gameplay/Components/PlayerControl.h"
@@ -65,8 +68,6 @@
 #include "Gameplay/Physics/Colliders/CylinderCollider.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Graphics/DebugDraw.h"
-#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
-#include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Physics/Colliders/CylinderCollider.h"
 
 // GUI
@@ -76,9 +77,12 @@
 #include "Gameplay/InputEngine.h"
 
 #include "Application/Application.h"
-
+#include "Gameplay/Components/ParticleSystem.h"
 #include "Graphics/Textures/Texture3D.h"
 #include "Graphics/Textures/Texture1D.h"
+#include "Application/Layers/ImGuiDebugLayer.h"
+#include "Application/Windows/DebugWindow.h"
+#include "Gameplay/Components/ShadowCamera.h"
 using namespace Gameplay::Physics;
 
 std::vector<Gameplay::MeshResource::Sptr>LoadTargets(int numTargets, std::string path)
@@ -101,7 +105,7 @@ DefaultSceneLayer::DefaultSceneLayer() :
 
 DefaultSceneLayer::~DefaultSceneLayer() = default;
 
-void DefaultSceneLayer::OnAppLoad(const nlohmann::json & config) {
+void DefaultSceneLayer::OnAppLoad(const nlohmann::json& config) {
 	//_CreateScene();
 }
 
@@ -603,30 +607,18 @@ void DefaultSceneLayer::_CreateScene() {
 		}
 
 		// Create some lights for our scene
-		scene->Lights.resize(6);
-		scene->Lights[0].Position = glm::vec3(0.0f, 0.0f, 50.0f);
-		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 500.0f;
+		GameObject::Sptr lightParent = scene->CreateGameObject("Lights");
 
-		scene->Lights[1].Position = glm::vec3(50.0f, 0.0f, 50.0f);
-		scene->Lights[1].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[1].Range = 500.0f;
+		for (int ix = 0; ix < 50; ix++) {
+			GameObject::Sptr light = scene->CreateGameObject("Light");
+			light->SetPosition(glm::vec3(glm::diskRand(25.0f), 1.0f));
+			lightParent->AddChild(light);
 
-		scene->Lights[2].Position = glm::vec3(-50.0f, 0.0f, 50.0f);
-		scene->Lights[2].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[2].Range = 500.0f;
-
-		scene->Lights[3].Position = glm::vec3(0.0f, 50.0f, 50.0f);
-		scene->Lights[3].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[3].Range = 500.0f;
-
-		scene->Lights[4].Position = glm::vec3(0.0f, -50.0f, 50.0f);
-		scene->Lights[4].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[4].Range = 500.0f;
-
-		scene->Lights[5].Position = glm::vec3(9.0f, 1.0f, 50.0f);
-		scene->Lights[5].Color = glm::vec3(1.0f, 0.57f, 0.1f);
-		scene->Lights[5].Range = 500.0f;
+			Light::Sptr lightComponent = light->Add<Light>();
+			lightComponent->SetColor(glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f)));
+			lightComponent->SetRadius(glm::linearRand(0.1f, 10.0f));
+			lightComponent->SetIntensity(glm::linearRand(1.0f, 2.0f));
+		}
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -1430,7 +1422,6 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider);
 
 		}
-		//SetPosition(glm::vec3(52.82,1,10));
 
 		GameObject::Sptr roundCactus = scene->CreateGameObject("Cactus Round ");
 		{

@@ -36,35 +36,31 @@ RenderLayer::RenderLayer() :
 
 RenderLayer::~RenderLayer() = default;
 
-void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
+void RenderLayer::OnPreRender()
 {
 	using namespace Gameplay;
 
 	Application& app = Application::Get();
-	glm::uvec4 viewport = app.GetPrimaryViewport();
-
-	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
-	//glViewport(0, 240, 427, 240);
-	// We bind our framebuffer so we can render to it
-	_primaryFBO->Bind();
 
 	// Clear the color and depth buffers
-	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	const glm::vec4 colors[4] = {
+		glm::vec4(0.0f),
+		glm::vec4(0.5f, 0.5f, 0.5f, 0.0f),
+		glm::vec4(0.0f),
+		glm::vec4(0.0f)
+	};
 
+	_primaryFBO->Bind();
+	// Clear the framebuffer. Note that this also binds and sets the viewport
+	_ClearFramebuffer(_primaryFBO, colors, 4);
+
+	
 	// Grab shorthands to the camera and shader from the scene
 	Camera::Sptr camera = app.CurrentScene()->MainCamera;
 
 	// Cache the camera's viewprojection
 	glm::mat4 viewProj = camera->GetViewProjection();
 	DebugDrawer::Get().SetViewProjection(viewProj);
-
-	// Make sure depth testing and culling are re-enabled
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// The current material that is bound for rendering
 	Material::Sptr currentMat = nullptr;
@@ -84,183 +80,296 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	}
 
 	// Here we'll bind all the UBOs to their corresponding slots
-	app.CurrentScene()->PreRender();
 	_frameUniforms->Bind(FRAME_UBO_BINDING);
 	_instanceUniforms->Bind(INSTANCE_UBO_BINDING);
+	_lightingUbo->Bind(LIGHTING_UBO_BINDING);
 
 	// Draw physics debug
 	app.CurrentScene()->DrawPhysicsDebug();
 
-	// Upload frame level uniforms
-	auto& frameData = _frameUniforms->GetData();
-	frameData.u_Projection = camera->GetProjection();
-	frameData.u_View = camera->GetView();
-	frameData.u_ViewProjection = camera->GetViewProjection();
-	frameData.u_CameraPos = glm::vec4(camera->GetGameObject()->GetPosition(), 1.0f);
-	frameData.u_Time = static_cast<float>(Timing::Current().TimeSinceSceneLoad());
-	frameData.u_DeltaTime = Timing::Current().DeltaTime();
-	frameData.u_RenderFlags = _renderFlags;
-	_frameUniforms->Update();
+	_InitFrameUniforms();
+}
 
-	Material::Sptr defaultMat = app.CurrentScene()->DefaultMaterial;
+void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
+{
+	using namespace Gameplay;
 
-	// Render all our objects
-	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
-		if (renderable->GetGameObject()->GetRenderFlag() == 0 ||
-			renderable->GetGameObject()->GetRenderFlag() == 1)
-		{
+	Application& app = Application::Get();
+	
+	// Make sure depth testing and culling are re-enabled
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE); 
+	glDepthMask(true); 
+
+	// Disable blending, we want to override any existing colors
+	glDisable(GL_BLEND);
+
+	// Grab shorthands to the camera and shader from the scene
+	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+
+	// We can now render all our scene elements via the helper function
+	_RenderScene(camera->GetView(), camera->GetProjection());
+
+	// Use our cubemap to draw our skybox
+	app.CurrentScene()->DrawSkybox();
+
+	VertexArrayObject::Unbind(); 
+}
+
+void RenderLayer::OnPostRender() {
+	using namespace Gameplay;
+
+	// Unbind our G-Buffer
+	_primaryFBO->Unbind(); 
+
+	// Composite our lighting 
+	_Composite();
+
+	Application& app = Application::Get();
+	const glm::uvec4& viewport = app.GetPrimaryViewport();
+
+	// Restore viewport to game viewport
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+
+	// Blit our depth to the primary framebuffer so that other rendering can use it
+	glBlitNamedFramebuffer(
+		_primaryFBO->GetHandle(), 0,
+		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
+		viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w,
+		GL_DEPTH_BUFFER_BIT,
+		GL_NEAREST
+	);
+
+	// TODO: post processing effects
+
+	_outputBuffer->Unbind();
+	_outputBuffer->Bind(FramebufferBinding::Read);
+	Framebuffer::Blit(
+		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
+		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w },
+		BufferFlags::Color
+	);
+
+	_outputBuffer->Unbind();
+}
+
+void RenderLayer::_AccumulateLighting()
+{
+	using namespace Gameplay;
+
+	Application& app = Application::Get();
+	Scene::Sptr& scene = app.CurrentScene();
+
+	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+	const glm::mat4& view = camera->GetView();
+
+	// Update our lighting UBO for any shaders that need it
+	LightingUboStruct& data = _lightingUbo->GetData();
+	data.AmbientCol = scene->GetAmbientLight();
+	data.EnvironmentRotation = scene->GetSkyboxRotation() * glm::inverse(glm::mat3(scene->MainCamera->GetView()));
+
+	const glm::vec3& ambient = scene->GetAmbientLight();
+	const glm::vec4 colors[2] = {
+		{ ambient, 1.0f },         // diffuse (multiplicative)
+		{ 0.0f, 0.0f, 0.0f, 1.0f } // specular (additive)
+	};
+	_lightingFBO->Bind();
+	_ClearFramebuffer(_lightingFBO, colors, 2);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE); 
+
+	// Bind our shader for processing lighting 
+	_lightAccumulationShader->Bind(); 
+
+	// Bind our G-Buffer textures so that they're readable
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
 
 
-			// Early bail if mesh not set
-			if (renderable->GetMesh() == nullptr) {
-				return;
-			}
+	// Send in how many active lights we have and the global lighting settings
+	data.AmbientCol = glm::vec3(0.1f);
+	int ix = 0;
+	app.CurrentScene()->Components().Each<Light>([&](const Light::Sptr& light) {
+		// Get the light's position in view space, since we're doing view space lighting
+		glm::vec4 pos = glm::vec4(light->GetGameObject()->GetWorldPosition(), 1.0f);
+		pos = view * pos;
 
-			// If we don't have a material, try getting the scene's fallback material
-			// If none exists, do not draw anything
-			if (renderable->GetMaterial() == nullptr) {
-				if (defaultMat != nullptr) {
-					renderable->SetMaterial(defaultMat);
-				}
-				else {
-					return;
-				}
-			}
+		// Copy to the ubo data
+		data.Lights[ix].Position = (glm::vec3)(pos) / pos.w;
+		data.Lights[ix].Intensity = light->GetIntensity();
+		data.Lights[ix].Color = light->GetColor();
+		data.Lights[ix].Attenuation = 1.0f / (1.0f + light->GetRadius());  
 
-			// If the material has changed, we need to bind the new shader and set up our material and frame data
-			// Note: This is a good reason why we should be sorting the render components in ComponentManager
-			if (renderable->GetMaterial() != currentMat) {
-				currentMat = renderable->GetMaterial();
-				shader = currentMat->GetShader();
+		ix++;
 
-				shader->Bind();
-				currentMat->Apply();
-			}
+		// If we've reached the max # of lights the shader supports, draw to the screen and start the next batch
+		if (ix == MAX_LIGHTS) {
+			data.NumLights = MAX_LIGHTS;
 
-			// Grab the game object so we can do some stuff with it
-			GameObject* object = renderable->GetGameObject();
+			// Send updated data to OpenGL
+			_lightingUbo->Update();
 
-			// Use our uniform buffer for our instance level uniforms
-			auto& instanceData = _instanceUniforms->GetData();
-			instanceData.u_Model = object->GetTransform();
-			instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
-			instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
-			_instanceUniforms->Update();
+			// Draw the fullscreen quad to accumulate the lights
+			_fullscreenQuad->Draw();
 
-			// Draw the object
-			renderable->GetMesh()->Draw();
+			ix = 0;
 		}
 	});
 
-	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox(app.CurrentScene()->MainCamera);
+	// If we have lights left over that haven't been drawn, draw them now
+	if (ix > 0) {
+		data.NumLights = ix;
 
-	// Unbind our primary framebuffer so subsequent draw calls do not modify it
-	//_primaryFBO->Unbind();
+		// Send updated data to OpenGL
+		_lightingUbo->Update();
 
-	VertexArrayObject::Unbind();
+		// Draw the fullscreen quad to accumulate the lights
+		_fullscreenQuad->Draw();
+	}
 
-	//////////////////////////////////////////////////Render camera 2
+	// Re-render the scene for shadows
+	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
+		// Bind the shadow camera's depth buffer and clear it
+		shadowCam->GetDepthBuffer()->Bind();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
 
-	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
-	//glViewport(0, 0, 427, 240);
+		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection());
 
-	// Grab shorthands to the camera and shader from the scene
-	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	});
 
-	// Cache the camera's viewprojection
-	glm::mat4 viewProj2 = camera2->GetViewProjection();
-	DebugDrawer::Get().SetViewProjection(viewProj2);
+	// Restore frame level uniforms
+	_InitFrameUniforms();
 
-	// Make sure depth testing and culling are re-enabled
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	_lightingFBO->Bind();
+	glViewport(0, 0, _lightingFBO->GetWidth(), _lightingFBO->GetHeight());
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Bind our G-Buffer textures so that they're readable
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
 
-	// The current material that is bound for rendering
-	Material::Sptr currentMat2 = nullptr;
-	ShaderProgram::Sptr shader2 = nullptr;
+	// Bind shadow composite shader
+	_shadowShader->Bind();
 
-	// Bind the skybox texture to a reserved texture slot
-	// See Material.h and Material.cpp for how we're reserving texture slots
-	TextureCube::Sptr environment2 = app.CurrentScene()->GetSkyboxTexture();
-	if (environment2) environment2->Bind(0);
+	// Add each shadow casting light to the lighting buffers
+	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
+		// This gets us the light -> view space matrix, which we'll inverse to go from view space to light space
+		glm::mat4 lightSpaceMatrix = camera->GetView() * shadowCam->GetGameObject()->GetTransform();
 
-	// Here we'll bind all the UBOs to their corresponding slots
-	app.CurrentScene()->PreRender();
-	_frameUniforms->Bind(FRAME_UBO_BINDING);
-	_instanceUniforms->Bind(INSTANCE_UBO_BINDING);
+		// Or we have a matrix to go from view space to shadow space
+		glm::mat4 viewToShadow = shadowCam->GetProjection() * glm::inverse(lightSpaceMatrix);
 
-	// Draw physics debug
-	app.CurrentScene()->DrawPhysicsDebug();
+		// Calculate light's position and direction in view space
+		glm::vec3 lightDirViewSpace = glm::mat3(lightSpaceMatrix) * glm::vec3(0, 0, -1.0f); 
+		glm::vec3 lightPosViewSpace = lightSpaceMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Upload frame level uniforms
-	auto& frameData2 = _frameUniforms->GetData();
-	frameData2.u_Projection = camera2->GetProjection();
-	frameData2.u_View = camera2->GetView();
-	frameData2.u_ViewProjection = camera2->GetViewProjection();
-	frameData2.u_CameraPos = glm::vec4(camera2->GetGameObject()->GetPosition(), 1.0f);
-	frameData2.u_Time = static_cast<float>(Timing::Current().TimeSinceSceneLoad());
-	_frameUniforms->Update();
-
-	Material::Sptr defaultMat2 = app.CurrentScene()->DefaultMaterial;
-
-	// Render all our objects
-	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
-		if (renderable->GetGameObject()->GetRenderFlag() == 0 ||
-			renderable->GetGameObject()->GetRenderFlag() == 2)
-		{
-
-			// Early bail if mesh not set
-			if (renderable->GetMesh() == nullptr) {
-				return;
-			}
-
-			// If we don't have a material, try getting the scene's fallback material
-			// If none exists, do not draw anything
-			if (renderable->GetMaterial() == nullptr) {
-				if (defaultMat2 != nullptr) {
-					renderable->SetMaterial(defaultMat2);
-				}
-				else {
-					return;
-				}
-			}
-
-			// If the material has changed, we need to bind the new shader and set up our material and frame data
-			// Note: This is a good reason why we should be sorting the render components in ComponentManager
-			if (renderable->GetMaterial() != currentMat2) {
-				currentMat2 = renderable->GetMaterial();
-				shader2 = currentMat2->GetShader();
-
-				shader2->Bind();
-				currentMat2->Apply();
-			}
-
-			// Grab the game object so we can do some stuff with it
-			GameObject* object = renderable->GetGameObject();
-
-			// Use our uniform buffer for our instance level uniforms
-			auto& instanceData = _instanceUniforms->GetData();
-			instanceData.u_Model = object->GetTransform();
-			instanceData.u_ModelViewProjection = viewProj2 * object->GetTransform();
-			instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
-			_instanceUniforms->Update();
-
-			// Draw the object
-			renderable->GetMesh()->Draw();
+		// Bind depth and projection mask for reading, making sure not to stomp G-Buffer bindings
+		shadowCam->GetDepthBuffer()->BindAttachment(RenderTargetAttachment::Depth, 5);
+		if (shadowCam->GetProjectionMask() != nullptr) {
+			shadowCam->GetProjectionMask()->Bind(6);
 		}
-		});
+
+		//_shadowShader->SetUniformMatrix("u_ClipToShadow", clipToShadow); 
+		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow); 
+
+		// Get color and normalize it (strip the alpha)
+		glm::vec4 color = shadowCam->GetColor();
+		color *= color.w;
+
+		_shadowShader->SetUniform("u_LightDirViewspace", lightDirViewSpace);
+		_shadowShader->SetUniform("u_ShadowBias", shadowCam->Bias);
+		_shadowShader->SetUniform("u_NormalBias", shadowCam->NormalBias);
+		_shadowShader->SetUniform("u_Attenuation", 1/shadowCam->Range);
+		_shadowShader->SetUniform("u_Intensity", shadowCam->Intensity);
+		_shadowShader->SetUniform("u_LightColor", (glm::vec3)color);
+		_shadowShader->SetUniform("u_LightPosViewspace", lightPosViewSpace);
+		_shadowShader->SetUniform("u_ShadowFlags", *shadowCam->Flags);
+
+		// Draw the fullscreen quad to accumulate the lights
+		_fullscreenQuad->Draw();
+	});
+
+	// Unbind the lighting FBO so we can read its textures
+	_lightingFBO->Unbind();
+}
+
+void RenderLayer::_Composite()
+{
+	using namespace Gameplay;
+	Application& app = Application::Get();
+
+	Scene::Sptr& scene = app.CurrentScene();
+
+	_AccumulateLighting();
+
+	// We want to switch to our compositing shader
+	_compositingShader->Bind();
+
+	// Switch rendering to output
+	_outputBuffer->Bind();
+	glViewport(0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight());
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Disable blending, we want to override any existing colors
+	glDisable(GL_BLEND);
+
+	// Bind our albedo and lighting buffers so we can composite a final scene
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(0);
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(1);
+	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2); 
+	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(3);
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);  
+	_fullscreenQuad->Draw(); 
+
+	// Re-enable depth testing
+	glEnable(GL_DEPTH_TEST);
+
+	// Blit our depth from primary FBO to our output depth buffer
+	glBlitNamedFramebuffer(
+		_primaryFBO->GetHandle(), _outputBuffer->GetHandle(),
+		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
+		0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight(),
+		GL_DEPTH_BUFFER_BIT,
+		GL_NEAREST
+	);
 
 	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox(camera2);
+	scene->DrawSkybox();
 
-	// Unbind our primary framebuffer so subsequent draw calls do not modify it
-	//_primaryFBO->Unbind();
+	_outputBuffer->Unbind();
+}
 
-	VertexArrayObject::Unbind();
+void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* colors, int layers) {
+	// Make the entire buffer visible
+	glViewport(0, 0, buffer->GetWidth(), buffer->GetHeight());
+	// Disable depth testing
+	glEnable(GL_DEPTH_TEST); 
+	// Enable depth writing
+	glDepthMask(true);
+	// Disable blending, we want to override the colors
+	glDisable(GL_BLEND);
+	// Ignore existing depth
+	glDepthFunc(GL_ALWAYS);
+
+	// Bind the buffer so we're writing to it
+	buffer->Bind();
+
+	// Bind our clear shader, and draw a fullscreen quad with all the clear colors
+	_clearShader->Bind();
+	_clearShader->SetUniform<glm::vec4>("ClearColors", colors, layers);
+	_fullscreenQuad->Draw();
+
+	// Reset depth test function to default
+	glDepthFunc(GL_LESS);
 }
 
 void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize)
@@ -274,7 +383,7 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 
 	// Update the main camera's projection
 	Application& app = Application::Get();
-	//app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
+	app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
 }
 
 void RenderLayer::OnAppLoad(const nlohmann::json& config)
