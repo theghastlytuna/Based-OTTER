@@ -377,6 +377,7 @@ void Application::_Run()
 			{
 
 				GetLayer<Menu>()->SetActive(false);
+				GetLayer<EndScreen>()->SetActive(false);
 
 				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -389,8 +390,7 @@ void Application::_Run()
 				soundManaging.StopSounds();
 
 				started = true;
-
-				soundManaging.PlayEvent("Map1Music");
+				loading = false;
 			}
 
 			else if (options)
@@ -526,16 +526,16 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Volume Bar")->Get<RectTransform>()->GetMax().x - 10, 
 					thisSoundInfo.currentVol);
 			
-				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 100 });
-				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 5 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, GetWindowSize().y / 8 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 4 });
 
 				//Lerp between the two ends of the sensitivity bar, with the current sensitivity being the lerp parameter
 				currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMin().x + 10,
 					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMax().x - 10,
 					(thisController->GetSensitivity() - thisController->GetMinSensitivity()) / (thisController->GetMaxSensitivity() - thisController->GetMinSensitivity()));
 
-				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 400 });
-				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, 2 * GetWindowSize().y / 5 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 3 * GetWindowSize().y / 8 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
 			}
 
 			
@@ -631,28 +631,31 @@ void Application::_Run()
 		//If end screen layer is active
 		else if (GetLayer<EndScreen>()->IsActive())
 		{
-			/*
+			
 			if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{
-				soundManaging.PlaySound("Scene Startup");
+				loading = true;
+				soundManaging.PlayEvent("LoadScene");
+			}
 
+			else if (loading)
+			{
 				GetLayer<EndScreen>()->SetActive(false);
 
 				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
-				//Load the scene
 				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
 
-				//Set the current layer to active
 				GetLayer<DefaultSceneLayer>()->SetActive(true);
 
-				//Start playing
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
-			}
 
 				soundManaging.StopSounds();
+
+				started = true;
+				loading = false;
 			}
-			*/
+			
 		}
 		
 		else
@@ -689,8 +692,15 @@ void Application::_Run()
 				barSelectTimes[0] = 0.2f;
 				barSelectTimes[1] = 0.2f;
 
+				soundManaging.PlayEvent("Map1Music");
+
 				soundManaging.SetListenerObjects(player1, player2);
 
+				player1->Get<HealthManager>()->ResetHealth();
+				player2->Get<HealthManager>()->ResetHealth();
+
+				player1->Get<ScoreCounter>()->ResetScore();
+				player2->Get<ScoreCounter>()->ResetScore();
 			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
@@ -1161,6 +1171,8 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+				soundManaging.StopSounds();
+
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}
 
@@ -1177,6 +1189,8 @@ void Application::_Run()
 				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				soundManaging.StopSounds();
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}

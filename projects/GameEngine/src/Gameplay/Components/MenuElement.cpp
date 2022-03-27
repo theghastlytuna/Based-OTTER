@@ -21,8 +21,8 @@ void MenuElement::GrowElement()
 	glm::vec2 tempMin = thisElement->Get<RectTransform>()->GetMin();
 	glm::vec2 tempMax = thisElement->Get<RectTransform>()->GetMax();
 
-	thisElement->Get<RectTransform>()->SetMin(tempMin - glm::vec2(100, 25));
-	thisElement->Get<RectTransform>()->SetMax(tempMax + glm::vec2(100, 25));
+	thisElement->Get<RectTransform>()->SetMin(tempMin - glm::vec2(70, 25));
+	thisElement->Get<RectTransform>()->SetMax(tempMax + glm::vec2(70, 25));
 
 	_selected = true;
 }
@@ -32,8 +32,8 @@ void MenuElement::ShrinkElement()
 	glm::vec2 tempMin = thisElement->Get<RectTransform>()->GetMin();
 	glm::vec2 tempMax = thisElement->Get<RectTransform>()->GetMax();
 
-	thisElement->Get<RectTransform>()->SetMin(tempMin + glm::vec2(100, 25));
-	thisElement->Get<RectTransform>()->SetMax(tempMax - glm::vec2(100, 25));
+	thisElement->Get<RectTransform>()->SetMin(tempMin + glm::vec2(70, 25));
+	thisElement->Get<RectTransform>()->SetMax(tempMax - glm::vec2(70, 25));
 
 	_selected = false;
 }

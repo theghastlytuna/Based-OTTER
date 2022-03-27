@@ -102,6 +102,18 @@ public:
 		}
 		return nullptr;
 	}
+
+	template <typename T, typename = typename std::enable_if<std::is_base_of<ApplicationLayer, T>::value>::type>
+	void RemoveLayer() {
+		// Iterate over all the pointers in the layers list
+		for (int i = 0; i < _layers.size(); i++) {
+			// If the pointer type matches T, we return that layer, making sure to cast it back to the requested type
+			if (std::type_index(typeid(*_layers[i].get())) == std::type_index(typeid(T))) {
+				_layers.erase(_layers.begin() + i);
+				return;
+			}
+		}
+	}
 	
 	/**
 	 * Saves the application settings to a file in %APPDATA% 

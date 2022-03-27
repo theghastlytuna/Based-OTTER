@@ -127,7 +127,7 @@ int HealthManager::GotHitBy()
 
 bool HealthManager::IsDead()
 {
-	return _healthVal == 0.0f;
+	return _healthVal <= 0.0f;
 }
 
 void HealthManager::RenderImGui()

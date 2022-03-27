@@ -25,8 +25,8 @@ public:
 protected:
 	void _CreateScene();
 
-	Gameplay::Scene::Sptr _scene;
-
 	bool _active = false;
 
+	std::vector<Gameplay::Scene::Sptr> _scene;
+	int currentSceneNum = -1;
 };

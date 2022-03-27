@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "common.h"
-#include "fmod_errors.h"
+//#include "fmod_errors.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
 
@@ -120,7 +120,8 @@ public:
 			listener1Attribs.up = Normalize(GlmToFmod3D(cameraLocalUp));
 
 			listener1Attribs.position = GlmToFmod3D(listener1Object->GetPosition());
-			std::cout << "FMOD ERROR for setting 1st attribs: " << FMOD_ErrorString(studioSystem->setListenerAttributes(0, &listener1Attribs));
+			//std::cout << "FMOD ERROR for setting 1st attribs: " << FMOD_ErrorString(studioSystem->setListenerAttributes(0, &listener1Attribs));
+			studioSystem->setListenerAttributes(0, &listener1Attribs);
 			////////////////
 			
 			//////////Update the second listener's attributes
@@ -131,7 +132,7 @@ public:
 			listener2Attribs.up = Normalize(GlmToFmod3D(cameraLocalUp));
 
 			listener2Attribs.position = GlmToFmod3D(listener2Object->GetPosition());
-			std::cout << "FMOD ERROR for setting 2nd attribs: " << FMOD_ErrorString(studioSystem->setListenerAttributes(1, &listener2Attribs));
+			studioSystem->setListenerAttributes(1, &listener2Attribs);
 			///////////////
 
 			//Look through every event
@@ -277,7 +278,7 @@ public:
 
 		for each (eventData sampleEvent in events)
 		{
-			std::cout << "FMOD ERROR for setting volume: " << FMOD_ErrorString(sampleEvent.instance->setParameterByName("Volume", inVolume));
+			sampleEvent.instance->setParameterByName("Volume", inVolume);
 		}
 	}
 
