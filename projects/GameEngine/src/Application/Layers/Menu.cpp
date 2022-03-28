@@ -113,6 +113,8 @@ void Menu::_CreateScene() {
 		// Create an empty scene
 		Scene::Sptr scene = std::make_shared<Scene>();
 
+		scene->SetAmbientLight(glm::vec3(1.f));
+
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->CreateGameObject("MainCam1");
 		{

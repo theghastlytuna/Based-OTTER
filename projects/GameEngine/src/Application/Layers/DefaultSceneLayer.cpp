@@ -368,6 +368,7 @@ void DefaultSceneLayer::_CreateScene() {
 		// Create an empty scene
 		Scene::Sptr scene = std::make_shared<Scene>();
 
+		scene->SetAmbientLight(glm::vec3(1.f));
 		// Setting up our enviroment map
 		scene->SetSkyboxTexture(testCubemap);
 		scene->SetSkyboxShader(skyboxShader);
