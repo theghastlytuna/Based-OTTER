@@ -105,13 +105,14 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	glDisable(GL_BLEND);
 
 	// Grab shorthands to the camera and shader from the scene
-	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+	Camera::Sptr camera1 = app.CurrentScene()->MainCamera;
+	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
 	// We can now render all our scene elements via the helper function
-	_RenderScene(camera->GetView(), camera->GetProjection());
+	_RenderScene(camera1->GetView(), camera1->GetProjection());
 
 	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox();
+	app.CurrentScene()->DrawSkybox(camera1);
 
 	VertexArrayObject::Unbind(); 
 }
@@ -308,6 +309,10 @@ void RenderLayer::_Composite()
 
 	Scene::Sptr& scene = app.CurrentScene();
 
+	// Grab shorthands to the camera and shader from the scene
+	Camera::Sptr camera1 = scene->MainCamera;
+	Camera::Sptr camera2 = scene->MainCamera2;
+
 	_AccumulateLighting();
 
 	// We want to switch to our compositing shader
@@ -343,7 +348,7 @@ void RenderLayer::_Composite()
 	);
 
 	// Use our cubemap to draw our skybox
-	scene->DrawSkybox();
+	scene->DrawSkybox(camera1);
 
 	_outputBuffer->Unbind();
 }

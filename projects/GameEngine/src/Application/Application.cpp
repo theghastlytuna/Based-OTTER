@@ -82,6 +82,8 @@ std::string Application::_applicationName = "INFR-2350U - DEMO";
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
 
+using namespace Gameplay;
+
 Application::Application() :
 	_window(nullptr),
 	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
