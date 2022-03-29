@@ -265,7 +265,7 @@ void Menu::_CreateScene() {
 			volumeText->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeText->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -281,7 +281,7 @@ void Menu::_CreateScene() {
 			//volumeBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeBar->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -313,7 +313,7 @@ void Menu::_CreateScene() {
 			sensText->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -329,7 +329,7 @@ void Menu::_CreateScene() {
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}

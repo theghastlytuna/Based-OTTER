@@ -13,9 +13,9 @@ ControllerInput::ControllerInput()
 	: IComponent(),
 	_controllerConnected(false),
 	_enabled(true),
-	_sensitivity(2.0f),
+	_sensitivity(2.5f),
 	_minSensitivity(1.0f),
-	_maxSensitivity(3.0f)
+	_maxSensitivity(4.0f)
 { }
 
 ControllerInput::~ControllerInput() = default;

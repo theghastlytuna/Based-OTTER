@@ -209,7 +209,7 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr rampHitboxMesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramps3.obj");
 
 		MeshResource::Sptr rampHitboxMesh1 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp1.obj");
-		//MeshResource::Sptr rampHitboxMesh2 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp3.obj");
+		MeshResource::Sptr rampHitboxMesh2 = ResourceManager::CreateAsset<MeshResource>("stageObjs/ramp1.obj");
 
 		//Assets
 
@@ -873,13 +873,13 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(ConvexMeshCollider::Create());
 
 		}
-		/*
+		
 		GameObject::Sptr sideGroundHB2 = scene->CreateGameObject("GroundSideHitbox2");
 		{
 			// Set position in the scene
-			sideGroundHB2->SetPosition(glm::vec3(0.0f, -0.2f, -1.0f));
+			sideGroundHB2->SetPosition(glm::vec3(35.0f, 0.0f, -1.0f));
 			sideGroundHB2->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			sideGroundHB2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			sideGroundHB2->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
 
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = sideGroundHB2->Add<RenderComponent>();
@@ -890,7 +890,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			physics->AddCollider(ConvexMeshCollider::Create());
 		}
-		*/
+		
 
 		//Stage Mesh - walls
 		GameObject::Sptr centerWalls = scene->CreateGameObject("Center Walls");
@@ -2216,7 +2216,7 @@ void DefaultSceneLayer::_CreateScene() {
 			sensText1->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -2232,7 +2232,7 @@ void DefaultSceneLayer::_CreateScene() {
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -2264,7 +2264,7 @@ void DefaultSceneLayer::_CreateScene() {
 			sensText2->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -2280,7 +2280,7 @@ void DefaultSceneLayer::_CreateScene() {
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}

@@ -52,7 +52,7 @@ class SoundManaging final {
 public:
 	SoundManaging() {
 		//Grab the extra driver data
-		Common_Init(&extradriverdata);
+		//Common_Init(&extradriverdata);
 
 		//Create an fmod studio system (use for events)
 		FMOD::Studio::System::create(&studioSystem);

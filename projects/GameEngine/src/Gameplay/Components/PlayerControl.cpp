@@ -17,13 +17,13 @@
 PlayerControl::PlayerControl()
 	: IComponent(),
 	_mouseSensitivity({ 0.2f, 0.2f }),
-	_moveSpeeds(glm::vec3(10.0f)),
+	_moveSpeeds(glm::vec3(6.0f)),
 	_shiftMultipler(2.0f),
 	_currentRot(glm::vec2(0.0f)),
 	_isMousePressed(false),
 	_isMoving(false),
 	_isSprinting(false),
-	_spintVal(2.5f),
+	_spintVal(2.0f),
 	_controllerSensitivity({ 1.5f, 1.5f })
 { }
 
