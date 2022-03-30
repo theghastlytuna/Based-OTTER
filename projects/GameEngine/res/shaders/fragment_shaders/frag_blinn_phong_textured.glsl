@@ -35,16 +35,16 @@ uniform Material u_Material;
 // https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
 void main() {
 	// Normalize our input normal
-	vec3 normal = normalize(inNormal);
+	//vec3 normal = normalize(inNormal);
 
 	// Use the lighting calculation that we included from our partial file
-	vec3 lightAccumulation = CalcAllLightContribution(inWorldPos, normal, u_CamPos.xyz, u_Material.Shininess);
+	//vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
 	// Get the albedo from the diffuse / albedo map
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
 
 	// combine for the final result
-	vec3 result = lightAccumulation * inColor * textureColor.rgb;
+	vec3 result = inLight * inColor * textureColor.rgb;
 
 	frag_color = vec4(ColorCorrect(result), textureColor.a);
 }

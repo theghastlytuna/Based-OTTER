@@ -129,6 +129,9 @@ void DefaultSceneLayer::_CreateScene() {
 
 	Application& app = Application::Get();
 
+	app.SetPrimaryViewport(glm::uvec4( 0, 0, app.GetWindowSize().x / 2, app.GetWindowSize().y / 2 ));
+	app.SetSecondaryViewport(glm::uvec4(app.GetWindowSize().x / 2, app.GetWindowSize().y / 2, app.GetWindowSize().x, app.GetWindowSize().y));
+	
 	bool loadScene = false;
 	// For now we can use a toggle to generate our scene vs load from file
 	if (loadScene && std::filesystem::exists("scene.json")) {
@@ -138,11 +141,11 @@ void DefaultSceneLayer::_CreateScene() {
 		
 		// This time we'll have 2 different shaders, and share data between both of them using the UBO
 		// This shader will handle reflective materials 
-		ShaderProgram::Sptr reflectiveShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr reflectiveShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_environment_reflective.glsl" }
 		});
-		reflectiveShader->SetDebugName("Reflective");
+		reflectiveShader->SetDebugName("Reflective");*/
 
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -152,10 +155,10 @@ void DefaultSceneLayer::_CreateScene() {
 		basicShader->SetDebugName("Blinn-phong");
 
 		// This shader handles our basic materials without reflections (cause they expensive)
-		ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/textured_specular.glsl" }
-		});
+		});*/
 
 		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
@@ -171,17 +174,17 @@ void DefaultSceneLayer::_CreateScene() {
 		///////////////////// NEW SHADERS ////////////////////////////////////////////
 		
 		// This shader handles our foliage vertex shader example
-		ShaderProgram::Sptr foliageShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr foliageShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/foliage.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/screendoor_transparency.glsl" }
 		});
-		foliageShader->SetDebugName("Foliage");
+		foliageShader->SetDebugName("Foliage");*/
 
 		// This shader handles our cel shading example
-		ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+		/*ShaderProgram::Sptr toonShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/toon_shading.glsl" }
-		});
+		});*/
 
 		// Load in the meshes
 		MeshResource::Sptr monkeyMesh = ResourceManager::CreateAsset<MeshResource>("Monkey.obj");

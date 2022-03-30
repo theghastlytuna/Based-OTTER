@@ -120,6 +120,16 @@ void Application::SetPrimaryViewport(const glm::uvec4& value) {
 	_primaryViewport = value;
 }
 
+const glm::uvec4& Application::GetSecondaryViewport() const
+{
+	return _secondaryViewport;
+}
+
+void Application::SetSecondaryViewport(const glm::uvec4& value)
+{
+	_secondaryViewport = value;
+}
+
 void Application::ResizeWindow(const glm::ivec2& newSize)
 {
 	_HandleWindowSizeChanged(newSize);
