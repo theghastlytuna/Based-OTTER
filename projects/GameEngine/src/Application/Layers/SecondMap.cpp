@@ -138,15 +138,29 @@ void SecondMap::_CreateScene() {
 #pragma endregion
 #pragma region loadMeshes
 
+#pragma region EnvironmentalMeshes
+		MeshResource::Sptr groundGreyMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/GroundGrey.obj");
+		MeshResource::Sptr groundRedMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/GroundRed.obj");
+		MeshResource::Sptr groundBlueMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/GroundBlue.obj");
+
+		MeshResource::Sptr northWestMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/North West.obj");
+		MeshResource::Sptr southMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/South.obj");
+		MeshResource::Sptr eastMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/East.obj");
+		MeshResource::Sptr redMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Red.obj");
+		MeshResource::Sptr blueMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue.obj");
+
+		/*
 		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Grass.obj");
 		MeshResource::Sptr wallMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Canyon_Walls.obj");
 		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Pick_Up.obj");
 		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Trees.obj");
 		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Raised_Platorm.obj");
+		*/
+#pragma endregion
+#pragma region CharacterMeshes
 		MeshResource::Sptr mainCharMesh = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
 		MeshResource::Sptr mainCharMesh2 = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
 		MeshResource::Sptr boomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
-		MeshResource::Sptr boomerangMesh2 = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
 		MeshResource::Sptr displayBoomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
 
 		std::vector<MeshResource::Sptr> mainIdle = LoadTargets2(3, "MainCharacterAnims/Idle/Char_Idle_00");
@@ -162,6 +176,7 @@ void SecondMap::_CreateScene() {
 		std::vector<MeshResource::Sptr> mainAttack = LoadTargets2(5, "MainCharacterAnims/Attack/Char_Throw_00");
 
 		std::vector<MeshResource::Sptr> boomerangSpin = LoadTargets2(4, "BoomerangAnims/Boomerang_Active_00");
+#pragma endregion
 
 #pragma endregion
 #pragma region loadTextures
@@ -377,7 +392,174 @@ void SecondMap::_CreateScene() {
 		}
 
 #pragma endregion
-		
+#pragma region environmentalObjects
+#pragma region groundObjs
+		GameObject::Sptr MapDaddy = scene->CreateGameObject("Map Daddy"); 
+
+		GameObject::Sptr groundGreyObj = scene->CreateGameObject("Neutral Ground");
+		{
+			// Set position in the scene
+			groundGreyObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			groundGreyObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			groundGreyObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = groundGreyObj->Add<RenderComponent>();
+			renderer->SetMesh(groundGreyMesh);
+			renderer->SetMaterial(grassMat);
+
+			RigidBody::Sptr physics = groundGreyObj->Add<RigidBody>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			physics->SetMass(0);
+			physics->AddCollider(collider);
+			MapDaddy->AddChild(groundGreyObj);
+		}
+		GameObject::Sptr groundRedObj = scene->CreateGameObject("Red Team Ground");
+		{
+			// Set position in the scene
+			groundRedObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			groundRedObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			groundRedObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = groundRedObj->Add<RenderComponent>();
+			renderer->SetMesh(groundRedMesh);
+			renderer->SetMaterial(grassMat);
+
+			RigidBody::Sptr physics = groundRedObj->Add<RigidBody>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			physics->AddCollider(collider);
+			physics->SetMass(0);
+			MapDaddy->AddChild(groundRedObj);
+		}
+		GameObject::Sptr groundBlueObj = scene->CreateGameObject("Blue Team Ground");
+		{
+			// Set position in the scene
+			groundBlueObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			groundBlueObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			groundBlueObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = groundBlueObj->Add<RenderComponent>();
+			renderer->SetMesh(groundBlueMesh);
+			renderer->SetMaterial(grassMat);
+
+			RigidBody::Sptr physics = groundBlueObj->Add<RigidBody>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			physics->AddCollider(collider);
+			physics->SetMass(0);
+			MapDaddy->AddChild(groundBlueObj);
+		}
+#pragma endregion
+#pragma region wallObjs
+		GameObject::Sptr northWallObj = scene->CreateGameObject("North West Platform Wall");
+		{
+			// Set position in the scene
+			northWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			northWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			northWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = northWallObj->Add<RenderComponent>();
+			renderer->SetMesh(northWestMesh);
+			renderer->SetMaterial(wallMat);
+
+			RigidBody::Sptr physics = northWallObj->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ -10,15,-11 });
+			collider->SetRotation({ 0,45,0 });
+			collider->SetScale({ 14,7,1 });
+			BoxCollider::Sptr collider2 = BoxCollider::Create();
+			collider2->SetPosition({ -10,4,-10 });
+			collider2->SetScale({ 11,4.4f,11 });
+			physics->AddCollider(collider);
+			physics->AddCollider(collider2);
+			physics->SetMass(0);
+			MapDaddy->AddChild(northWallObj);
+		}
+		GameObject::Sptr southWallObj = scene->CreateGameObject("South Wall");
+		{
+			// Set position in the scene
+			southWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			southWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			southWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = southWallObj->Add<RenderComponent>();
+			renderer->SetMesh(southMesh);
+			renderer->SetMaterial(wallMat);
+
+			RigidBody::Sptr physics = southWallObj->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition(glm::vec3(0, 3.0f, 21.0f));
+			collider->SetScale({ 21, 24, 1 });
+			physics->AddCollider(collider);
+			SphereCollider::Sptr coolider2 = SphereCollider::Create();
+			coolider2->SetPosition({ -17, 3.75, 22 });
+			coolider2->SetRadius(5);
+			physics->SetMass(0);
+			MapDaddy->AddChild(southWallObj);
+		}
+		GameObject::Sptr eastWallObj = scene->CreateGameObject("East Wall");
+		{
+			// Set position in the scene
+			eastWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			eastWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			eastWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = eastWallObj->Add<RenderComponent>();
+			renderer->SetMesh(eastMesh);
+			renderer->SetMaterial(wallMat);
+
+			RigidBody::Sptr physics = eastWallObj->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 19,10,0 });
+			collider->SetScale({ 1,20,25 });
+			physics->AddCollider(collider);
+			physics->SetMass(0);
+			MapDaddy->AddChild(eastWallObj);
+		}
+		GameObject::Sptr blueWallObj = scene->CreateGameObject("Blue Team Wall");
+		{
+			// Set position in the scene
+			blueWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			blueWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			blueWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = blueWallObj->Add<RenderComponent>();
+			renderer->SetMesh(blueMesh);
+			renderer->SetMaterial(wallMat);
+
+			RigidBody::Sptr physics = blueWallObj->Add<RigidBody>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			physics->AddCollider(collider);
+			physics->SetMass(0);
+			MapDaddy->AddChild(blueWallObj);
+		}
+		GameObject::Sptr redWallObj = scene->CreateGameObject("Red Team Wall");
+		{
+			// Set position in the scene
+			redWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			redWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			redWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = redWallObj->Add<RenderComponent>();
+			renderer->SetMesh(redMesh);
+			renderer->SetMaterial(wallMat);
+
+			RigidBody::Sptr physics = redWallObj->Add<RigidBody>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			physics->AddCollider(collider);
+			physics->SetMass(0);
+			MapDaddy->AddChild(redWallObj);
+		}
+#pragma endregion
+
+
+	/*
 		GameObject::Sptr groundObj = scene->CreateGameObject("Ground");
 		{
 			// Set position in the scene
@@ -395,7 +577,7 @@ void SecondMap::_CreateScene() {
 			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Attach a plane collider that extends infinitely along the X/Y axis
-			RigidBody::Sptr physics = groundObj->Add<RigidBody>(/*static by default*/);
+			RigidBody::Sptr physics = groundObj->Add<RigidBody>();
 			physics->AddCollider(collider);
 
 		}
@@ -464,13 +646,15 @@ void SecondMap::_CreateScene() {
 			renderer->SetMesh(raisedPlatMesh);
 			renderer->SetMaterial(treeMat);
 		}
-		
+		*/
+#pragma endregion
+#pragma region Entities
 		GameObject::Sptr player1 = scene->CreateGameObject("Player 1");
 		{
 			ControllerInput::Sptr controller1 = player1->Add<ControllerInput>();
 			controller1->SetController(GLFW_JOYSTICK_1);
 
-			player1->SetPosition(glm::vec3(0.f, 0.f, 4.f));
+			player1->SetPosition(glm::vec3(2.f, -2.f, 4.f));
 			player1->SetRotation(glm::vec3(0.f, 90.f, 0.f));
 
 			RenderComponent::Sptr renderer = player1->Add<RenderComponent>();
@@ -518,7 +702,7 @@ void SecondMap::_CreateScene() {
 			ControllerInput::Sptr controller2 = player2->Add<ControllerInput>();
 			controller2->SetController(GLFW_JOYSTICK_2);
 
-			player2->SetPosition(glm::vec3(10.f, 0.f, 4.f));
+			player2->SetPosition(glm::vec3(10.f, 5.f, 4.f));
 
 			RenderComponent::Sptr renderer = player2->Add<RenderComponent>();
 			renderer->SetMesh(mainCharMesh2);
@@ -602,7 +786,7 @@ void SecondMap::_CreateScene() {
 
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
-			renderer->SetMesh(boomerangMesh2);
+			renderer->SetMesh(boomerangMesh);
 			renderer->SetMaterial(boomerangMaterial2);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
@@ -1154,9 +1338,7 @@ void SecondMap::_CreateScene() {
 
 			canPanel->SetTransparency(0.0f);
 		}
-#pragma endregion
-
-		
+#pragma endregion	
 #pragma endregion
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));

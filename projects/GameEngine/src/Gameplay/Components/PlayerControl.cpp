@@ -189,7 +189,7 @@ void PlayerControl::Update(float deltaTime)
 				//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
 				_chargeAmount += 0.02;
 				//IMPORTANT: This only works because the detachedCam is the only child of the player. If anything to do with children or the detached cam changes, this might break
-				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov - (_chargeAmount * 5));
+				GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov - (_chargeAmount * 10));
 				}
 			}
 			else //tracking to raycasted point
@@ -289,6 +289,10 @@ void PlayerControl::Update(float deltaTime)
 			soundManaging.PlaySound("Step");
 			soundTime = 0.0f;
 		}
+	}
+
+	if (GetGameObject()->GetPosition().z < -5) {
+		GetGameObject()->SetPosition({ 2,-2,4 });
 	}
 }
 

@@ -13,7 +13,7 @@
 class SoundManaging final {
 public:
 	SoundManaging() {
-		Common_Init(&extradriverdata);
+		//Common_Init(&extradriverdata);
 
 		FMOD::Studio::System::create(&studioSystem);
 

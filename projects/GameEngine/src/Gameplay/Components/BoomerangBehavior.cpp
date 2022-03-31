@@ -62,7 +62,7 @@ void BoomerangBehavior::Seek(float deltaTime)
 void BoomerangBehavior::throwWang(glm::vec3 playerPosition, float chargeLevel)
 {
 	_state = boomerangState::FORWARD;
-	_distance = 0;
+	_distance = 1;
 	glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 	_boomerangEntity->SetPosition(playerPosition + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * _projectileSpacing);
 	_rigidBody->SetLinearVelocity(glm::vec3(0));
@@ -82,11 +82,11 @@ void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 		_distance += _distanceDelta;// *deltaTime;
 	}
 	else {
-		_distance -= _distanceDelta;// *deltaTime;
+		_distance -= 1.33f * _distanceDelta;// *deltaTime;
 	}
 
 	glm::vec3 cameraLocalRot = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]);
-	_targetPoint = _player->GetPosition() + glm::normalize(cameraLocalRot) * -_distance;
+	_targetPoint = _player->GetPosition() + glm::vec3(0.0f, 0.0f, 1.5f) + glm::normalize(cameraLocalRot) * -_distance;
 	//std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
 }
 
