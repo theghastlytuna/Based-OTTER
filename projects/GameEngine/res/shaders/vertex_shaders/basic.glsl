@@ -19,7 +19,10 @@ void main() {
 	snapped.xyz = vertInClipSpace.xyz / vertInClipSpace.w;
 	snapped.xy = floor(grid * snapped.xy) / grid;
 	snapped.xyz *= vertInClipSpace.w;
+	vec3 worldPos = (u_Model * vec4(inPosition, 1.0)).xyz;
 	
+	vec3 tempNormal = mat3(u_NormalMatrix) * inNormal;
+
 	gl_Position = snapped;
 
 	// Lecture 5
@@ -56,12 +59,12 @@ void main() {
 
 	else if (IsFlagSet(FLAG_ENABLE_SPECULAR))
 	{
-		outLight = CalcSpec(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
+		outLight = CalcSpec(outViewPos, tempNormal, u_CamPos.xyz, u_Material.Shininess);
 	}
 
 	else if (IsFlagSet(FLAG_ENABLE_AMBSPEC))
 	{
-		outLight = CalcSpec(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess) + CalcAmbient();
+		outLight = CalcSpec(outViewPos, tempNormal, u_CamPos.xyz, u_Material.Shininess) + CalcAmbient();
 	}
 	
 	/*
@@ -106,7 +109,7 @@ void main() {
 	else if (IsFlagSet(FLAG_ENABLE_SPECWARP))
 	{
 		// Use the lighting calculation that we included from our partial file
-		vec3 lightAccumulation = CalcSpec(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
+		vec3 lightAccumulation = CalcSpec(outViewPos, tempNormal, u_CamPos.xyz, u_Material.Shininess);
 
 		// combine for the final result
 		vec3 result;
@@ -121,7 +124,7 @@ void main() {
 
 	else
 	{
-		outLight = CalcAllLightContribution(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
+		outLight = CalcAllLightContribution(outViewPos, tempNormal, u_CamPos.xyz, u_Material.Shininess);
 	}
 
 	//outLight = CalcAllLightContribution(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess);

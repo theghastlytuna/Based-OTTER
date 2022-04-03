@@ -140,14 +140,18 @@ void RenderLayer::OnPostRender() {
 	Application& app = Application::Get();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();
 
+	// Grab shorthands to the camera and shader from the scene
+	Camera::Sptr camera1 = app.CurrentScene()->MainCamera;
+	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
+
 	// Restore viewport to game viewport
-	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
 
 	// Blit our depth to the primary framebuffer so that other rendering can use it
 	glBlitNamedFramebuffer(
 		_primaryFBO->GetHandle(), 0,
 		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
-		viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w,
+		viewport.x, viewport.w / 2.0f, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f,
 		GL_DEPTH_BUFFER_BIT,
 		GL_NEAREST
 	);
@@ -158,7 +162,30 @@ void RenderLayer::OnPostRender() {
 	_outputBuffer->Bind(FramebufferBinding::Read);
 	Framebuffer::Blit(
 		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
-		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w },
+		{ viewport.x, viewport.w / 2.0f, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f },
+		BufferFlags::Color
+	);
+
+	_outputBuffer->Unbind();
+
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
+
+	// Blit our depth to the primary framebuffer so that other rendering can use it
+	glBlitNamedFramebuffer(
+		_primaryFBO->GetHandle(), 0,
+		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
+		viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f,
+		GL_DEPTH_BUFFER_BIT,
+		GL_NEAREST
+	);
+
+	// TODO: post processing effects
+
+	_outputBuffer->Unbind();
+	_outputBuffer->Bind(FramebufferBinding::Read);
+	Framebuffer::Blit(
+		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
+		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f },
 		BufferFlags::Color
 	);
 
@@ -399,7 +426,7 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 
 	// Update the main camera's projection
 	Application& app = Application::Get();
-	app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
+	app.CurrentScene()->MainCamera->ResizeWindow(32, 9);
 }
 
 void RenderLayer::OnAppLoad(const nlohmann::json& config)
