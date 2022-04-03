@@ -238,7 +238,7 @@ namespace Gameplay::Physics {
 			_body->setActivationState(DISABLE_DEACTIVATION);
 		}
 
-		_body->setFriction(1.0f);
+		//_body->setFriction(1.0f);
 
 
 		// Copy over group and mask info

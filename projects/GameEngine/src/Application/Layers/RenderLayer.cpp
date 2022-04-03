@@ -24,7 +24,7 @@ RenderLayer::RenderLayer() :
 	_blitFbo(true),
 	_frameUniforms(nullptr),
 	_instanceUniforms(nullptr),
-	_renderFlags(RenderFlags::None),
+	_renderFlags(),
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
@@ -108,11 +108,22 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	Camera::Sptr camera1 = app.CurrentScene()->MainCamera;
 	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
+	glm::uvec4 viewport = app.GetPrimaryViewport();
+	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
+
 	// We can now render all our scene elements via the helper function
-	_RenderScene(camera1->GetView(), camera1->GetProjection());
+	_RenderScene(camera1->GetView(), camera1->GetProjection(), 1);
 
 	// Use our cubemap to draw our skybox
 	app.CurrentScene()->DrawSkybox(camera1);
+
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
+
+	// We can now render all our scene elements via the helper function
+	_RenderScene(camera2->GetView(), camera2->GetProjection(), 2);
+
+	// Use our cubemap to draw our skybox
+	app.CurrentScene()->DrawSkybox(camera2);
 
 	VertexArrayObject::Unbind(); 
 }
@@ -239,7 +250,7 @@ void RenderLayer::_AccumulateLighting()
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
 
-		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection());
+		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), 1);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	});
@@ -542,7 +553,7 @@ void RenderLayer::_InitFrameUniforms()
 	_frameUniforms->Update();
 }
 
-void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projection)
+void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projection, int renderFlag)
 {
 	using namespace Gameplay;
 
@@ -565,45 +576,49 @@ void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projectio
 
 	// Render all our objects
 	app.CurrentScene()->Components().Each<RenderComponent>([&](const RenderComponent::Sptr& renderable) {
-		// Early bail if mesh not set
-		if (renderable->GetMesh() == nullptr) {
-			return;
-		}
-
-		// If we don't have a material, try getting the scene's fallback material
-		// If none exists, do not draw anything
-		if (renderable->GetMaterial() == nullptr) {
-			if (defaultMat != nullptr) {
-				renderable->SetMaterial(defaultMat);
-			}
-			else {
+		if (renderable->GetGameObject()->GetRenderFlag() == 0 ||
+			renderable->GetGameObject()->GetRenderFlag() == renderFlag)
+		{
+			// Early bail if mesh not set
+			if (renderable->GetMesh() == nullptr) {
 				return;
 			}
+
+			// If we don't have a material, try getting the scene's fallback material
+			// If none exists, do not draw anything
+			if (renderable->GetMaterial() == nullptr) {
+				if (defaultMat != nullptr) {
+					renderable->SetMaterial(defaultMat);
+				}
+				else {
+					return;
+				}
+			}
+
+			// If the material has changed, we need to bind the new shader and set up our material and frame data
+			// Note: This is a good reason why we should be sorting the render components in ComponentManager
+			if (renderable->GetMaterial() != currentMat) {
+				currentMat = renderable->GetMaterial();
+				shader = currentMat->GetShader();
+
+				shader->Bind();
+				currentMat->Apply();
+			}
+
+			// Grab the game object so we can do some stuff with it
+			GameObject* object = renderable->GetGameObject();
+
+			// Use our uniform buffer for our instance level uniforms
+			auto& instanceData = _instanceUniforms->GetData();
+			instanceData.u_Model = object->GetTransform();
+			instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
+			instanceData.u_ModelView = view * object->GetTransform();
+			instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
+			_instanceUniforms->Update();
+
+			// Draw the object
+			renderable->GetMesh()->Draw();
 		}
-
-		// If the material has changed, we need to bind the new shader and set up our material and frame data
-		// Note: This is a good reason why we should be sorting the render components in ComponentManager
-		if (renderable->GetMaterial() != currentMat) {
-			currentMat = renderable->GetMaterial();
-			shader = currentMat->GetShader();
-
-			shader->Bind();
-			currentMat->Apply();
-		}
-
-		// Grab the game object so we can do some stuff with it
-		GameObject* object = renderable->GetGameObject();
-
-		// Use our uniform buffer for our instance level uniforms
-		auto& instanceData = _instanceUniforms->GetData();
-		instanceData.u_Model = object->GetTransform();
-		instanceData.u_ModelViewProjection = viewProj * object->GetTransform();
-		instanceData.u_ModelView = view * object->GetTransform();
-		instanceData.u_NormalMatrix = glm::mat3(glm::transpose(glm::inverse(object->GetTransform())));
-		_instanceUniforms->Update();
-
-		// Draw the object
-		renderable->GetMesh()->Draw();
 
 	});
 

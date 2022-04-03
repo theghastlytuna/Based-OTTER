@@ -392,6 +392,7 @@ void DefaultSceneLayer::_CreateScene() {
 			boxMaterial->Name = "Box";
 			boxMaterial->Set("u_Material.Diffuse", boxTexture);
 			boxMaterial->Set("u_Material.Shininess", 0.1f);
+			boxMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr movingPlatMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -399,6 +400,7 @@ void DefaultSceneLayer::_CreateScene() {
 			movingPlatMaterial->Name = "MovingPlatform";
 			movingPlatMaterial->Set("u_Material.Diffuse", rockTex);
 			movingPlatMaterial->Set("u_Material.Shininess", 0.1f);
+			movingPlatMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr torchMaterial = ResourceManager::CreateAsset<Material>(animShader);
@@ -461,6 +463,7 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial1->Name = "Display Boomerang1";
 			displayBoomerangMaterial1->Set("u_Material.Diffuse", boomerangTex);
 			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.0f);
+			displayBoomerangMaterial1->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr displayBoomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
@@ -468,6 +471,7 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial2->Name = "Display Boomerang2";
 			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.0f);
+			displayBoomerangMaterial2->Set("s_1Dtex", toonLut);
 		}
 		/*
 		// This will be the reflective material, we'll make the whole thing 90% reflective
@@ -520,6 +524,7 @@ void DefaultSceneLayer::_CreateScene() {
 			sandMaterial->Name = "Sand";
 			sandMaterial->Set("u_Material.Diffuse", sandTexture);
 			sandMaterial->Set("u_Material.Shininess", 0.1f);
+			sandMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		//rock floor material
@@ -528,6 +533,7 @@ void DefaultSceneLayer::_CreateScene() {
 			rockFloorMaterial->Name = "RockFloor";
 			rockFloorMaterial->Set("u_Material.Diffuse", rockFloorTexture);
 			rockFloorMaterial->Set("u_Material.Shininess", 0.1f);
+			rockFloorMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		//rock Pillar material
@@ -536,6 +542,7 @@ void DefaultSceneLayer::_CreateScene() {
 			rockPillarMaterial->Name = "RockPillar";
 			rockPillarMaterial->Set("u_Material.Diffuse", rockFormationTexture);
 			rockPillarMaterial->Set("u_Material.Shininess", 0.1f);
+			rockPillarMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		//Wall Material
@@ -544,6 +551,7 @@ void DefaultSceneLayer::_CreateScene() {
 			rockWallMaterial->Name = "RockWall";
 			rockWallMaterial->Set("u_Material.Diffuse", rockWallsTexture);
 			rockWallMaterial->Set("u_Material.Shininess", 0.1f);
+			rockWallMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr bridgeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -551,6 +559,7 @@ void DefaultSceneLayer::_CreateScene() {
 			bridgeMaterial->Name = "Bridge";
 			bridgeMaterial->Set("u_Material.Diffuse", bridgeTexture);
 			bridgeMaterial->Set("u_Material.Shininess", 0.1f);
+			bridgeMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		/*
@@ -566,6 +575,7 @@ void DefaultSceneLayer::_CreateScene() {
 			barrelMaterial->Name = "Barrel";
 			barrelMaterial->Set("u_Material.Diffuse", barrelTex);
 			barrelMaterial->Set("u_Material.Shininess", 0.1f);
+			barrelMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr cactusMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -573,6 +583,7 @@ void DefaultSceneLayer::_CreateScene() {
 			cactusMaterial->Name = "Cactus";
 			cactusMaterial->Set("u_Material.Diffuse", cactusTex);
 			cactusMaterial->Set("u_Material.Shininess", 0.0f);
+			cactusMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr grassMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -580,6 +591,7 @@ void DefaultSceneLayer::_CreateScene() {
 			grassMaterial->Name = "Grass";
 			grassMaterial->Set("u_Material.Diffuse", grassTex);
 			grassMaterial->Set("u_Material.Shininess", 0.1f);
+			grassMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr greyTreeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -587,6 +599,7 @@ void DefaultSceneLayer::_CreateScene() {
 			greyTreeMaterial->Name = "Tree Grey";
 			greyTreeMaterial->Set("u_Material.Diffuse", greyTreeTex);
 			greyTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			greyTreeMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr beigeTreeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -594,6 +607,7 @@ void DefaultSceneLayer::_CreateScene() {
 			beigeTreeMaterial->Name = "Tree beige";
 			beigeTreeMaterial->Set("u_Material.Diffuse", beigeTreeTex);
 			beigeTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			beigeTreeMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr rockMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -601,6 +615,7 @@ void DefaultSceneLayer::_CreateScene() {
 			rockMaterial->Name = "Rock";
 			rockMaterial->Set("u_Material.Diffuse", rockTex);
 			rockMaterial->Set("u_Material.Shininess", 0.1f);
+			rockMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr tumbleweedMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -608,6 +623,7 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Name = "Tumbleweed";
 			tumbleweedMaterial->Set("u_Material.Diffuse", tumbleweedTex);
 			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
+			tumbleweedMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		GameObject::Sptr light = scene->CreateGameObject("Light"); 

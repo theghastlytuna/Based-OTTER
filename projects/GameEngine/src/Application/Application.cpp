@@ -314,6 +314,61 @@ void Application::_Run()
 		timing._timeSinceSceneLoad += scaledDt;
 		timing._unscaledTimeSinceSceneLoad += dt;
 
+		if (InputEngine::GetKeyState(GLFW_KEY_1) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::DisableAllLights);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_2) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableAmbient);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_3) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableSpecular);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_4) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableAmbSpec);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_5) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableCustomShader);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_6) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableDiffuseWarp);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_7) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableSpecWarp);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_8) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableWarm);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_9) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableCool);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_0) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::EnableCustom);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_ENTER) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::None);
+		}
+
 		//Update the durations of all sounds (to be used to see if a sound has fully been played)
 		soundManaging.UpdateSounds(dt);
 
