@@ -2,6 +2,8 @@
 #include "Utils/ResourceManager/ResourceManager.h"
 #include "Utils/JsonGlmHelpers.h"
 #include "Utils/ImGuiHelper.h"
+#include "Application/Application.h"
+#include "Application/Layers/RenderLayer.h"
 
 ColorCorrectionEffect::ColorCorrectionEffect() :
 	ColorCorrectionEffect(true) { }
@@ -10,7 +12,9 @@ ColorCorrectionEffect::ColorCorrectionEffect(bool defaultLut) :
 	PostProcessingLayer::Effect(),
 	_shader(nullptr),
 	_strength(1.0f),
-	Lut(nullptr)
+	Lut1(nullptr),
+	Lut2(nullptr),
+	Lut3(nullptr)
 {
 	Name = "Color Correction";
 	_format = RenderTargetType::ColorRgb8;
@@ -19,24 +23,27 @@ ColorCorrectionEffect::ColorCorrectionEffect(bool defaultLut) :
 		{ ShaderPartType::Vertex, "shaders/vertex_shaders/fullscreen_quad.glsl" },
 		{ ShaderPartType::Fragment, "shaders/fragment_shaders/post_effects/color_correction.glsl" }
 	});
-
-	if (defaultLut) {
-		Lut = ResourceManager::CreateAsset<Texture3D>("luts/cool.cube");
-	}
+	
+	Lut1 = ResourceManager::CreateAsset<Texture3D>("luts/Desert.cube");
+	Lut2 = ResourceManager::CreateAsset<Texture3D>("luts/Coolish.cube");
+	Lut3 = ResourceManager::CreateAsset<Texture3D>("luts/shrooms.cube");
 }
 
 ColorCorrectionEffect::~ColorCorrectionEffect() = default;
 
 void ColorCorrectionEffect::Apply(const Framebuffer::Sptr& gBuffer)
 {
+
 	_shader->Bind();
-	Lut->Bind(1);
+	Lut1->Bind(1);
+	Lut2->Bind(2);
+	Lut3->Bind(3);
 	_shader->SetUniform("u_Strength", _strength);
 }
 
 void ColorCorrectionEffect::RenderImGui()
 {
-	LABEL_LEFT(ImGui::LabelText, "LUT", Lut ? Lut->GetDebugName().c_str() : "none");
+	LABEL_LEFT(ImGui::LabelText, "LUT", Lut1 ? Lut1->GetDebugName().c_str() : "none");
 	LABEL_LEFT(ImGui::SliderFloat, "Strength", &_strength, 0, 1);
 }
 
@@ -45,7 +52,7 @@ ColorCorrectionEffect::Sptr ColorCorrectionEffect::FromJson(const nlohmann::json
 	ColorCorrectionEffect::Sptr result = std::make_shared<ColorCorrectionEffect>(false);
 	result->Enabled = JsonGet(data, "enabled", true);
 	result->_strength = JsonGet(data, "strength", result->_strength);
-	result->Lut = ResourceManager::Get<Texture3D>(Guid(data["lut"].get<std::string>()));
+	result->Lut1 = ResourceManager::Get<Texture3D>(Guid(data["lut"].get<std::string>()));
 	return result;
 }
 
@@ -53,7 +60,7 @@ nlohmann::json ColorCorrectionEffect::ToJson() const
 {
 	return {
 		{ "enabled", Enabled },
-		{ "lut", Lut != nullptr ? Lut->GetGUID().str() : "null" }, 
+		{ "lut", Lut1 != nullptr ? Lut1->GetGUID().str() : "null" }, 
 		{ "strength", _strength }
 	};
 }

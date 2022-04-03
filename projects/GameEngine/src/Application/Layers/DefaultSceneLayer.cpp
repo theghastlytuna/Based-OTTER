@@ -408,6 +408,7 @@ void DefaultSceneLayer::_CreateScene() {
 			torchMaterial->Name = "Torch";
 			torchMaterial->Set("u_Material.Diffuse", torchTex);
 			torchMaterial->Set("u_Material.Shininess", 0.1f);
+			torchMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr catcusMaterial = ResourceManager::CreateAsset<Material>(animShader);
@@ -415,6 +416,7 @@ void DefaultSceneLayer::_CreateScene() {
 			catcusMaterial->Name = "Catcus";
 			catcusMaterial->Set("u_Material.Diffuse", catcusTex);
 			catcusMaterial->Set("u_Material.Shininess", 0.1f);
+			catcusMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr healthPackMaterial = ResourceManager::CreateAsset<Material>(animShader);
@@ -422,12 +424,14 @@ void DefaultSceneLayer::_CreateScene() {
 			healthPackMaterial->Name = "HealthPack";
 			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
 			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackMaterial->Set("s_1Dtex", toonLut);
 		}
 		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
 		{
 			healthPackMaterial->Name = "HealthPackDepleted";
 			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
 			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr mainCharMaterial = ResourceManager::CreateAsset<Material>(animShader);
@@ -435,6 +439,7 @@ void DefaultSceneLayer::_CreateScene() {
 			mainCharMaterial->Name = "MainCharacter";
 			mainCharMaterial->Set("u_Material.Diffuse", mainCharTex);
 			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr mainCharMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
@@ -442,6 +447,7 @@ void DefaultSceneLayer::_CreateScene() {
 			mainCharMaterial2->Name = "MainCharacter2";
 			mainCharMaterial2->Set("u_Material.Diffuse", mainCharTex);
 			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial2->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(animShader);
@@ -449,6 +455,7 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerangMaterial->Name = "Boomerang1";
 			boomerangMaterial->Set("u_Material.Diffuse", boomerangTex);
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
@@ -456,6 +463,7 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerangMaterial2->Name = "Boomerang2";
 			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial2->Set("s_1Dtex", toonLut);
 		}
 
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
