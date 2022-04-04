@@ -147,6 +147,6 @@ protected:
 	void _RenderScene(const glm::mat4& view, const glm::mat4&Projection, int renderFlag);
 
 	void _AccumulateLighting(Gameplay::Camera::Sptr inCamera);
-	void _Composite();
+	void _Composite(Gameplay::Camera::Sptr cam);
 	void _ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* colors, int layers);
 };

@@ -113,13 +113,18 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
 	app.CurrentScene()->DrawSkybox(camera1);
 	// We can now render all our scene elements via the helper function
+	//_Composite(camera1);
 	_RenderScene(camera1->GetView(), camera1->GetProjection(), 1);
-
+	VertexArrayObject::Unbind();
+	//_Composite(camera1);
+	
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
 	app.CurrentScene()->DrawSkybox(camera2);
 	// We can now render all our scene elements via the helper function
+	
 	_RenderScene(camera2->GetView(), camera2->GetProjection(), 2);
 
+	
 	VertexArrayObject::Unbind(); 
 }
 
@@ -127,10 +132,7 @@ void RenderLayer::OnPostRender() {
 	using namespace Gameplay;
 
 	// Unbind our G-Buffer
-	_primaryFBO->Unbind(); 
-
-	// Composite our lighting 
-	_Composite();
+	//_primaryFBO->Unbind(); 
 
 	Application& app = Application::Get();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();
@@ -139,6 +141,13 @@ void RenderLayer::OnPostRender() {
 	Camera::Sptr camera1 = app.CurrentScene()->MainCamera;
 	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
+	// Composite our lighting 
+	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
+	_Composite(camera1);
+
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
+	_Composite(camera2);
+	/*
 	// Restore viewport to game viewport
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
@@ -162,6 +171,7 @@ void RenderLayer::OnPostRender() {
 	);
 
 	_outputBuffer->Unbind();
+	*/
 }
 
 void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
@@ -177,7 +187,7 @@ void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
 	// Update our lighting UBO for any shaders that need it
 	LightingUboStruct& data = _lightingUbo->GetData();
 	data.AmbientCol = scene->GetAmbientLight();
-	data.EnvironmentRotation = scene->GetSkyboxRotation() * glm::inverse(glm::mat3(scene->MainCamera->GetView()));
+	data.EnvironmentRotation = scene->GetSkyboxRotation() * glm::inverse(glm::mat3(camera->GetView()));
 
 	const glm::vec3& ambient = scene->GetAmbientLight();
 	const glm::vec4 colors[2] = {
@@ -311,7 +321,7 @@ void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
 	_lightingFBO->Unbind();
 }
 
-void RenderLayer::_Composite()
+void RenderLayer::_Composite(Gameplay::Camera::Sptr cam)
 {
 	using namespace Gameplay;
 	Application& app = Application::Get();
@@ -319,7 +329,7 @@ void RenderLayer::_Composite()
 	Scene::Sptr& scene = app.CurrentScene();
 
 	// Grab shorthands to the camera and shader from the scene
-	Camera::Sptr camera1 = scene->MainCamera;
+	Camera::Sptr camera1 = cam;
 
 	_AccumulateLighting(camera1);
 
@@ -338,10 +348,10 @@ void RenderLayer::_Composite()
 	// Bind our albedo and lighting buffers so we can composite a final scene
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(0);
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(1);
-	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2); 
+	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2);
 	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(3);
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);  
-	_fullscreenQuad->Draw(); 
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);
+	_fullscreenQuad->Draw();
 
 	// Re-enable depth testing
 	glEnable(GL_DEPTH_TEST);

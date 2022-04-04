@@ -7,6 +7,11 @@
 #include "PostProcessing/BoxFilter3x3.h"
 #include "PostProcessing/BoxFilter5x5.h"
 #include "PostProcessing/OutlineEffect.h"
+#include "PostProcessing/Bloom.h"
+#include "PostProcessing/BloomStep2.h"
+#include "PostProcessing/PixelizationEffect.h"
+#include "PostProcessing/NightVision.h"
+#include "PostProcessing/FilmGrain.h"
 
 PostProcessingLayer::PostProcessingLayer() :
 	ApplicationLayer()
@@ -32,6 +37,10 @@ void PostProcessingLayer::OnAppLoad(const nlohmann::json& config)
 	//_effects.push_back(std::make_shared<BoxFilter3x3>());
 	//_effects.push_back(std::make_shared<BoxFilter5x5>());
 	//_effects.push_back(std::make_shared<OutlineEffect>());
+	//_effects.push_back(std::make_shared<NightVision>());
+	//_effects.push_back(std::make_shared<PixelizationEffect>());
+	//_effects.push_back(std::make_shared<FilmGrain>());
+
 
 	Application& app = Application::Get();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();

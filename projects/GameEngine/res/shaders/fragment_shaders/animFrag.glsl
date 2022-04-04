@@ -41,12 +41,39 @@ void main() {
 	//vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
 	// Get the albedo from the diffuse / albedo map
+// Normalize our input normal
+	vec3 normal = normalize(inNormal);
+
+	// Get the albedo from the diffuse / albedo map
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
+	
+	if (IsFlagSet(FLAG_DISABLE_LIGHTING)) 
+	{
+		frag_color = vec4(textureColor.rgb, textureColor.a);
+	}
 
-	// combine for the final result
-	vec3 result;
+	else if (IsFlagSet(FLAG_ENABLE_AMBIENT))
+	{
+		vec3 lightAccumulation = CalcAmbient();
+		vec3 result = lightAccumulation * inColor * textureColor.rgb;
+		frag_color = vec4(result, textureColor.a);
+	}
 
-	if (IsFlagSet(FLAG_ENABLE_CUSTOMSHADER))
+	else if (IsFlagSet(FLAG_ENABLE_SPECULAR))
+	{
+		vec3 lightAccumulation = CalcSpec(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
+		vec3 result = lightAccumulation * inColor * textureColor.rgb;
+		frag_color = vec4(result, textureColor.a);
+	}
+
+	else if (IsFlagSet(FLAG_ENABLE_AMBSPEC))
+	{
+		vec3 lightAccumulation = CalcSpec(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess) + CalcAmbient();
+		vec3 result = lightAccumulation * inColor * textureColor.rgb;
+		frag_color = vec4(result, textureColor.a);
+	}
+	
+	else if (IsFlagSet(FLAG_ENABLE_CUSTOMSHADER))
 	{
 		//Emboss shader concept from https://www.raywenderlich.com/2941-how-to-create-cool-effects-with-custom-shaders-in-opengl-es-2-0-and-cocos2d-2-x
 		
@@ -66,22 +93,52 @@ void main() {
 		tempColour.rgb = vec3((tempColour.r + tempColour.g + tempColour.b) / 3.0);
 
 		//Multiply by lightAccumulation to keep the lighting in
-		result = inLight * inColor * tempColour.rgb;
+		vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
+		frag_color = vec4(tempColour.rgb * lightAccumulation, 1);
 	}
-	
+
 	else if (IsFlagSet(FLAG_ENABLE_DIFFUSEWARP))
 	{
+		// combine for the final result
+		vec3 result;
+
 		// Using LUT
 		result.r = texture(s_1Dtex, textureColor.r).r;
 		result.g = texture(s_1Dtex, textureColor.g).g;
 		result.b = texture(s_1Dtex, textureColor.b).b;
+
+		frag_color = vec4(result, textureColor.a);
+		}
+
+	else if (IsFlagSet(FLAG_ENABLE_SPECWARP))
+	{
+		// Use the lighting calculation that we included from our partial file
+		vec3 lightAccumulation = CalcSpec(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
+
+		// combine for the final result
+		vec3 result;
+
+		// Using a LUT to allow artists to tweak toon shading settings
+		result.r = texture(s_1Dtex, lightAccumulation.r).r;
+		result.g = texture(s_1Dtex, lightAccumulation.g).g;
+		result.b = texture(s_1Dtex, lightAccumulation.b).b;
+
+		result = result  * inColor * textureColor.rgb;
+
+		frag_color = vec4(result, textureColor.a);
 	}
 
 	else
 	{
-		// combine for the final result
-		result = inLight * inColor * textureColor.rgb;
-	}
+		// Use the lighting calculation that we included from our partial file
+		vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
-	frag_color = vec4(result, textureColor.a);
+		// Get the albedo from the diffuse / albedo map
+		vec4 textureColor = texture(u_Material.Diffuse, inUV);
+
+		// combine for the final result
+		vec3 result = lightAccumulation  * inColor * textureColor.rgb;
+
+		frag_color = vec4(result, textureColor.a);
+	}
 }
