@@ -57,6 +57,7 @@ void RenderLayer::OnPreRender()
 	
 	// Grab shorthands to the camera and shader from the scene
 	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
 	// Cache the camera's viewprojection
 	glm::mat4 viewProj = camera->GetViewProjection();
@@ -110,20 +111,14 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 
 	glm::uvec4 viewport = app.GetPrimaryViewport();
 	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
-
+	app.CurrentScene()->DrawSkybox(camera1);
 	// We can now render all our scene elements via the helper function
 	_RenderScene(camera1->GetView(), camera1->GetProjection(), 1);
 
-	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox(camera1);
-
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
-
+	app.CurrentScene()->DrawSkybox(camera2);
 	// We can now render all our scene elements via the helper function
 	_RenderScene(camera2->GetView(), camera2->GetProjection(), 2);
-
-	// Use our cubemap to draw our skybox
-	app.CurrentScene()->DrawSkybox(camera2);
 
 	VertexArrayObject::Unbind(); 
 }
@@ -145,13 +140,13 @@ void RenderLayer::OnPostRender() {
 	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
 	// Restore viewport to game viewport
-	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
 	// Blit our depth to the primary framebuffer so that other rendering can use it
 	glBlitNamedFramebuffer(
 		_primaryFBO->GetHandle(), 0,
 		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
-		viewport.x, viewport.w / 2.0f, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f,
+		viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w,
 		GL_DEPTH_BUFFER_BIT,
 		GL_NEAREST
 	);
@@ -162,44 +157,21 @@ void RenderLayer::OnPostRender() {
 	_outputBuffer->Bind(FramebufferBinding::Read);
 	Framebuffer::Blit(
 		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
-		{ viewport.x, viewport.w / 2.0f, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f },
-		BufferFlags::Color
-	);
-
-	_outputBuffer->Unbind();
-
-	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
-
-	// Blit our depth to the primary framebuffer so that other rendering can use it
-	glBlitNamedFramebuffer(
-		_primaryFBO->GetHandle(), 0,
-		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
-		viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f,
-		GL_DEPTH_BUFFER_BIT,
-		GL_NEAREST
-	);
-
-	// TODO: post processing effects
-
-	_outputBuffer->Unbind();
-	_outputBuffer->Bind(FramebufferBinding::Read);
-	Framebuffer::Blit(
-		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
-		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w / 2.0f },
+		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w},
 		BufferFlags::Color
 	);
 
 	_outputBuffer->Unbind();
 }
 
-void RenderLayer::_AccumulateLighting()
+void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
 {
 	using namespace Gameplay;
 
 	Application& app = Application::Get();
 	Scene::Sptr& scene = app.CurrentScene();
 
-	Camera::Sptr camera = app.CurrentScene()->MainCamera;
+	Camera::Sptr camera = inCamera;
 	const glm::mat4& view = camera->GetView();
 
 	// Update our lighting UBO for any shaders that need it
@@ -227,8 +199,7 @@ void RenderLayer::_AccumulateLighting()
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
-
-
+	
 	// Send in how many active lights we have and the global lighting settings
 	data.AmbientCol = glm::vec3(0.1f);
 	int ix = 0;
@@ -349,9 +320,8 @@ void RenderLayer::_Composite()
 
 	// Grab shorthands to the camera and shader from the scene
 	Camera::Sptr camera1 = scene->MainCamera;
-	Camera::Sptr camera2 = scene->MainCamera2;
 
-	_AccumulateLighting();
+	_AccumulateLighting(camera1);
 
 	// We want to switch to our compositing shader
 	_compositingShader->Bind();
@@ -384,9 +354,6 @@ void RenderLayer::_Composite()
 		GL_DEPTH_BUFFER_BIT,
 		GL_NEAREST
 	);
-
-	// Use our cubemap to draw our skybox
-	scene->DrawSkybox(camera1);
 
 	_outputBuffer->Unbind();
 }
