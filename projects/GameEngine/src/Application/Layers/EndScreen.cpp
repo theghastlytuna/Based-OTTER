@@ -203,9 +203,10 @@ void EndScreen::_CreateScene()
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");
 		// Save the scene to a JSON file
-		scene->Save("scene.json");
+		//scene->Save("scene.json");
 
-		_scene = scene;
+		_scene.push_back(scene);
+		currentSceneNum++;
 	}
 }
 
@@ -235,5 +236,5 @@ bool EndScreen::IsActive()
 
 Gameplay::Scene::Sptr EndScreen::GetScene()
 {
-	return _scene;
+	return _scene[currentSceneNum];
 }

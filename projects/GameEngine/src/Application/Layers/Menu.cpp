@@ -259,13 +259,13 @@ void Menu::_CreateScene() {
 			volumeText->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = volumeText->Add<RectTransform>();
-			transform->SetMin({ 120, 100 });
-			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 5 });
+			transform->SetMin({ app.GetWindowSize().x / 9, app.GetWindowSize().y / 8 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
 
 			volumeText->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeText->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -275,13 +275,13 @@ void Menu::_CreateScene() {
 			volumeBar->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = volumeBar->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2, 100 });
-			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 5});
+			transform->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 8 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4});
 
 			//volumeBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeBar->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -291,8 +291,8 @@ void Menu::_CreateScene() {
 			volumeSelector->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = volumeSelector->Add<RectTransform>();
-			transform->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 100 });
-			transform->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 5 });
+			transform->SetMin({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 - 10, app.GetWindowSize().y / 8 });
+			transform->SetMax({ (volumeBar->Get<RectTransform>()->GetMin().x + volumeBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 4 });
 
 			//volumeSelector->Add<MenuElement>();
 
@@ -307,13 +307,13 @@ void Menu::_CreateScene() {
 			sensText->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = sensText->Add<RectTransform>();
-			transform->SetMin({ 120, 400 });
-			transform->SetMax({ app.GetWindowSize().x / 3, 2 * app.GetWindowSize().y / 5 });
+			transform->SetMin({ app.GetWindowSize().x / 9, 3 * app.GetWindowSize().y / 8 });
+			transform->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
 
 			sensText->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -323,13 +323,13 @@ void Menu::_CreateScene() {
 			sensBar->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = sensBar->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x / 2, 400 });
-			transform->SetMax({ app.GetWindowSize().x - 100,  2 * app.GetWindowSize().y / 5 });
+			transform->SetMin({ app.GetWindowSize().x / 2, 3 * app.GetWindowSize().y / 8 });
+			transform->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
 
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -339,8 +339,8 @@ void Menu::_CreateScene() {
 			sensSelector->SetRenderFlag(5);
 
 			RectTransform::Sptr transform = sensSelector->Add<RectTransform>();
-			transform->SetMin({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 400 });
-			transform->SetMax({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 + 10, 2 * app.GetWindowSize().y / 5 });
+			transform->SetMin({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 - 10, 3 * app.GetWindowSize().y / 8 });
+			transform->SetMax({ (sensBar->Get<RectTransform>()->GetMin().x + sensBar->Get<RectTransform>()->GetMax().x) / 2 + 10, app.GetWindowSize().y / 2 });
 
 			//sensSelector->Add<MenuElement>();
 
@@ -424,17 +424,17 @@ void Menu::RepositionUI()
 	loadingScreen->Get<RectTransform>()->SetMin({ 0, 0 });
 	loadingScreen->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-	volumeText->Get<RectTransform>()->SetMin({ 120, 100 });
-	volumeText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 5 });
+	volumeText->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 9, app.GetWindowSize().y / 8 });
+	volumeText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 4 });
 	if (volumeText->Get<MenuElement>()->IsSelected()) volumeText->Get<MenuElement>()->GrowElement();
 
-	volumeBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 100 });
-	volumeBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 5 });
+	volumeBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 8 });
+	volumeBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 4 });
 
-	sensText->Get<RectTransform>()->SetMin({ 120, 400 });
-	sensText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, 2 * app.GetWindowSize().y / 5 });
+	sensText->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 9, 3 * app.GetWindowSize().y / 8 });
+	sensText->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 3, app.GetWindowSize().y / 2 });
 	if (sensText->Get<MenuElement>()->IsSelected()) sensText->Get<MenuElement>()->GrowElement();
 
-	sensBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 400 });
-	sensBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  2 * app.GetWindowSize().y / 5 });
+	sensBar->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, 3 * app.GetWindowSize().y / 8 });
+	sensBar->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - 100,  app.GetWindowSize().y / 2 });
 }

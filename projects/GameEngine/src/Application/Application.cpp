@@ -84,7 +84,7 @@ Application::Application() :
 	_window(nullptr),
 	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
 	_isRunning(false),
-	_isEditor(true),
+	_isEditor(false),
 	_windowTitle("INFR - 2350U"),
 	_currentScene(nullptr),
 	_targetScene(nullptr),
@@ -245,6 +245,16 @@ void Application::_Run()
 
 	soundInfo thisSoundInfo;
 
+	soundManaging.LoadBank("fmod/Banks/Master.bank");
+	soundManaging.LoadBank("fmod/Banks/Sounds.bank");
+	soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
+
+	soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
+	soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
+	soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
+	soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
+	soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
+
 	std::vector<MenuElement::Sptr> p1OptionItems;
 	std::vector<MenuElement::Sptr> p2OptionItems;
 	int p1ItemInd = 0;
@@ -318,17 +328,10 @@ void Application::_Run()
 			optionItems.push_back(_currentScene->FindObjectByName("Volume Text")->Get<MenuElement>());
 			optionItems.push_back(_currentScene->FindObjectByName("Sensitivity Text")->Get<MenuElement>());
 
+			soundManaging.SetListenerObjects(_currentScene->FindObjectByName("MainCam1"), _currentScene->FindObjectByName("MainCam2"));
+
 			firstFrame = false;
 
-			soundManaging.LoadBank("fmod/Banks/Master.bank");
-			soundManaging.LoadBank("fmod/Banks/Sounds.bank");
-			soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
-
-			soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
-			soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
-			soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
-			soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
-			soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
 
 			//soundManaging.SetEvent("event:/Footsteps", "footsteps");
 		}
@@ -374,6 +377,7 @@ void Application::_Run()
 			{
 
 				GetLayer<Menu>()->SetActive(false);
+				GetLayer<EndScreen>()->SetActive(false);
 
 				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
@@ -386,8 +390,7 @@ void Application::_Run()
 				soundManaging.StopSounds();
 
 				started = true;
-
-				soundManaging.PlayEvent("Map1Music");
+				loading = false;
 			}
 
 			else if (options)
@@ -523,16 +526,16 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Volume Bar")->Get<RectTransform>()->GetMax().x - 10, 
 					thisSoundInfo.currentVol);
 			
-				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 100 });
-				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 5 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, GetWindowSize().y / 8 });
+				CurrentScene()->FindObjectByName("Volume Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 4 });
 
 				//Lerp between the two ends of the sensitivity bar, with the current sensitivity being the lerp parameter
 				currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMin().x + 10,
 					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<RectTransform>()->GetMax().x - 10,
 					(thisController->GetSensitivity() - thisController->GetMinSensitivity()) / (thisController->GetMaxSensitivity() - thisController->GetMinSensitivity()));
 
-				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 400 });
-				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, 2 * GetWindowSize().y / 5 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMin({ currentLoc - 10, 3 * GetWindowSize().y / 8 });
+				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
 			}
 
 			
@@ -628,28 +631,31 @@ void Application::_Run()
 		//If end screen layer is active
 		else if (GetLayer<EndScreen>()->IsActive())
 		{
-			/*
+			
 			if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 			{
-				soundManaging.PlaySound("Scene Startup");
+				loading = true;
+				soundManaging.PlayEvent("LoadScene");
+			}
 
+			else if (loading)
+			{
 				GetLayer<EndScreen>()->SetActive(false);
 
 				GetLayer<DefaultSceneLayer>()->BeginLayer();
 
-				//Load the scene
 				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
 
-				//Set the current layer to active
 				GetLayer<DefaultSceneLayer>()->SetActive(true);
 
-				//Start playing
 				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
-			}
 
 				soundManaging.StopSounds();
+
+				started = true;
+				loading = false;
 			}
-			*/
+			
 		}
 		
 		else
@@ -686,6 +692,15 @@ void Application::_Run()
 				barSelectTimes[0] = 0.2f;
 				barSelectTimes[1] = 0.2f;
 
+				soundManaging.PlayEvent("Map1Music");
+
+				soundManaging.SetListenerObjects(player1, player2);
+
+				player1->Get<HealthManager>()->ResetHealth();
+				player2->Get<HealthManager>()->ResetHealth();
+
+				player1->Get<ScoreCounter>()->ResetScore();
+				player2->Get<ScoreCounter>()->ResetScore();
 			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
@@ -1156,6 +1171,8 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+				soundManaging.StopSounds();
+
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}
 
@@ -1172,6 +1189,8 @@ void Application::_Run()
 				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				soundManaging.StopSounds();
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}

@@ -38,8 +38,8 @@ namespace Gameplay {
 		_lightingUbo->Update();
 		_lightingUbo->Bind(LIGHT_UBO_BINDING_SLOT);
 
-		GameObject::Sptr mainCam = CreateGameObject("Main Camera");		
-		MainCamera = mainCam->Add<Camera>();
+		//GameObject::Sptr mainCam = CreateGameObject("Main Camera");		
+		//MainCamera = mainCam->Add<Camera>();
 
 		_InitPhysics();
 

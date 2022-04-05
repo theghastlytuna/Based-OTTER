@@ -5,7 +5,7 @@
 			<value>Cartoon_Boing</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{6c7cdf17-7837-44ae-8006-5d9120b95cc1}</destination>
@@ -143,6 +143,7 @@
 	<object class="MixerBusEffectChain" id="{67ac62fa-777e-4c25-a86a-60e38eda01e1}">
 		<relationship name="effects">
 			<destination>{d99822df-3a5e-4419-b562-a6a8d2c467d3}</destination>
+			<destination>{4eb85e5b-1c66-44a4-8025-d9b0d6f385e0}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{e97e2bc7-5c6d-4782-bb41-e359e0ec5848}" />
@@ -168,6 +169,7 @@
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{d99822df-3a5e-4419-b562-a6a8d2c467d3}" />
+	<object class="SpatialiserEffect" id="{4eb85e5b-1c66-44a4-8025-d9b0d6f385e0}" />
 	<object class="MixerBusFader" id="{d221b9aa-6dee-4b09-a65b-dbda50bce5fd}" />
 	<object class="AutomationPoint" id="{24f9b0a1-3327-4b05-9275-1a700640d312}">
 		<property name="position">
