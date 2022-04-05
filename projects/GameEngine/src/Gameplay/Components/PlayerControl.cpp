@@ -57,10 +57,13 @@ void PlayerControl::Awake()
 
 	if (playerID == 1) {
 		_camera = GetGameObject()->GetScene()->PlayerCamera;
+		_enemy = GetGameObject()->GetScene()->FindObjectByName("Player 2");
 	}
 	else {
 		_camera = GetGameObject()->GetScene()->PlayerCamera2;
+		_enemy = GetGameObject()->GetScene()->FindObjectByName("Player 1");
 	}
+
 	//IMPORTANT: This only works because the detachedCam is the only child of the player. If anything to do with children or the detached cam changes, this might break
 	_initialFov = GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->GetFovDegrees();
 }
@@ -71,6 +74,30 @@ void PlayerControl::Update(float deltaTime)
 	if (_controller->IsValid())
 	{
 		_controllerSensitivity = { _controller->GetSensitivity(), _controller->GetSensitivity() };
+
+		glm::vec3 playerToEnemy = glm::normalize(GetGameObject()->GetPosition() - _enemy->GetPosition());
+
+		glm::vec3 cameraLocalForward = glm::normalize(glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]));
+
+		//Calculate the angle between the vectors
+		float dot = cameraLocalForward.x * playerToEnemy.x + cameraLocalForward.y * playerToEnemy.y + cameraLocalForward.z * playerToEnemy.z;
+		float divisor = glm::length(playerToEnemy) * glm::length(cameraLocalForward);
+		float angle = glm::acos(dot / divisor);
+
+		/*float distance = glm::length(GetGameObject()->GetPosition() - _enemy->GetPosition());
+		std::cout << "Angle: " << angle << " Distance: " << distance << std::endl;*/
+
+
+
+		if (angle < 0.1) {
+			_controllerSensitivity *= 0.2f;
+		}
+		else if (angle < 0.3) {
+			_controllerSensitivity *= 0.5f;
+		}
+		else if (angle < 0.5) {
+			_controllerSensitivity *= 0.7f;
+		}
 
 		_isMoving = false;
 		_justThrew = false;

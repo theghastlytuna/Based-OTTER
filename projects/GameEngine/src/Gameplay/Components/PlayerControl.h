@@ -41,6 +41,7 @@ protected:
 	Gameplay::Camera::Sptr _camera;
 
 	unsigned int playerID;
+	Gameplay::GameObject::Sptr _enemy;
 
 
 	bool _isMousePressed = false;
