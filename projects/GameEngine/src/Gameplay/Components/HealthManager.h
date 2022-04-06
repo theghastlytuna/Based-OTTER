@@ -48,6 +48,7 @@ protected:
 	int _playerID;
 	int _enemyID;
 	float _damage;
+	float _iFrames;
 
 	int _enemyBoomerangID;
 

@@ -32,9 +32,12 @@ void HealthManager::Awake()
 
 void HealthManager::Update(float deltaTime)
 {
-	if (_loseHealth)
+	_iFrames -= deltaTime;
+
+	if (_loseHealth && _iFrames < 0)
 	{
 		_healthVal -= _damage;
+		_iFrames = 3.0f;
 	}
 
 	if (_gotHit)
@@ -89,6 +92,8 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 		float divisor = glm::length(playerToWang) * glm::length(cameraLocalForward);
 		float angle = glm::acos(dot / divisor);
 		float damageScaler = (-0.55 * glm::cos(angle)) + 0.65;
+
+
 		_damage = damageScaler;
 		
 		
@@ -96,7 +101,9 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 
 	else if (trigger->GetGameObject()->Name == "Boomerang " + std::to_string(_playerID))
 	{
-		trigger->GetGameObject()->Get<BoomerangBehavior>()->makeBoomerangInactive();
+		if (trigger->GetGameObject()->Get<BoomerangBehavior>()->getReturning()) {
+			trigger->GetGameObject()->Get<BoomerangBehavior>()->makeBoomerangInactive();
+		}
 	}
 }
 

@@ -112,5 +112,6 @@ public:
 
     virtual nlohmann::json ToJson() const override;
     static BoomerangBehavior::Sptr FromJson(const nlohmann::json& blob);
+    bool getReturning();
     MAKE_TYPENAME(BoomerangBehavior);
 };
