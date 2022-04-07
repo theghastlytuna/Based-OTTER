@@ -347,7 +347,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> mainAttack = LoadTargets(5, "MainCharacterAnims/Attack/Char_Throw_00");
 
-		std::vector<MeshResource::Sptr> boomerangSpin = LoadTargets(4, "BoomerangAnims/Boomerang_Active_00");
+		//std::vector<MeshResource::Sptr> boomerangSpin = LoadTargets(4, "BoomerangAnims/Boomerang_Active_00");
 
 		std::vector<MeshResource::Sptr> torchIdle = LoadTargets(6, "TorchAnims/Torch_Idle_00");
 
@@ -433,19 +433,20 @@ void DefaultSceneLayer::_CreateScene() {
 			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
 
-		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(animShader);
+		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			boomerangMaterial->Name = "Boomerang1";
 			boomerangMaterial->Set("u_Material.Diffuse", boomerangTex);
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
 		}
-
+		/*
 		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
 		{
 			boomerangMaterial2->Name = "Boomerang2";
 			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
+		*/
 
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
@@ -1647,6 +1648,10 @@ void DefaultSceneLayer::_CreateScene() {
 			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
 			//collider->SetExtents(glm::vec3(0.8f, 0.8f, 0.8f));
 
+			RigidBody::Sptr physics = boomerang->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(collider);
+
+			boomerang->Add<BoomerangBehavior>();
 			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
 			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
 
@@ -1654,15 +1659,12 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerang->Add<TriggerVolumeEnterBehaviour>();
 			volume->AddCollider(colliderTrigger);
 
-			RigidBody::Sptr physics = boomerang->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(collider);
-
-			boomerang->Add<BoomerangBehavior>();
-
+			/*
 			boomerang->Add<MorphAnimator>();
 			boomerang->Get<MorphAnimator>()->AddClip(boomerangSpin, 0.1, "Spin");
 
 			boomerang->Get<MorphAnimator>()->ActivateAnim("spin");
+			*/
 
 		}
 
@@ -1675,11 +1677,15 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
 			renderer->SetMesh(boomerangMesh2);
-			renderer->SetMaterial(boomerangMaterial2);
+			renderer->SetMaterial(boomerangMaterial);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
 			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
 
+			RigidBody::Sptr physics = boomerang2->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(collider);
+
+			boomerang2->Add<BoomerangBehavior>();
 			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
 			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
 
@@ -1687,15 +1693,13 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerang2->Add<TriggerVolumeEnterBehaviour>();
 			volume->AddCollider(colliderTrigger);
 
-			RigidBody::Sptr physics = boomerang2->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(collider);
 
-			boomerang2->Add<BoomerangBehavior>();
-
+			/*
 			boomerang2->Add<MorphAnimator>();
 			boomerang2->Get<MorphAnimator>()->AddClip(boomerangSpin, 0.1, "Spin");
 
 			boomerang2->Get<MorphAnimator>()->ActivateAnim("spin");
+			*/
 		}
 
 		GameObject::Sptr displayBoomerang1 = scene->CreateGameObject("Display Boomerang 1");
