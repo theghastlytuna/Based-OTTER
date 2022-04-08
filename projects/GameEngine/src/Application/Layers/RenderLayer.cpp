@@ -132,22 +132,14 @@ void RenderLayer::OnPostRender() {
 	using namespace Gameplay;
 
 	// Unbind our G-Buffer
-	//_primaryFBO->Unbind(); 
+	_primaryFBO->Unbind();
+
+	// Composite our lighting 
+	_Composite();
 
 	Application& app = Application::Get();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();
 
-	// Grab shorthands to the camera and shader from the scene
-	Camera::Sptr camera1 = app.CurrentScene()->MainCamera;
-	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
-
-	// Composite our lighting 
-	glViewport(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f);
-	_Composite(camera1);
-
-	glViewport(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f);
-	_Composite(camera2);
-	/*
 	// Restore viewport to game viewport
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
@@ -166,15 +158,14 @@ void RenderLayer::OnPostRender() {
 	_outputBuffer->Bind(FramebufferBinding::Read);
 	Framebuffer::Blit(
 		{ 0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight() },
-		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w},
+		{ viewport.x, viewport.y, viewport.x + viewport.z, viewport.y + viewport.w },
 		BufferFlags::Color
 	);
 
 	_outputBuffer->Unbind();
-	*/
 }
 
-void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
+void RenderLayer::_AccumulateLighting()
 {
 	using namespace Gameplay;
 
@@ -182,8 +173,7 @@ void RenderLayer::_AccumulateLighting(Gameplay::Camera::Sptr inCamera)
 	Scene::Sptr& scene = app.CurrentScene();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();
 
-	Camera::Sptr camera = inCamera;
-	const glm::mat4& view = camera->GetView();
+	Camera::Sptr camera = app.CurrentScene()->MainCamera;
 
 	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
@@ -422,77 +412,6 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 		// Draw the fullscreen quad to accumulate the lights
 		_fullscreenQuad->Draw();
 		});
-}
-
-void RenderLayer::_Composite(Gameplay::Camera::Sptr cam)
-{
-	using namespace Gameplay;
-	Application& app = Application::Get();
-
-	Scene::Sptr& scene = app.CurrentScene();
-
-	// Grab shorthands to the camera and shader from the scene
-	Camera::Sptr camera1 = cam;
-
-	_AccumulateLighting(camera1);
-
-	// We want to switch to our compositing shader
-	_compositingShader->Bind();
-
-	// Switch rendering to output
-	_outputBuffer->Bind();
-	glViewport(0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight());
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Disable blending, we want to override any existing colors
-	glDisable(GL_BLEND);
-
-	// Bind our albedo and lighting buffers so we can composite a final scene
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(0);
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(1);
-	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2);
-	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(3);
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);
-	_fullscreenQuad->Draw();
-
-	// Re-enable depth testing
-	glEnable(GL_DEPTH_TEST);
-
-	// Blit our depth from primary FBO to our output depth buffer
-	glBlitNamedFramebuffer(
-		_primaryFBO->GetHandle(), _outputBuffer->GetHandle(),
-		0, 0, _primaryFBO->GetWidth(), _primaryFBO->GetHeight(),
-		0, 0, _outputBuffer->GetWidth(), _outputBuffer->GetHeight(),
-		GL_DEPTH_BUFFER_BIT,
-		GL_NEAREST
-	);
-
-	_outputBuffer->Unbind();
-}
-
-void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* colors, int layers) {
-	// Make the entire buffer visible
-	glViewport(0, 0, buffer->GetWidth(), buffer->GetHeight());
-	// Disable depth testing
-	glEnable(GL_DEPTH_TEST); 
-	// Enable depth writing
-	glDepthMask(true);
-	// Disable blending, we want to override the colors
-	glDisable(GL_BLEND);
-	// Ignore existing depth
-	glDepthFunc(GL_ALWAYS);
-
-	// Bind the buffer so we're writing to it
-	buffer->Bind();
-
-	// Bind our clear shader, and draw a fullscreen quad with all the clear colors
-	_clearShader->Bind();
-	_clearShader->SetUniform<glm::vec4>("ClearColors", colors, layers);
-	_fullscreenQuad->Draw();
-
-	// Reset depth test function to default
-	glDepthFunc(GL_LESS);
 }
 
 void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize)

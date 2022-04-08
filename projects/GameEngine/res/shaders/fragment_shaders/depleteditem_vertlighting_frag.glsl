@@ -44,13 +44,15 @@ void main() {
 	// Get the albedo from the diffuse / albedo map
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
 	
+	// combine for the final result
+	vec3 result = lightAccumulation * inColor * textureColor.rgb;
+
+	/*
 	if (IsFlagSet(FLAG_DISABLE_LIGHTING)) 
 	{
 		frag_color = vec4(textureColor.rgb, 0.4);
 	}
 
-	// combine for the final result
-	vec3 result = lightAccumulation * inColor * textureColor.rgb;
 
 	else if (IsFlagSet(FLAG_ENABLE_SPECULAR))
 	{
@@ -134,4 +136,5 @@ void main() {
 
 		frag_color = vec4(result, textureColor.a);
 	}
+	*/
 }

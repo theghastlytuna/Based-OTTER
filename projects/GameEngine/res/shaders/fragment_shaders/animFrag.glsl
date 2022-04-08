@@ -41,20 +41,15 @@ void main() {
 	vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
 	// Get the albedo from the diffuse / albedo map
-// Normalize our input normal
-	vec3 normal = normalize(inNormal);
-
-	// Get the albedo from the diffuse / albedo map
 	vec4 textureColor = texture(u_Material.Diffuse, inUV);
-	
+
+	// combine for the final result
+	vec3 result = lightAccumulation * inColor * textureColor.rgb;
+	/*
 	if (IsFlagSet(FLAG_DISABLE_LIGHTING)) 
 	{
 		frag_color = vec4(textureColor.rgb, textureColor.a);
 	}
-
-	// combine for the final result
-	vec3 result = lightAccumulation * inColor * textureColor.rgb;
-
 	else if (IsFlagSet(FLAG_ENABLE_SPECULAR))
 	{
 		vec3 lightAccumulation = CalcSpec(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
@@ -137,4 +132,5 @@ void main() {
 
 		frag_color = vec4(result, textureColor.a);
 	}
+	*/
 }
