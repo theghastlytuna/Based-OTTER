@@ -130,7 +130,7 @@ void DefaultSceneLayer::_CreateScene() {
 	Application& app = Application::Get();
 
 	app.SetPrimaryViewport(glm::uvec4( 0, 0, app.GetWindowSize().x / 2, app.GetWindowSize().y / 2 ));
-	app.SetSecondaryViewport(glm::uvec4(app.GetWindowSize().x / 2, app.GetWindowSize().y / 2, app.GetWindowSize().x, app.GetWindowSize().y));
+	//app.SetSecondaryViewport(glm::uvec4(app.GetWindowSize().x / 2, app.GetWindowSize().y / 2, app.GetWindowSize().x, app.GetWindowSize().y));
 	
 	bool loadScene = false;
 	// For now we can use a toggle to generate our scene vs load from file
@@ -150,9 +150,9 @@ void DefaultSceneLayer::_CreateScene() {
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
-			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/deferred_forward.glsl" }
 		});
-		basicShader->SetDebugName("Blinn-phong");
+		basicShader->SetDebugName("Deferred - GBuffer Generation");
 
 		// This shader handles our basic materials without reflections (cause they expensive)
 		/*ShaderProgram::Sptr specShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -162,7 +162,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
-			{ ShaderPartType::Fragment, "shaders/fragment_shaders/animFrag.glsl" }
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/deferred_forward.glsl" }
 		});
 
 		
@@ -361,6 +361,28 @@ void DefaultSceneLayer::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> healthPackIdle = LoadTargets(7, "HealthPackAnims/healthPack_idle_00");
 
+#pragma region Basic Texture Creation
+		Texture2DDescription singlePixelDescriptor;
+		singlePixelDescriptor.Width = singlePixelDescriptor.Height = 1;
+		singlePixelDescriptor.Format = InternalFormat::RGB8;
+
+		float normalMapDefaultData[3] = { 0.5f, 0.5f, 1.0f };
+		Texture2D::Sptr normalMapDefault = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		normalMapDefault->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, normalMapDefaultData);
+
+		float solidGrey[3] = { 0.5f, 0.5f, 0.5f };
+		float solidBlack[3] = { 0.0f, 0.0f, 0.0f };
+		float solidWhite[3] = { 1.0f, 1.0f, 1.0f };
+
+		Texture2D::Sptr solidBlackTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidBlackTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidBlack);
+
+		Texture2D::Sptr solidGreyTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidGreyTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidGrey);
+
+		Texture2D::Sptr solidWhiteTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidWhiteTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidWhite);
+
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/sky/sky.jpg");// Please for the love of god
 		ShaderProgram::Sptr      skyboxShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
@@ -371,7 +393,7 @@ void DefaultSceneLayer::_CreateScene() {
 		// Create an empty scene
 		Scene::Sptr scene = std::make_shared<Scene>();
 
-		scene->SetAmbientLight(glm::vec3(1.f));
+		scene->SetAmbientLight(glm::vec3(0.2f));
 		// Setting up our enviroment map
 		scene->SetSkyboxTexture(testCubemap);
 		scene->SetSkyboxShader(skyboxShader);
@@ -390,88 +412,96 @@ void DefaultSceneLayer::_CreateScene() {
 		Material::Sptr boxMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			boxMaterial->Name = "Box";
-			boxMaterial->Set("u_Material.Diffuse", boxTexture);
+			boxMaterial->Set("u_Material.AlbedoMap", boxTexture);
 			boxMaterial->Set("u_Material.Shininess", 0.1f);
-			boxMaterial->Set("s_1Dtex", toonLut);
+			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr movingPlatMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			movingPlatMaterial->Name = "MovingPlatform";
-			movingPlatMaterial->Set("u_Material.Diffuse", rockTex);
+			movingPlatMaterial->Name = "movingPlatMaterial";
+			movingPlatMaterial->Set("u_Material.AlbedoMap", rockTex);
 			movingPlatMaterial->Set("u_Material.Shininess", 0.1f);
-			movingPlatMaterial->Set("s_1Dtex", toonLut);
+			movingPlatMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr torchMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			torchMaterial->Name = "Torch";
-			torchMaterial->Set("u_Material.Diffuse", torchTex);
+			torchMaterial->Name = "torchMaterial";
+			torchMaterial->Set("u_Material.AlbedoMap", torchTex);
 			torchMaterial->Set("u_Material.Shininess", 0.1f);
+			torchMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr catcusMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			catcusMaterial->Name = "Catcus";
-			catcusMaterial->Set("u_Material.Diffuse", catcusTex);
+			catcusMaterial->Name = "catcusMaterial";
+			catcusMaterial->Set("u_Material.AlbedoMap", catcusTex);
 			catcusMaterial->Set("u_Material.Shininess", 0.1f);
+			catcusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr healthPackMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			healthPackMaterial->Name = "HealthPack";
-			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
+			healthPackMaterial->Name = "healthPackMaterial";
+			healthPackMaterial->Set("u_Material.AlbedoMap", healthPackTex);
 			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
 		{
-			healthPackMaterial->Name = "HealthPackDepleted";
-			healthPackMaterial->Set("u_Material.Diffuse", healthPackTex);
-			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackDepletedMaterial->Name = "healthPackDepletedMaterial";
+			healthPackDepletedMaterial->Set("u_Material.AlbedoMap", healthPackTex);
+			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackDepletedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr mainCharMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			mainCharMaterial->Name = "MainCharacter";
-			mainCharMaterial->Set("u_Material.Diffuse", mainCharTex);
+			mainCharMaterial->Name = "mainCharMaterial";
+			mainCharMaterial->Set("u_Material.AlbedoMap", mainCharTex);
 			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr mainCharMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			mainCharMaterial2->Name = "MainCharacter2";
-			mainCharMaterial2->Set("u_Material.Diffuse", mainCharTex);
+			mainCharMaterial2->Name = "mainCharMaterial2";
+			mainCharMaterial2->Set("u_Material.AlbedoMap", mainCharTex);
 			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			boomerangMaterial->Name = "Boomerang1";
-			boomerangMaterial->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial->Name = "boomerangMaterial";
+			boomerangMaterial->Set("u_Material.AlbedoMap", boomerangTex);
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			boomerangMaterial2->Name = "Boomerang2";
-			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial2->Name = "boomerangMaterial2";
+			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			displayBoomerangMaterial1->Name = "Display Boomerang1";
-			displayBoomerangMaterial1->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial1->Name = "displayBoomerangMaterial1";
+			displayBoomerangMaterial1->Set("u_Material.AlbedoMap", boomerangTex);
 			displayBoomerangMaterial1->Set("u_Material.Shininess", 0.0f);
-			displayBoomerangMaterial1->Set("s_1Dtex", toonLut);
+			displayBoomerangMaterial1->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr displayBoomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			displayBoomerangMaterial2->Name = "Display Boomerang2";
-			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			displayBoomerangMaterial2->Name = "displayBoomerangMaterial2";
+			displayBoomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex);
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.0f);
-			displayBoomerangMaterial2->Set("s_1Dtex", toonLut);
+			displayBoomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 		/*
 		// This will be the reflective material, we'll make the whole thing 90% reflective
@@ -521,45 +551,45 @@ void DefaultSceneLayer::_CreateScene() {
 		//sand material
 		Material::Sptr sandMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			sandMaterial->Name = "Sand";
-			sandMaterial->Set("u_Material.Diffuse", sandTexture);
+			sandMaterial->Name = "sandMaterial";
+			sandMaterial->Set("u_Material.AlbedoMap", sandTexture);
 			sandMaterial->Set("u_Material.Shininess", 0.1f);
-			sandMaterial->Set("s_1Dtex", toonLut);
+			sandMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		//rock floor material
 		Material::Sptr rockFloorMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			rockFloorMaterial->Name = "RockFloor";
-			rockFloorMaterial->Set("u_Material.Diffuse", rockFloorTexture);
+			rockFloorMaterial->Name = "rockFloorMaterial";
+			rockFloorMaterial->Set("u_Material.AlbedoMap", rockFloorTexture);
 			rockFloorMaterial->Set("u_Material.Shininess", 0.1f);
-			rockFloorMaterial->Set("s_1Dtex", toonLut);
+			rockFloorMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		//rock Pillar material
 		Material::Sptr rockPillarMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			rockPillarMaterial->Name = "RockPillar";
-			rockPillarMaterial->Set("u_Material.Diffuse", rockFormationTexture);
+			rockPillarMaterial->Name = "rockPillarMaterial";
+			rockPillarMaterial->Set("u_Material.AlbedoMap", rockFormationTexture);
 			rockPillarMaterial->Set("u_Material.Shininess", 0.1f);
-			rockPillarMaterial->Set("s_1Dtex", toonLut);
+			rockPillarMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		//Wall Material
 		Material::Sptr rockWallMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			rockWallMaterial->Name = "RockWall";
-			rockWallMaterial->Set("u_Material.Diffuse", rockWallsTexture);
+			rockWallMaterial->Name = "rockWallMaterial";
+			rockWallMaterial->Set("u_Material.AlbedoMap", rockWallsTexture);
 			rockWallMaterial->Set("u_Material.Shininess", 0.1f);
-			rockWallMaterial->Set("s_1Dtex", toonLut);
+			rockWallMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr bridgeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			bridgeMaterial->Name = "Bridge";
-			bridgeMaterial->Set("u_Material.Diffuse", bridgeTexture);
+			bridgeMaterial->Name = "bridgeMaterial";
+			bridgeMaterial->Set("u_Material.AlbedoMap", bridgeTexture);
 			bridgeMaterial->Set("u_Material.Shininess", 0.1f);
-			bridgeMaterial->Set("s_1Dtex", toonLut);
+			bridgeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		/*
@@ -572,58 +602,58 @@ void DefaultSceneLayer::_CreateScene() {
 
 		Material::Sptr barrelMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			barrelMaterial->Name = "Barrel";
-			barrelMaterial->Set("u_Material.Diffuse", barrelTex);
+			barrelMaterial->Name = "barrelMaterial";
+			barrelMaterial->Set("u_Material.AlbedoMap", barrelTex);
 			barrelMaterial->Set("u_Material.Shininess", 0.1f);
-			barrelMaterial->Set("s_1Dtex", toonLut);
+			barrelMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr cactusMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			cactusMaterial->Name = "Cactus";
-			cactusMaterial->Set("u_Material.Diffuse", cactusTex);
-			cactusMaterial->Set("u_Material.Shininess", 0.0f);
-			cactusMaterial->Set("s_1Dtex", toonLut);
+			cactusMaterial->Name = "cactusMaterial";
+			cactusMaterial->Set("u_Material.AlbedoMap", cactusTex);
+			cactusMaterial->Set("u_Material.Shininess", 0.1f);
+			cactusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr grassMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			grassMaterial->Name = "Grass";
-			grassMaterial->Set("u_Material.Diffuse", grassTex);
+			grassMaterial->Name = "grassMaterial";
+			grassMaterial->Set("u_Material.AlbedoMap", grassTex);
 			grassMaterial->Set("u_Material.Shininess", 0.1f);
-			grassMaterial->Set("s_1Dtex", toonLut);
+			grassMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr greyTreeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			greyTreeMaterial->Name = "Tree Grey";
-			greyTreeMaterial->Set("u_Material.Diffuse", greyTreeTex);
+			greyTreeMaterial->Name = "greyTreeMaterial";
+			greyTreeMaterial->Set("u_Material.AlbedoMap", greyTreeTex);
 			greyTreeMaterial->Set("u_Material.Shininess", 0.1f);
-			greyTreeMaterial->Set("s_1Dtex", toonLut);
+			greyTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr beigeTreeMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			beigeTreeMaterial->Name = "Tree beige";
-			beigeTreeMaterial->Set("u_Material.Diffuse", beigeTreeTex);
+			beigeTreeMaterial->Name = "beigeTreeMaterial";
+			beigeTreeMaterial->Set("u_Material.AlbedoMap", beigeTreeTex);
 			beigeTreeMaterial->Set("u_Material.Shininess", 0.1f);
-			beigeTreeMaterial->Set("s_1Dtex", toonLut);
+			beigeTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr rockMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			rockMaterial->Name = "Rock";
-			rockMaterial->Set("u_Material.Diffuse", rockTex);
+			rockMaterial->Name = "rockMaterial";
+			rockMaterial->Set("u_Material.AlbedoMap", rockTex);
 			rockMaterial->Set("u_Material.Shininess", 0.1f);
-			rockMaterial->Set("s_1Dtex", toonLut);
+			rockMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr tumbleweedMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			tumbleweedMaterial->Name = "Tumbleweed";
-			tumbleweedMaterial->Set("u_Material.Diffuse", tumbleweedTex);
+			tumbleweedMaterial->Name = "tumbleweedMaterial";
+			tumbleweedMaterial->Set("u_Material.AlbedoMap", tumbleweedTex);
 			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
-			tumbleweedMaterial->Set("s_1Dtex", toonLut);
+			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		GameObject::Sptr light = scene->CreateGameObject("Light"); 
@@ -633,7 +663,7 @@ void DefaultSceneLayer::_CreateScene() {
 			Light::Sptr lightComponent = light->Add<Light>(); 
 			lightComponent->SetColor(glm::vec3(1.0f)); 
 			lightComponent->SetRadius(500.f); 
-			lightComponent->SetIntensity(50.f); 
+			lightComponent->SetIntensity(5.f); 
 		} 
 
 		// We'll create a mesh that is a simple plane that we can resize later
@@ -2310,6 +2340,19 @@ void DefaultSceneLayer::_CreateScene() {
 			canPanel->SetTransparency(0.0f);
 		}
 
+		GameObject::Sptr screenSplitter = scene->CreateGameObject("Screen Splitter");
+		{
+			screenSplitter->SetRenderFlag(5);
+			RectTransform::Sptr transform = screenSplitter->Add<RectTransform>();
+			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+
+			GuiPanel::Sptr canPanel = screenSplitter->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/screenSplitter.png"));
+
+			canPanel->SetTransparency(1.0f);
+		}
+
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
 
@@ -2333,7 +2376,7 @@ bool DefaultSceneLayer::IsActive()
 }
 
 //Function to be used when the screen is resized
-void DefaultSceneLayer::RepositionUI() 
+void DefaultSceneLayer::RepositionUI()
 {
 	Application& app = Application::Get();
 
@@ -2343,15 +2386,20 @@ void DefaultSceneLayer::RepositionUI()
 	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
 	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
 
+	Gameplay::GameObject::Sptr screenSplitter = app.CurrentScene()->FindObjectByName("Screen Splitter");
+
 	//Reposition the elements
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
-	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
-	killUI2->Get<RectTransform>()->SetMin({0, app.GetWindowSize().y - 195 });
-	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y});
+	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
+	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+
+	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
+	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
 
 	//Grab pause menu elements
 	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");

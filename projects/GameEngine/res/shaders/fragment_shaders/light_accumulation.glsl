@@ -4,6 +4,8 @@ layout(location = 0) in vec2 inUV;
 layout(location = 0) out vec4 outDiffuse;
 layout(location = 1) out vec4 outSpecular;
 
+uniform int u_ViewportID;
+
 // The maximum number of lights the shader supports, increasing this will lower performance!
 #define MAX_LIGHTS 8
 
@@ -61,7 +63,17 @@ void CalcPointLightContribution(vec3 viewPos, vec3 normal, Light light, float sh
 }
 
 void main() {
-    vec3 normal = GetNormal(inUV);
+    vec2 uv = inUV;
+
+    if (u_ViewportID == 0){
+        uv.y /= 2;
+    }
+    else {
+        uv.y /= 2;
+        uv.y += 0.5;
+    }
+
+    vec3 normal = GetNormal(uv);
     
     if (length(normal) < 0.1) {
         discard;
@@ -69,10 +81,10 @@ void main() {
 
     normal = normalize(normal);
 
-    vec3 albedo = GetAlbedo(inUV);
-    vec3 viewPos = GetViewPosition(inUV);
+    vec3 albedo = GetAlbedo(uv);
+    vec3 viewPos = GetViewPosition(uv);
     
-    float specularPow = texture(s_AlbedoSpec, inUV).a;
+    float specularPow = texture(s_AlbedoSpec, uv).a;
 
     vec3 diffuse = vec3(0);
     vec3 specular = vec3(0);

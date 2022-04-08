@@ -4,6 +4,7 @@
 #include "Graphics/Buffers/UniformBuffer.h"
 #include "Graphics/ShaderProgram.h"
 #include "Graphics/VertexArrayObject.h"
+#include "Gameplay/Components/Camera.h"
 
 #define MAX_LIGHTS 8
 
@@ -148,4 +149,6 @@ protected:
 	void _AccumulateLighting();
 	void _Composite();
 	void _ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* colors, int layers);
+
+	void _AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::ivec4 viewport, int ID);
 };

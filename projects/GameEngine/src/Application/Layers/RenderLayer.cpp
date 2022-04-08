@@ -171,14 +171,12 @@ void RenderLayer::_AccumulateLighting()
 
 	Application& app = Application::Get();
 	Scene::Sptr& scene = app.CurrentScene();
+	const glm::uvec4& viewport = app.GetPrimaryViewport();
 
 	Camera::Sptr camera = app.CurrentScene()->MainCamera;
 	const glm::mat4& view = camera->GetView();
 
-	// Update our lighting UBO for any shaders that need it
-	LightingUboStruct& data = _lightingUbo->GetData();
-	data.AmbientCol = scene->GetAmbientLight();
-	data.EnvironmentRotation = scene->GetSkyboxRotation() * glm::inverse(glm::mat3(scene->MainCamera->GetView()));
+	Camera::Sptr camera2 = app.CurrentScene()->MainCamera2;
 
 	const glm::vec3& ambient = scene->GetAmbientLight();
 	const glm::vec4 colors[2] = {
@@ -190,124 +188,10 @@ void RenderLayer::_AccumulateLighting()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE); 
+	
+	_AccumulateLightingViewport(camera, glm::ivec4(viewport.x, viewport.w / 2.0f, viewport.z, viewport.w / 2.0f), 1);
 
-	// Bind our shader for processing lighting 
-	_lightAccumulationShader->Bind(); 
-
-	// Bind our G-Buffer textures so that they're readable
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
-
-
-	// Send in how many active lights we have and the global lighting settings
-	data.AmbientCol = glm::vec3(0.1f);
-	int ix = 0;
-	app.CurrentScene()->Components().Each<Light>([&](const Light::Sptr& light) {
-		// Get the light's position in view space, since we're doing view space lighting
-		glm::vec4 pos = glm::vec4(light->GetGameObject()->GetWorldPosition(), 1.0f);
-		pos = view * pos;
-
-		// Copy to the ubo data
-		data.Lights[ix].Position = (glm::vec3)(pos) / pos.w;
-		data.Lights[ix].Intensity = light->GetIntensity();
-		data.Lights[ix].Color = light->GetColor();
-		data.Lights[ix].Attenuation = 1.0f / (1.0f + light->GetRadius());  
-
-		ix++;
-
-		// If we've reached the max # of lights the shader supports, draw to the screen and start the next batch
-		if (ix == MAX_LIGHTS) {
-			data.NumLights = MAX_LIGHTS;
-
-			// Send updated data to OpenGL
-			_lightingUbo->Update();
-
-			// Draw the fullscreen quad to accumulate the lights
-			_fullscreenQuad->Draw();
-
-			ix = 0;
-		}
-	});
-
-	// If we have lights left over that haven't been drawn, draw them now
-	if (ix > 0) {
-		data.NumLights = ix;
-
-		// Send updated data to OpenGL
-		_lightingUbo->Update();
-
-		// Draw the fullscreen quad to accumulate the lights
-		_fullscreenQuad->Draw();
-	}
-
-	// Re-render the scene for shadows
-	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
-		// Bind the shadow camera's depth buffer and clear it
-		shadowCam->GetDepthBuffer()->Bind();
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
-
-		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), 1);
-
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	});
-
-	// Restore frame level uniforms
-	_InitFrameUniforms();
-
-	_lightingFBO->Bind();
-	glViewport(0, 0, _lightingFBO->GetWidth(), _lightingFBO->GetHeight());
-
-	// Bind our G-Buffer textures so that they're readable
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
-
-	// Bind shadow composite shader
-	_shadowShader->Bind();
-
-	// Add each shadow casting light to the lighting buffers
-	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
-		// This gets us the light -> view space matrix, which we'll inverse to go from view space to light space
-		glm::mat4 lightSpaceMatrix = camera->GetView() * shadowCam->GetGameObject()->GetTransform();
-
-		// Or we have a matrix to go from view space to shadow space
-		glm::mat4 viewToShadow = shadowCam->GetProjection() * glm::inverse(lightSpaceMatrix);
-
-		// Calculate light's position and direction in view space
-		glm::vec3 lightDirViewSpace = glm::mat3(lightSpaceMatrix) * glm::vec3(0, 0, -1.0f); 
-		glm::vec3 lightPosViewSpace = lightSpaceMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-		// Bind depth and projection mask for reading, making sure not to stomp G-Buffer bindings
-		shadowCam->GetDepthBuffer()->BindAttachment(RenderTargetAttachment::Depth, 5);
-		if (shadowCam->GetProjectionMask() != nullptr) {
-			shadowCam->GetProjectionMask()->Bind(6);
-		}
-
-		//_shadowShader->SetUniformMatrix("u_ClipToShadow", clipToShadow); 
-		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow); 
-
-		// Get color and normalize it (strip the alpha)
-		glm::vec4 color = shadowCam->GetColor();
-		color *= color.w;
-
-		_shadowShader->SetUniform("u_LightDirViewspace", lightDirViewSpace);
-		_shadowShader->SetUniform("u_ShadowBias", shadowCam->Bias);
-		_shadowShader->SetUniform("u_NormalBias", shadowCam->NormalBias);
-		_shadowShader->SetUniform("u_Attenuation", 1/shadowCam->Range);
-		_shadowShader->SetUniform("u_Intensity", shadowCam->Intensity);
-		_shadowShader->SetUniform("u_LightColor", (glm::vec3)color);
-		_shadowShader->SetUniform("u_LightPosViewspace", lightPosViewSpace);
-		_shadowShader->SetUniform("u_ShadowFlags", *shadowCam->Flags);
-
-		// Draw the fullscreen quad to accumulate the lights
-		_fullscreenQuad->Draw();
-	});
+	_AccumulateLightingViewport(camera2, glm::ivec4(viewport.x, viewport.y, viewport.z, viewport.w / 2.0f), 0);
 
 	// Unbind the lighting FBO so we can read its textures
 	_lightingFBO->Unbind();
@@ -359,7 +243,7 @@ void RenderLayer::_Composite()
 	);
 
 	// Use our cubemap to draw our skybox
-	scene->DrawSkybox(camera1);
+	//scene->DrawSkybox(camera1);
 
 	_outputBuffer->Unbind();
 }
@@ -386,6 +270,149 @@ void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* 
 
 	// Reset depth test function to default
 	glDepthFunc(GL_LESS);
+}
+
+void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::ivec4 viewport, int ID)
+{
+	using namespace Gameplay;
+
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+
+	Application& app = Application::Get();
+	Scene::Sptr& scene = app.CurrentScene();
+
+	const glm::mat4& view = cam->GetView();
+
+	auto& frameData = _frameUniforms->GetData();
+	frameData.u_Projection = cam->GetProjection();
+	frameData.u_View = view;
+	frameData.u_ViewProjection = cam->GetViewProjection();
+	frameData.u_CameraPos = view * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_frameUniforms->Update();
+
+	// Bind our shader for processing lighting 
+	_lightAccumulationShader->Bind();
+
+	_lightAccumulationShader->SetUniform("u_ViewportID", ID);
+
+	// Bind our G-Buffer textures so that they're readable
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
+
+	// Update our lighting UBO for any shaders that need it
+	LightingUboStruct& data = _lightingUbo->GetData();
+	data.AmbientCol = scene->GetAmbientLight();
+	data.EnvironmentRotation = scene->GetSkyboxRotation() * glm::inverse(glm::mat3(scene->MainCamera->GetView()));
+
+	// Send in how many active lights we have and the global lighting settings
+	data.AmbientCol = glm::vec3(0.1f);
+	int ix = 0;
+	app.CurrentScene()->Components().Each<Light>([&](const Light::Sptr& light) {
+		// Get the light's position in view space, since we're doing view space lighting
+		glm::vec4 pos = glm::vec4(light->GetGameObject()->GetWorldPosition(), 1.0f);
+		pos = view * pos;
+
+		// Copy to the ubo data
+		data.Lights[ix].Position = (glm::vec3)(pos) / pos.w;
+		data.Lights[ix].Intensity = light->GetIntensity();
+		data.Lights[ix].Color = light->GetColor();
+		data.Lights[ix].Attenuation = 1.0f / (1.0f + light->GetRadius());
+
+		ix++;
+
+		// If we've reached the max # of lights the shader supports, draw to the screen and start the next batch
+		if (ix == MAX_LIGHTS) {
+			data.NumLights = MAX_LIGHTS;
+
+			// Send updated data to OpenGL
+			_lightingUbo->Update();
+
+			// Draw the fullscreen quad to accumulate the lights
+			_fullscreenQuad->Draw();
+
+			ix = 0;
+		}
+		});
+
+	// If we have lights left over that haven't been drawn, draw them now
+	if (ix > 0) {
+		data.NumLights = ix;
+
+		// Send updated data to OpenGL
+		_lightingUbo->Update();
+
+		// Draw the fullscreen quad to accumulate the lights
+		_fullscreenQuad->Draw();
+	}
+
+	// Re-render the scene for shadows
+	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
+		// Bind the shadow camera's depth buffer and clear it
+		shadowCam->GetDepthBuffer()->Bind();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
+
+		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), 1);
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		});
+
+	// Restore frame level uniforms
+	_InitFrameUniforms();
+
+	_lightingFBO->Bind();
+	glViewport(0, 0, _lightingFBO->GetWidth(), _lightingFBO->GetHeight());
+
+	// Bind our G-Buffer textures so that they're readable
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(1); // albedo + spec
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(2); // normals + metallic
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(3); // emissive
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color3)->Bind(4); // view pos
+
+	// Bind shadow composite shader
+	_shadowShader->Bind();
+
+	// Add each shadow casting light to the lighting buffers
+	app.CurrentScene()->Components().Each<ShadowCamera>([&](const ShadowCamera::Sptr& shadowCam) {
+		// This gets us the light -> view space matrix, which we'll inverse to go from view space to light space
+		glm::mat4 lightSpaceMatrix = view * shadowCam->GetGameObject()->GetTransform();
+
+		// Or we have a matrix to go from view space to shadow space
+		glm::mat4 viewToShadow = shadowCam->GetProjection() * glm::inverse(lightSpaceMatrix);
+
+		// Calculate light's position and direction in view space
+		glm::vec3 lightDirViewSpace = glm::mat3(lightSpaceMatrix) * glm::vec3(0, 0, -1.0f);
+		glm::vec3 lightPosViewSpace = lightSpaceMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// Bind depth and projection mask for reading, making sure not to stomp G-Buffer bindings
+		shadowCam->GetDepthBuffer()->BindAttachment(RenderTargetAttachment::Depth, 5);
+		if (shadowCam->GetProjectionMask() != nullptr) {
+			shadowCam->GetProjectionMask()->Bind(6);
+		}
+
+		//_shadowShader->SetUniformMatrix("u_ClipToShadow", clipToShadow); 
+		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow);
+
+		// Get color and normalize it (strip the alpha)
+		glm::vec4 color = shadowCam->GetColor();
+		color *= color.w;
+
+		_shadowShader->SetUniform("u_LightDirViewspace", lightDirViewSpace);
+		_shadowShader->SetUniform("u_ShadowBias", shadowCam->Bias);
+		_shadowShader->SetUniform("u_NormalBias", shadowCam->NormalBias);
+		_shadowShader->SetUniform("u_Attenuation", 1 / shadowCam->Range);
+		_shadowShader->SetUniform("u_Intensity", shadowCam->Intensity);
+		_shadowShader->SetUniform("u_LightColor", (glm::vec3)color);
+		_shadowShader->SetUniform("u_LightPosViewspace", lightPosViewSpace);
+		_shadowShader->SetUniform("u_ShadowFlags", *shadowCam->Flags);
+
+		// Draw the fullscreen quad to accumulate the lights
+		_fullscreenQuad->Draw();
+		});
 }
 
 void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize)

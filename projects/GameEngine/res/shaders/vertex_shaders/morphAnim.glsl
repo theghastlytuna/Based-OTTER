@@ -4,12 +4,6 @@
 #include "../fragments/vs_uncommon.glsl"
 #include "../fragments/multiple_point_lights.glsl"
 
-struct Material {
-	sampler2D Diffuse;
-	float     Shininess;
-};
-uniform Material u_Material;
-
 uniform float t;
 
 void main() {
@@ -26,8 +20,6 @@ void main() {
 
 	///////////
 	outColor = inColor;
-
-	outLight = CalcAllLightContribution(outViewPos, outNormal, u_CamPos.xyz, u_Material.Shininess);
 
 	gl_Position = u_ModelViewProjection *  mix(vec4(inPosition, 1.0), vec4(inPosition2, 1.0), t);
 

@@ -39,13 +39,20 @@ void main() {
 	// Extract albedo from material, and store shininess
 	albedo_specPower = vec4(albedoColor.rgb, 1.0f);//lightingParams.x);
 	
+	vec3 denormTangent = dFdx(inUV.y) * dFdy(inViewPos) - dFdx(inViewPos) *dFdy(inUV.y);
+    vec3 tangent = normalize(denormTangent - inNormal * dot(inNormal,denormTangent));
+    vec3 normal1 = normalize(inNormal);
+    vec3 bitangent = cross(inNormal,tangent);
+	
+    mat3 TBN = mat3(tangent, bitangent, normal1);
+
 	// Normalize our input normal
     // Read our tangent from the map, and convert from the [0,1] range to [-1,1] range
     vec3 normal = texture(u_Material.NormalMap, inUV).rgb;
     normal = normal * 2.0 - 1.0;
 
     // Here we apply the TBN matrix to transform the normal from tangent space to view space
-    normal = normalize(inTBN * normal);
+    normal = normalize(TBN * normal);
 	
 	// Map [-1, 1] to [0, 1]
 	normal = clamp((normal + 1) / 2.0, 0, 1);
