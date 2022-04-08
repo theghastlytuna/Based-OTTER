@@ -7,11 +7,16 @@
 #include "Utils/Windows/FileDialogs.h"
 #include <filesystem>
 #include "RenderLayer.h"
+
 #include "../Windows/HierarchyWindow.h"
 #include "../Windows/InspectorWindow.h"
 #include "../Windows/MaterialsWindow.h"
 #include "../Windows/TextureWindow.h"
 #include "../Windows/DebugWindow.h"
+#include "../Windows/GBufferPreviews.h"
+#include "../Windows/PostProcessingSettingsWindow.h"
+
+#include "Graphics/DebugDraw.h"
 
 ImGuiDebugLayer::ImGuiDebugLayer() :
 	ApplicationLayer(),
@@ -30,13 +35,11 @@ void ImGuiDebugLayer::OnAppLoad(const nlohmann::json& config)
 	// Register our windows
 	RegisterWindow<HierarchyWindow>();
 	RegisterWindow<InspectorWindow>();
-
-	//Temporarily disable, these tabs are causing weird rendering issues
 	//RegisterWindow<MaterialsWindow>();
 	//RegisterWindow<TextureWindow>();
-	//////////////////////////////////////
-
 	RegisterWindow<DebugWindow>();
+	RegisterWindow<GBufferPreviews>();
+	RegisterWindow<PostProcessingSettingsWindow>();
 }
 
 void ImGuiDebugLayer::OnAppUnload()
@@ -221,7 +224,7 @@ void ImGuiDebugLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 				// Track whether the window was previously open, only render open windows
 				bool wasOpen = window->Open;
 				if (window->Open) {
-					bool open = ImGui::Begin(window->Name.c_str(), &window->Open);
+					bool open = ImGui::Begin(window->Name.c_str(), &window->Open, window->WindowFlags);
 
 					// If the window was open or closed, mark our dock node as invalid
 					if (open != wasOpen) {
@@ -245,7 +248,18 @@ void ImGuiDebugLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 
 void ImGuiDebugLayer::OnPostRender()
 {
-	//ImGuiHelper::EndFrame();
+	// HACK HACK HACK - Getting debug gizmos to show up
+	Application& app = Application::Get();
+	const glm::uvec4& viewport = app.GetPrimaryViewport();
+	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+ 
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(true);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	DebugDrawer::Get().SetViewProjection(app.CurrentScene()->MainCamera->GetViewProjection());
+	DebugDrawer::Get().FlushAll();
 }
 
 void ImGuiDebugLayer::_RenderGameWindow()

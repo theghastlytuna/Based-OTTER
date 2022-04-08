@@ -3,13 +3,20 @@
 // Include our common vertex shader attributes and uniforms
 #include "../fragments/vs_uncommon.glsl"
 
+struct Material {
+	sampler2D Diffuse;
+	float     Shininess;
+};
+uniform Material u_Material;
+uniform sampler1D s_1Dtex;
+
 uniform float t;
 
 void main() {
 
-	// Lecture 5
+// Lecture 5
 	// Pass vertex pos in world space to frag shader
-	outWorldPos = (u_Model * mix(vec4(inPosition, 1.0), vec4(inPosition2, 1.0), t)).xyz;
+	outViewPos = (u_ModelView * mix(vec4(inPosition, 1.0), vec4(inPosition2, 1.0), t)).xyz;
 
 	// Normals
 	outNormal = mat3(u_NormalMatrix) * mix(inNormal, inNormal2, t);

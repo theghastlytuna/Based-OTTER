@@ -302,12 +302,13 @@ void SecondMap::_CreateScene() {
 #pragma endregion
 #pragma region createLights
 
+		/*
 		// Create some lights for our scene
 		scene->Lights.resize(4);
 
-		/*scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
+		scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 40.0f;*/
+		scene->Lights[0].Range = 40.0f;
 
 		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -323,6 +324,7 @@ void SecondMap::_CreateScene() {
 		scene->Lights[3].Position = glm::vec3(-67.73f, 15.73f, 3.5f);
 		scene->Lights[3].Color = glm::vec3(0.81f, 0.62f, 0.61f);
 		scene->Lights[3].Range = 200.0f;
+		*/
 
 #pragma endregion
 #pragma region createGameObjects

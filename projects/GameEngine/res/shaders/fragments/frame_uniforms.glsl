@@ -14,6 +14,10 @@ layout (std140, binding = 0) uniform b_FrameLevelUniforms {
     uniform float u_DeltaTime;
     // Lets us store up to 32 bool flags in one value
     uniform uint  u_Flags;
+    // Camera's near plane
+    uniform float u_ZNear;
+    // Camera's far plane
+    uniform float u_ZFar;
 };
 
 // Stores uniforms that change every object/instance
@@ -22,12 +26,32 @@ layout (std140, binding = 1) uniform b_InstanceLevelUniforms {
     uniform mat4 u_ModelViewProjection;
     // Just the model transform, we'll do worldspace lighting
     uniform mat4 u_Model;
+    // Just the model * view, for converting to view space
+    uniform mat4 u_ModelView;
     // Normal Matrix for transforming normals
     uniform mat4 u_NormalMatrix;
 };
 
 #define FLAG_ENABLE_COLOR_CORRECTION (1 << 0)
+#define FLAG_DISABLE_LIGHTING (1 << 1)
+#define FLAG_ENABLE_AMBIENT (1 << 2)
+#define FLAG_ENABLE_SPECULAR (1 << 3)
+#define	FLAG_ENABLE_AMBSPEC (1 << 4)
+#define FLAG_ENABLE_CUSTOMSHADER (1 << 5)
+#define FLAG_ENABLE_DIFFUSEWARP (1 << 6)
+#define FLAG_ENABLE_SPECWARP (1 << 7)
+#define FLAG_ENABLE_WARM (1 << 8)
+#define FLAG_ENABLE_COOL (1 << 9)
+#define FLAG_ENABLE_CUSTOMLUT (1 << 10)
 
 bool IsFlagSet(uint flag) {
     return (u_Flags & flag) != 0;
+}
+
+bool IsMultipleFlagSet(uint flags) {
+    return (u_Flags & flags) == flags;
+}
+
+float linearize(float depth) {
+    return (2 * u_ZNear) / (u_ZFar + u_ZNear - depth * (u_ZFar - u_ZNear));
 }

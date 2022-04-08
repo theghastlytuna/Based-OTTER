@@ -87,6 +87,12 @@ namespace Gameplay {
 		const glm::vec4& GetClearColor() const;
 		void SetClearColor(const glm::vec4& color);
 
+		float GetNearPlane() const;
+		float GetFarPlane() const;
+
+		void SetNearPlane(float value);
+		void SetFarPlane(float value);
+
 	protected:
 		float _nearPlane;
 		float _farPlane;
