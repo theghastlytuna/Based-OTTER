@@ -37,9 +37,9 @@ void PostProcessingLayer::OnAppLoad(const nlohmann::json& config)
 	//_effects.push_back(std::make_shared<BoxFilter3x3>());
 	//_effects.push_back(std::make_shared<BoxFilter5x5>());
 	//_effects.push_back(std::make_shared<OutlineEffect>());
-	//_effects.push_back(std::make_shared<NightVision>());
-	//_effects.push_back(std::make_shared<PixelizationEffect>());
-	//_effects.push_back(std::make_shared<FilmGrain>());
+	_effects.push_back(std::make_shared<NightVision>());
+	_effects.push_back(std::make_shared<PixelizationEffect>());
+	_effects.push_back(std::make_shared<FilmGrain>());
 
 
 	Application& app = Application::Get();
