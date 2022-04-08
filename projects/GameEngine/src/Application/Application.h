@@ -62,17 +62,6 @@ public:
 	void SetPrimaryViewport(const glm::uvec4& value);
 
 	/**
- * Gets the viewport that the game will appear in on the screen. For non-editor versions, this should be the entire screen
- * @returns The bounds for the viewport, in screenspace, formatted as { x, y, width, height }
- */
-	const glm::uvec4& GetSecondaryViewport() const;
-	/**
-	 * Sets the viewport that the game will appear in on the screen. For non-editor versions, this should be the entire screen
-	 * @param value The bounds for the viewport, in screenspace, formatted as { x, y, width, height }
-	 */
-	void SetSecondaryViewport(const glm::uvec4& value);
-
-	/**
 	 * Quits the application at the end of the current frame
 	 */
 	void Quit();
@@ -153,9 +142,6 @@ protected:
 
 	// The primary viewport that the game will render into, in client window bounds
 	glm::uvec4  _primaryViewport;
-
-	// The primary viewport that the game will render into, in client window bounds
-	glm::uvec4  _secondaryViewport;
 
 	// Stores the current application settings
 	nlohmann::json _appSettings;

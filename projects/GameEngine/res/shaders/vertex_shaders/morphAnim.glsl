@@ -3,13 +3,6 @@
 // Include our common vertex shader attributes and uniforms
 #include "../fragments/vs_uncommon.glsl"
 
-struct Material {
-	sampler2D Diffuse;
-	float     Shininess;
-};
-uniform Material u_Material;
-uniform sampler1D s_1Dtex;
-
 uniform float t;
 
 void main() {

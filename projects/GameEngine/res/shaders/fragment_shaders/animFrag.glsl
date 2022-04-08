@@ -35,10 +35,10 @@ uniform sampler1D s_1Dtex;
 // https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
 void main() {
 	// Normalize our input normal
-	//vec3 normal = normalize(inNormal);
+	vec3 normal = normalize(inNormal);
 
 	// Use the lighting calculation that we included from our partial file
-	//vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
+	vec3 lightAccumulation = CalcAllLightContribution(inViewPos, normal, u_CamPos.xyz, u_Material.Shininess);
 
 	// Get the albedo from the diffuse / albedo map
 // Normalize our input normal
@@ -52,12 +52,8 @@ void main() {
 		frag_color = vec4(textureColor.rgb, textureColor.a);
 	}
 
-	else if (IsFlagSet(FLAG_ENABLE_AMBIENT))
-	{
-		vec3 lightAccumulation = CalcAmbient();
-		vec3 result = lightAccumulation * inColor * textureColor.rgb;
-		frag_color = vec4(result, textureColor.a);
-	}
+	// combine for the final result
+	vec3 result = lightAccumulation * inColor * textureColor.rgb;
 
 	else if (IsFlagSet(FLAG_ENABLE_SPECULAR))
 	{

@@ -14,7 +14,7 @@ void main() {
     vec3 norm = normalize(inNormal);
 
     albedo_specPower = vec4(texture(s_Environment, norm).rgb, 0.0);
-    normal_metallic = vec4(0.5, 0.5, 1, 0);
+    normal_metallic = vec4(0.5, 0.5, 0.5, 0);
     emissive = vec4(0);
     view_pos = vec3(0);
 }
