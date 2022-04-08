@@ -1638,6 +1638,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Set position in the scene
 			boomerang->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
 			boomerang->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			boomerang->SetRotation(glm::vec3(0.f));
 
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang->Add<RenderComponent>();
@@ -1645,15 +1646,16 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(boomerangMaterial);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
+			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
 			//collider->SetExtents(glm::vec3(0.8f, 0.8f, 0.8f));
 
 			RigidBody::Sptr physics = boomerang->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(collider);
+			physics->SetAngularFactor(glm::vec3(1.f, 1.f, 0.f));
 
 			boomerang->Add<BoomerangBehavior>();
 			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
-			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.4f));
 
 			TriggerVolume::Sptr volume = boomerang->Add<TriggerVolume>();
 			boomerang->Add<TriggerVolumeEnterBehaviour>();
@@ -1673,6 +1675,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Set position in the scene
 			boomerang2->SetPosition(glm::vec3(0.0f, 0.0f, -100.0f));
 			boomerang2->SetScale(glm::vec3(0.25f, 0.25f, 0.25f));
+			boomerang2->SetRotation(glm::vec3(0.f));
 
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
@@ -1680,14 +1683,15 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(boomerangMaterial);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.1f));
+			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
 
 			RigidBody::Sptr physics = boomerang2->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(collider);
+			physics->SetAngularFactor(glm::vec3(1.f, 1.f, 0.f));
 
 			boomerang2->Add<BoomerangBehavior>();
 			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
-			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.4f));
 
 			TriggerVolume::Sptr volume = boomerang2->Add<TriggerVolume>();
 			boomerang2->Add<TriggerVolumeEnterBehaviour>();

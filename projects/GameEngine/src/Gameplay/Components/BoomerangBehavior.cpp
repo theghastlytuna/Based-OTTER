@@ -65,7 +65,9 @@ void BoomerangBehavior::throwWang(glm::vec3 playerPosition, float chargeLevel)
 	_distance = 1;
 	glm::vec3 cameraLocalForward = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]) * -1.0f;
 	_boomerangEntity->SetPosition(playerPosition + glm::vec3(0.0f, 0.0f, 1.5f) + cameraLocalForward * _projectileSpacing);
+	_boomerangEntity->SetRotation(_player->GetRotationEuler());
 	_rigidBody->SetLinearVelocity(glm::vec3(0));
+	_rigidBody->SetAngularVelocity({ 0.f, 0.f, 900.f });
 	_rigidBody->SetLinearVelocity(cameraLocalForward * _boomerangLaunchForce * chargeLevel);
 }
 
