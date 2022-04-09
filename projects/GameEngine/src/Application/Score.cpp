@@ -37,10 +37,12 @@ std::vector<userScore> Score::readScores()
 		{
 			return a.time < b.time;
 		});
+
 	}
 	else {
 		std::cout << "Error: Unable to open highscore file. What the fuck did you do?" << std::endl;
 	}
+	return scores;
 }
 
 void Score::addScore(std::string name, float time)
