@@ -13,17 +13,15 @@ uniform layout(binding = 0) sampler2D s_Image;
 uniform layout(binding = 1) sampler2D s_Depth;
 uniform layout(binding = 2) sampler2D s_Normals;
 
-uniform int u_Pixels;
-
 uniform float u_Power;
 
 #include "../../fragments/frame_uniforms.glsl"
 
 void main() {
 
-
-    vec2 newUV = floor(inUV * u_Pixels) / u_Pixels;
-
+    vec2 newUV;
+    newUV.s = floor(inUV.s * 640) / 640;
+    newUV.t = floor(inUV.t * 480) / 480;
 
     vec3 color1 = texture(s_Image, newUV).rgb;
 

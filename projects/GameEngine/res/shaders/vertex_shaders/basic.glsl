@@ -5,7 +5,16 @@
 
 void main() {
 
-	gl_Position = u_ModelViewProjection * vec4(inPosition, 1.0);
+	vec2 grid = vec2(640, 240) * 0.5f;
+	vec4 vertInClipSpace = u_ModelViewProjection * vec4(inPosition, 1.0);
+	vec4 snapped = vertInClipSpace;
+	snapped.xyz = vertInClipSpace.xyz / vertInClipSpace.w;
+	snapped.xy = floor(grid * snapped.xy) / grid;
+	snapped.xyz *= vertInClipSpace.w;
+
+	gl_Position = snapped;
+
+	//gl_Position = u_ModelViewProjection * vec4(inPosition, 1.0);
 
 	// Lecture 5
 	// Pass vertex pos in world space to frag shader
