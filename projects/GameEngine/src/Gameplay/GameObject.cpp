@@ -12,6 +12,8 @@
 #include "Utils/ImGuiHelper.h"
 
 #include "Gameplay/Scene.h"
+#include "Components/GUI/RectTransform.h"
+#include "Graphics/GuiBatcher.h"
 
 namespace Gameplay {
 	GameObject::GameObject() :
@@ -31,7 +33,6 @@ namespace Gameplay {
 		_isWorldTransformDirty(true),
 		_parent(WeakRef()),
 		_children(std::vector<WeakRef>()),
-		_renderFlag(0)
 	{ }
 
 	void GameObject::_RecalcLocalTransform() const
@@ -89,28 +90,24 @@ namespace Gameplay {
 	}
 
 	void GameObject::OnEnteredTrigger(const std::shared_ptr<Physics::TriggerVolume>& trigger) {
-
 		for (auto& component : _components) {
 			component->OnEnteredTrigger(trigger);
 		}
 	}
 
 	void GameObject::OnLeavingTrigger(const std::shared_ptr<Physics::TriggerVolume>& trigger) {
-
 		for (auto& component : _components) {
 			component->OnLeavingTrigger(trigger);
 		}
 	}
 
 	void GameObject::OnTriggerVolumeEntered(const std::shared_ptr<Physics::RigidBody>& trigger) {
-
 		for (auto& component : _components) {
 			component->OnTriggerVolumeEntered(trigger);
 		}
 	}
 
 	void GameObject::OnTriggerVolumeLeaving(const std::shared_ptr<Physics::RigidBody>& trigger) {
-
 		for (auto& component : _components) {
 			component->OnTriggerVolumeLeaving(trigger);
 		}
@@ -184,23 +181,31 @@ namespace Gameplay {
 			_children.erase(it);
 		}
 
-		for (auto& component : _components) {
-			if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render)
-				component->StartGUI();
+		RectTransform::Sptr rect = Get<RectTransform>();
+
+		if (rect != nullptr) {
+			GuiBatcher::PushModelTransform(rect->GetLocalTransform());
+
+			for (auto& component : _components) {
+				if (component->IsEnabled) {
+					component->StartGUI();
+				}
 			}
-		}
-		for (auto& component : _components) {
-			if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render) 
-				component->RenderGUI();
+			for (auto& component : _components) {
+				if (component->IsEnabled) {
+					component->RenderGUI();
+				}
 			}
-		}
-		for (auto& child : _children) {
-			child->RenderGUI(viewportID);
-		}
-		for (auto& component : _components) {
-			if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render) 
-				component->FinishGUI();
+			for (auto& child : _children) {
+				child->RenderGUI();
 			}
+			for (auto& component : _components) {
+				if (component->IsEnabled) {
+					component->FinishGUI();
+				}
+			}
+
+			GuiBatcher::PopModelTransform();
 		}
 	}
 
@@ -602,17 +607,8 @@ namespace Gameplay {
 		return Resolve();
 	}
 
-	int GameObject::GetRenderFlag()
-	{
-		return _renderFlag;
-	}
-
-	void GameObject::SetRenderFlag(int flag)
-	{
-		_renderFlag = flag;
-	}
-
 	GameObject::WeakRef::operator Guid() const {
 		return ResourceGUID;
 	}
+
 }
