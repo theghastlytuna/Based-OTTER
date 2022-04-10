@@ -4,8 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "common.h"
-//#include "fmod_errors.h"
+//#include "common.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
 
@@ -151,7 +150,7 @@ public:
 		//Update the systems
 		system->update();
 		studioSystem->update();
-		Common_Update();
+		//Common_Update();
 	}
 
 	//For loading mp3s, wavs, etc.

@@ -184,12 +184,13 @@ void Menu::_CreateScene() {
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/realBG.png"));
 
-			canPanel->SetTransparency(0.0f); ///////////////Temporary
+			canPanel->SetTransparency(1.0f); ///////////////Temporary
 		}
 
 		GameObject::Sptr play = scene->CreateGameObject("Play Button");
 		{
 			play->SetRenderFlag(5);
+
 			RectTransform::Sptr transform = play->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x  - 200, app.GetWindowSize().y /2 });
 			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y /2 - 100 });
@@ -203,6 +204,7 @@ void Menu::_CreateScene() {
 		GameObject::Sptr options = scene->CreateGameObject("Options Button");
 		{
 			options->SetRenderFlag(5);
+
 			RectTransform::Sptr transform = options->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x - 200, app.GetWindowSize().y / 2 - 50 });
 			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y / 2 + 50 });
@@ -216,6 +218,7 @@ void Menu::_CreateScene() {
 		GameObject::Sptr exit = scene->CreateGameObject("Exit Button");
 		{
 			exit->SetRenderFlag(5);
+
 			RectTransform::Sptr transform = exit->Add<RectTransform>();
 			transform->SetMin({ app.GetWindowSize().x / 2 - 200, app.GetWindowSize().y / 2 + 150 });
 			transform->SetMax({ app.GetWindowSize().x / 2 + 200, app.GetWindowSize().y / 2 + 250 });

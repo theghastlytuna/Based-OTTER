@@ -196,9 +196,10 @@ namespace Gameplay {
 
 	void Scene::RenderGUI(int viewportID)
 	{
-		for (auto& obj : _objects) {
-			// Parents handle rendering for children, so ignore parented objects
-			if (obj->GetParent() == nullptr) {
+		for (int i = 0; i < 6; i++)
+		{
+			for (auto& obj : _objects) {
+				// Parents handle rendering for children, so ignore parented objects
 				obj->RenderGUI(viewportID);
 			}
 		}

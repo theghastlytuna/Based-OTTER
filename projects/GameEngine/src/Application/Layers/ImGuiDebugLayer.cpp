@@ -297,7 +297,7 @@ void ImGuiDebugLayer::_RenderGameWindow()
 
 	// Remove spacing around buttons
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-
+	/*
 	// Draw the play/stop button
 	if (ImGui::Button(buffer)) {
 		// Save scene so it can be restored when exiting play mode
@@ -316,6 +316,7 @@ void ImGuiDebugLayer::_RenderGameWindow()
 			app.LoadScene(scene);
 		}
 	}
+	*/
 
 	ImGui::SameLine();
 

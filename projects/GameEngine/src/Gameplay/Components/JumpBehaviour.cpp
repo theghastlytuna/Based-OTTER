@@ -51,9 +51,7 @@ void JumpBehaviour::OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 }
 
 nlohmann::json JumpBehaviour::ToJson() const {
-	return {
-		{ "impulse", _impulse }
-	};
+	return nlohmann::json();
 }
 
 JumpBehaviour::JumpBehaviour() :
@@ -64,9 +62,7 @@ JumpBehaviour::JumpBehaviour() :
 JumpBehaviour::~JumpBehaviour() = default;
 
 JumpBehaviour::Sptr JumpBehaviour::FromJson(const nlohmann::json& blob) {
-	JumpBehaviour::Sptr result = std::make_shared<JumpBehaviour>();
-	result->_impulse = blob["impulse"];
-	return result;
+	return JumpBehaviour::Sptr();
 }
 
 void JumpBehaviour::Update(float deltaTime) {
@@ -87,12 +83,23 @@ void JumpBehaviour::Update(float deltaTime) {
 	}
 	
 	
-	else if (InputEngine::GetKeyState(GLFW_KEY_SPACE) == ButtonState::Pressed) {
-		_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
+	else 
+	{
+		if (InputEngine::GetKeyState(GLFW_KEY_SPACE) == ButtonState::Pressed && _onGround && _jumpCooldown <= 0 && InputEngine::GetEnabled()) {
+			_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
+
+			_jumpCooldown = 0.5f;
+			_startingJump = true;
+
+			SoundManaging::Current().PlayEvent("Jump", GetGameObject());
+		}
+		
+		/*
 		Gameplay::IComponent::Sptr ptr = Panel.lock();
 		if (ptr != nullptr) {
 			ptr->IsEnabled = !ptr->IsEnabled;
 		}
+		*/
 	}
 }
 

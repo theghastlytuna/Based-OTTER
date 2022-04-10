@@ -58,6 +58,7 @@ void SimpleCameraControl::Update(float deltaTime)
 			if (InputEngine::IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
 				input.y -= _moveSpeeds.z;
 			}
+			/*
 			if (InputEngine::IsKeyDown(GLFW_KEY_SPACE)) {
 				input.y += _moveSpeeds.z;
 			}
@@ -65,6 +66,7 @@ void SimpleCameraControl::Update(float deltaTime)
 			if (InputEngine::IsKeyDown(GLFW_KEY_LEFT_SHIFT)) {
 				input *= _shiftMultipler;
 			}
+			*/
 
 			input *= deltaTime;
 

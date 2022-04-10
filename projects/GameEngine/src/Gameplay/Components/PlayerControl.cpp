@@ -13,6 +13,7 @@
 #include "Application/Application.h"
 
 #include "Application/SoundManaging.h"
+#include "Gameplay/InputEngine.h"
 
 PlayerControl::PlayerControl()
 	: IComponent(),
@@ -24,7 +25,8 @@ PlayerControl::PlayerControl()
 	_isMoving(false),
 	_isSprinting(false),
 	_spintVal(2.0f),
-	_controllerSensitivity({ 1.5f, 1.5f })
+	_controllerSensitivity({ 1.5f, 1.5f }),
+	_keyboardSensitivity({ 1.5f, 1.5f })
 { }
 
 PlayerControl::~PlayerControl() = default;
@@ -86,8 +88,6 @@ void PlayerControl::Update(float deltaTime)
 
 		/*float distance = glm::length(GetGameObject()->GetPosition() - _enemy->GetPosition());
 		std::cout << "Angle: " << angle << " Distance: " << distance << std::endl;*/
-
-
 
 		if (angle < 0.1) {
 			_controllerSensitivity *= 0.2f;
@@ -251,75 +251,141 @@ void PlayerControl::Update(float deltaTime)
 	//Else, use KBM
 	else
 	{
-		if (glfwGetMouseButton(_window, 0)) {
-			if (_isMousePressed == false) {
-				glfwGetCursorPos(_window, &_prevMousePos.x, &_prevMousePos.y);
-			}
-			_isMousePressed = true;
-		}
-		else {
-			_isMousePressed = false;
-		}
+		_keyboardSensitivity = { InputEngine::GetSensitivity(), InputEngine::GetSensitivity() };
 
-		if (_isMousePressed) {
-			glm::dvec2 currentMousePos;
-			glfwGetCursorPos(_window, &currentMousePos.x, &currentMousePos.y);
+		_isMoving = false;
+		_justThrew = false;
 
-			_currentRot.x += static_cast<float>(currentMousePos.x - _prevMousePos.x) * _mouseSensitivity.x;
-			_currentRot.y += static_cast<float>(currentMousePos.y - _prevMousePos.y) * _mouseSensitivity.y;
-			glm::quat rotX = glm::angleAxis(glm::radians(_currentRot.x), glm::vec3(0, 0, 1));
-			glm::quat rotY = glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0));
-			glm::quat currentRot = rotX * rotY;
-			GetGameObject()->SetRotation(currentRot);
+		//bool Wang = InputEngine::GetKeyState(;
+		//bool Point = _controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_Y);
+		//bool Target = _controller->GetButtonDown(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
+		bool returnaloni = InputEngine::GetKeyState(GLFW_KEY_Q) == ButtonState::Pressed;
 
-			_prevMousePos = currentMousePos;
+		bool moveLeft = InputEngine::GetKeyState(GLFW_KEY_A) == ButtonState::Down;
+		bool moveRight = InputEngine::GetKeyState(GLFW_KEY_D) == ButtonState::Down;
+		bool moveForward = InputEngine::GetKeyState(GLFW_KEY_W) == ButtonState::Down;
+		bool moveBack = InputEngine::GetKeyState(GLFW_KEY_S) == ButtonState::Down;
 
-			glm::vec3 input = glm::vec3(0.0f);
-			if (glfwGetKey(_window, GLFW_KEY_W)) {
-				input.z -= _moveSpeeds.x;
-			}
-			if (glfwGetKey(_window, GLFW_KEY_S)) {
-				input.z += _moveSpeeds.x;
-			}
-			if (glfwGetKey(_window, GLFW_KEY_A)) {
-				input.x -= _moveSpeeds.y;
-			}
-			if (glfwGetKey(_window, GLFW_KEY_D)) {
-				input.x += _moveSpeeds.y;
-			}
-			if (glfwGetKey(_window, GLFW_KEY_LEFT_CONTROL)) {
-				input.y -= _moveSpeeds.z;
-			}
-			if (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT)) {
-				input *= _shiftMultipler;
-			}
+		bool turnRight = InputEngine::GetKeyState(GLFW_KEY_RIGHT) == ButtonState::Down;
+		bool turnLeft = InputEngine::GetKeyState(GLFW_KEY_LEFT) == ButtonState::Down;
 
-			input *= deltaTime;
+		bool sprint = InputEngine::GetKeyState(GLFW_KEY_LEFT_SHIFT) == ButtonState::Down;
+		bool wangin = InputEngine::GetKeyState(GLFW_KEY_KP_0) == ButtonState::Down ||
+			InputEngine::GetKeyState(GLFW_KEY_RIGHT_CONTROL) == ButtonState::Down;
 
-			glm::vec3 worldMovement = glm::vec3((currentRot * glm::vec4(input, 1.0f)).x, (currentRot * glm::vec4(input, 1.0f)).y, 0.0f);
-
-			if (worldMovement != glm::vec3(0.0f))
-			{
-				worldMovement = 10.0f * glm::normalize(worldMovement);
-			}
-			GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
-		}
-	}
-
-	if (_isMoving)
-	{
-		SoundManaging& soundManaging = SoundManaging::Current();
-		soundTime += deltaTime;
-
-		if (soundTime >= 1.0f)
+		if (!InputEngine::GetEnabled())
 		{
-			soundManaging.PlaySound("Step");
-			soundTime = 0.0f;
+			moveLeft = false;
+			moveRight = false;
+			moveForward = false;
+			moveBack = false;
+			turnRight = false;
+			turnLeft = false;
+			sprint = false;
+			wangin = false;
+			returnaloni = false;
 		}
-	}
 
-	if (GetGameObject()->GetPosition().z < -5) {
-		GetGameObject()->SetPosition({ 2,-2,4 });
+		_isSprinting = sprint;
+
+		if (turnRight) _currentRot.x -= static_cast<float>(0.5f) * _keyboardSensitivity.x;
+		if (turnLeft) _currentRot.x += static_cast<float>(0.5f) * _keyboardSensitivity.x;
+		glm::quat rotX = glm::angleAxis(glm::radians(_currentRot.x), glm::vec3(0, 0, 1));
+		glm::quat rotY = glm::angleAxis(glm::radians(90.f), glm::vec3(1, 0, 0));
+		glm::quat currentRot = rotX * rotY;
+		GetGameObject()->SetRotation(currentRot);
+
+		glm::vec3 input = glm::vec3(0.0f);
+		if (moveForward) {
+			input.z += _moveSpeeds.x;
+		}
+		if (moveBack) {
+			input.z -= _moveSpeeds.x;
+		}
+		if (moveLeft) {
+			input.x += _moveSpeeds.y;
+		}
+		if (moveRight) {
+			input.x -= _moveSpeeds.y;
+		}
+
+		input *= deltaTime;
+
+		glm::vec3 worldMovement = glm::vec3((currentRot * glm::vec4(input, 1.0f)).x, (currentRot * glm::vec4(input, 1.0f)).y, 0.0f);
+
+		if (worldMovement != glm::vec3(0.0f))
+		{
+			worldMovement = 10.0f * glm::normalize(worldMovement);
+
+			_timeBetStep += deltaTime;
+
+			if (_isSprinting)
+			{
+				worldMovement *= _spintVal;
+				if (_timeBetStep >= 0.4)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
+
+			else
+			{
+				if (_timeBetStep >= 0.8f)
+				{
+					SoundManaging::Current().PlayEvent("footsteps");
+					_timeBetStep = 0.0f;
+				}
+			}
+		}
+
+		else _timeBetStep = 1.5f;
+		GetGameObject()->Get<Gameplay::Physics::RigidBody>()->ApplyForce(worldMovement);
+
+		if (GetGameObject()->GetPosition().z < -5) {
+			GetGameObject()->SetPosition({ 2,-2,4 });
+		}
+	
+		//Wang Throwing
+		//trigger input from controller goes from -1 to 1
+		//also makes sure that the controller is enabled since pausing sets trigger input to 0
+		if (wangin && InputEngine::GetEnabled()) { //If Trigger Pulled Down
+			if (_boomerangBehavior->getReadyToThrow()) { //If it's unthrown
+				if (_chargeAmount < 3.f) //Charge it up
+				{
+					//if the player can throw the boomerang, increase charge level as long as button is held and below charge cap (3.f)
+					_chargeAmount += 0.02;
+					//IMPORTANT: This only works because the detachedCam is the only child of the player. If anything to do with children or the detached cam changes, this might break
+					GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov - (_chargeAmount * 5));
+				}
+			}
+			else //tracking to raycasted point
+			{
+				_boomerangBehavior->returnBoomerang();
+			}
+		}
+		else if (!wangin) //Release Trigger
+		{
+			_boomerangBehavior->_triggerInput = -1;
+			if (_chargeAmount > 0.5)
+			{
+				//if the player is not holding the button, but has charged their throw above the minimum, throw the boomerang
+				_boomerangBehavior->throwWang(GetGameObject()->GetPosition(), _chargeAmount);
+				_justThrew = true;
+				_chargeAmount = 0;
+
+			}
+			else
+			{
+				//else, just reset the charge level (so players can't "prime" a throw)
+				_chargeAmount = 0;
+			}
+			GetGameObject()->GetChildren()[0]->Get<Gameplay::Camera>()->SetFovDegrees(_initialFov);
+		}
+
+		if (returnaloni) {
+			_boomerangBehavior->makeBoomerangInactive();
+		}
 	}
 }
 

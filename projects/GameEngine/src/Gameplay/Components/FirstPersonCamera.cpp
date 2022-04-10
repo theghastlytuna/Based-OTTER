@@ -11,6 +11,7 @@
 
 #include "Gameplay/Physics/RigidBody.h"
 #include "Application/Application.h"
+#include "Gameplay/InputEngine.h"
 
 FirstPersonCamera::FirstPersonCamera()
 	: IComponent(),
@@ -19,7 +20,8 @@ FirstPersonCamera::FirstPersonCamera()
 	_shiftMultipler(2.0f),
 	_currentRot(glm::vec2(0.0f, 180.0f)),
 	_isMousePressed(false),
-	_controllerSensitivity({ 1.5f, 1.5f })
+	_controllerSensitivity({ 1.5f, 1.5f }),
+	_keyboardSensitivity({ 1.5f, 1.5f })
 
 {}
 
@@ -74,29 +76,34 @@ void FirstPersonCamera::Update(float deltaTime)
 
 	//Else, use KBM
 	else {
-		if (glfwGetMouseButton(_window, 0)) {
-			if (_isMousePressed == false) {
-				glfwGetCursorPos(_window, &_prevMousePos.x, &_prevMousePos.y);
-			}
-			_isMousePressed = true;
-		}
-		else {
-			_isMousePressed = false;
+		_keyboardSensitivity = { InputEngine::GetSensitivity(), InputEngine::GetSensitivity() };
+
+		bool turnUp;
+		bool turnDown;
+
+		if (InputEngine::GetEnabled())
+		{
+			turnUp = InputEngine::GetKeyState(GLFW_KEY_UP) == ButtonState::Down;
+			turnDown = InputEngine::GetKeyState(GLFW_KEY_DOWN) == ButtonState::Down;
 		}
 
-		if (_isMousePressed) {
-			glm::dvec2 currentMousePos;
-			glfwGetCursorPos(_window, &currentMousePos.x, &currentMousePos.y);
-
-			_currentRot.x += static_cast<float>(currentMousePos.x - _prevMousePos.x) * _mouseSensitivity.x;
-			_currentRot.y += static_cast<float>(currentMousePos.y - _prevMousePos.y) * _mouseSensitivity.y;
-			glm::quat rotX = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 0, 1));
-			glm::quat rotY = glm::angleAxis(glm::radians(_currentRot.y), glm::vec3(1, 0, 0));
-			glm::quat currentRot = rotX * rotY;
-			GetGameObject()->SetRotation(currentRot);
-
-			_prevMousePos = currentMousePos;
+		else
+		{
+			turnUp = false;
+			turnDown = false;
 		}
+
+		//Since controller joysticks are physical, they often won't be perfect, meaning at a neutral state it might still have slight movement.
+		//Check to make sure that the axes aren't outputting an extremely small number, and if they are then set the input to 0.
+		if (turnUp) _currentRot.y -= static_cast<float>(0.5f) * _keyboardSensitivity.x;
+		if (turnDown) _currentRot.y += static_cast<float>(0.5f) * _keyboardSensitivity.x;
+
+		glm::quat rotX = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 0, 1));
+		glm::quat rotY = glm::angleAxis(glm::radians(-_currentRot.y), glm::vec3(1, 0, 0));
+
+		glm::quat currentRot = rotX * rotY;
+
+		GetGameObject()->SetRotation(currentRot);
 	}
 }
 

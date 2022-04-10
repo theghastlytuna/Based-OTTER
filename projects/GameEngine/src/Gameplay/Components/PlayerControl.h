@@ -60,4 +60,6 @@ protected:
 	ControllerInput::Sptr _controller;
 	glm::vec2 _controllerSensitivity;
 	glm::vec3 _raycastPosition;
+
+	glm::vec2 _keyboardSensitivity;
 };

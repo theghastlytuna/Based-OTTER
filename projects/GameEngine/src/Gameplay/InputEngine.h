@@ -38,6 +38,15 @@ public:
 
 	static void EndFrame();
 
+	static float GetSensitivity();
+	static void SetSensitivity(float inSensitivity);
+
+	static float GetMinSensitivity();
+	static float GetMaxSensitivity();
+
+	static bool GetEnabled();
+	static void SetEnabled(bool inEnabled);
+
 private:
 	static GLFWwindow*  __window;
 	static ButtonState  __keyState[GLFW_KEY_LAST + 1];
@@ -51,4 +60,9 @@ private:
 	static void __CharCallback(GLFWwindow* window, uint32_t keycode);
 	static void __MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void __MouseScrollCallback(GLFWwindow* window, double x, double y);
+
+	static float _sensitivity;
+	static float _minSensitivity;
+	static float _maxSensitivity;
+	static bool _enabled;
 };

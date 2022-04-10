@@ -338,6 +338,10 @@ namespace Gameplay {
 
 		void SetRenderFlag(int flag);
 
+		int GetRenderOrderFlag();
+
+		void SetRenderOrderFlag(int flag);
+
 	private:
 		friend class Scene;
 		friend class InspectorWindow;
@@ -384,6 +388,7 @@ namespace Gameplay {
 		void _PurgeDeletedChildren();
 
 		int _renderFlag;
+		int _renderOrderFlag;
 	};
 
 }

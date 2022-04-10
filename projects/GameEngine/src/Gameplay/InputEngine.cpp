@@ -8,6 +8,10 @@ glm::dvec2 InputEngine::__mousePos  = glm::dvec2(0.0);
 glm::dvec2 InputEngine::__prevMousePos = glm::dvec2(0.0);;
 glm::dvec2 InputEngine::__scrollDelta = glm::dvec2(0.0);
 std::wstring InputEngine::__inputText = LR"()";
+float InputEngine::_sensitivity = 3.5f;
+float InputEngine::_minSensitivity = 2.0f;
+float InputEngine::_maxSensitivity = 5.0f;
+bool InputEngine::_enabled = true;
 
 ButtonState InputEngine::__mouseState[GLFW_MOUSE_BUTTON_LAST + 1];
 ButtonState InputEngine::__keyState[GLFW_KEY_LAST + 1];
@@ -75,6 +79,36 @@ void InputEngine::EndFrame() {
 	for (int ix = 0; ix < GLFW_MOUSE_BUTTON_LAST + 1; ix++) {
 		__mouseState[ix] = (ButtonState)(*__mouseState[ix] & 0b01);
 	}
+}
+
+float InputEngine::GetSensitivity()
+{
+	return _sensitivity;
+}
+
+void InputEngine::SetSensitivity(float inSensitivity)
+{
+	_sensitivity = inSensitivity;
+}
+
+float InputEngine::GetMinSensitivity()
+{
+	return _minSensitivity;
+}
+
+float InputEngine::GetMaxSensitivity()
+{
+	return _maxSensitivity;
+}
+
+bool InputEngine::GetEnabled()
+{
+	return _enabled;
+}
+
+void InputEngine::SetEnabled(bool inEnabled)
+{
+	_enabled = inEnabled;
 }
 
 

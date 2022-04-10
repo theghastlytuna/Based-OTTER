@@ -42,7 +42,7 @@ void InterfaceLayer::OnPostRender() {
 	GuiBatcher::SetProjection(proj);
 
 	// Iterate over and render all the GUI objects
-	app.CurrentScene()->RenderGUI(1);
+	app.CurrentScene()->RenderGUI(2);
 
 	// Flush the Gui Batch renderer
 	GuiBatcher::Flush();
@@ -63,7 +63,7 @@ void InterfaceLayer::OnPostRender() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Iterate over and render all the GUI objects
-	app.CurrentScene()->RenderGUI(2);
+	app.CurrentScene()->RenderGUI(1);
 
 	// Flush the Gui Batch renderer
 	GuiBatcher::Flush();
