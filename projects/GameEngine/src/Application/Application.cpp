@@ -374,6 +374,8 @@ void Application::_Run()
 			{
 				downSelect = glfwGetKey(_window, GLFW_KEY_S);
 				upSelect = glfwGetKey(_window, GLFW_KEY_W);
+				leftSelect = glfwGetKey(_window, GLFW_KEY_A);
+				rightSelect = glfwGetKey(_window, GLFW_KEY_D);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
 				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
 				back = glfwGetKey(_window, GLFW_KEY_ESCAPE);
