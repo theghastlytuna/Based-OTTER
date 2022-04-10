@@ -33,6 +33,7 @@ namespace Gameplay {
 		_isWorldTransformDirty(true),
 		_parent(WeakRef()),
 		_children(std::vector<WeakRef>()),
+		_renderFlag(0)
 	{ }
 
 	void GameObject::_RecalcLocalTransform() const
@@ -187,20 +188,20 @@ namespace Gameplay {
 			GuiBatcher::PushModelTransform(rect->GetLocalTransform());
 
 			for (auto& component : _components) {
-				if (component->IsEnabled) {
+				if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render) 
 					component->StartGUI();
 				}
 			}
 			for (auto& component : _components) {
-				if (component->IsEnabled) {
+				if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render)  
 					component->RenderGUI();
 				}
 			}
 			for (auto& child : _children) {
-				child->RenderGUI();
+				child->RenderGUI(viewportID);
 			}
 			for (auto& component : _components) {
-				if (component->IsEnabled) {
+				if (component->IsEnabled && (_renderFlag == 0 || viewportID == _renderFlag)) {//if the viewport is 0 (default), it should always render)  
 					component->FinishGUI();
 				}
 			}
@@ -605,6 +606,16 @@ namespace Gameplay {
 
 	GameObject::WeakRef::operator GameObject::Sptr() const {
 		return Resolve();
+	}
+
+	int GameObject::GetRenderFlag()
+	{
+		return _renderFlag;
+	}
+
+	void GameObject::SetRenderFlag(int flag)
+	{
+		_renderFlag = flag;
 	}
 
 	GameObject::WeakRef::operator Guid() const {

@@ -184,7 +184,7 @@ void Menu::_CreateScene() {
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/realBG.png"));
 
-			canPanel->SetTransparency(0.0f); ///////////////Temporary
+			canPanel->SetTransparency(1.0f); ///////////////Temporary
 		}
 
 		GameObject::Sptr play = scene->CreateGameObject("Play Button");
