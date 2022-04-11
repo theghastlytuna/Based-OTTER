@@ -11,11 +11,27 @@ uniform layout(binding = 2) sampler3D s_CoolLut;
 uniform layout(binding = 3) sampler3D s_CustomLut;
 
 uniform float u_Strength;
+uniform float u_Selection;
 
 void main() {
     vec3 color = texture(s_Image, inUV).rgb;
 
-    outColor = mix(color, texture(s_WarmLut, color).rgb, clamp(u_Strength, 0, 1));
-}
+    if (u_Selection >= 2) 
+    {
+        outColor = mix(color, texture(s_CustomLut, color).rgb, clamp(u_Strength, 0, 1));
+    }
+    else if (u_Selection >= 1) 
+    {
+        outColor = mix(color, texture(s_CoolLut, color).rgb, clamp(u_Strength, 0, 1));
+    }
+    else if (u_Selection >= 0) 
+    {
+        outColor = mix(color, texture(s_WarmLut, color).rgb, clamp(u_Strength, 0, 1));
+    }
+    else if (u_Selection < 0)
+    {
+        outColor = color;
+    }
 
+}
 

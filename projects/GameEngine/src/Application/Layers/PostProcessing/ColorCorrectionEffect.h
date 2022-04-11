@@ -7,6 +7,7 @@ class ColorCorrectionEffect : public PostProcessingLayer::Effect {
 public:
 	MAKE_PTRS(ColorCorrectionEffect);
 	Texture3D::Sptr Lut1, Lut2, Lut3;
+	float _selection;
 
 	ColorCorrectionEffect();
 	ColorCorrectionEffect(bool defaultLut);
