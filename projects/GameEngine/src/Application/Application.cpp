@@ -224,6 +224,10 @@ void Application::_Run()
 	bool paused = false;
 	bool loading = false;
 	bool options = false;
+	bool exitting = false;
+	float exitTime = 0;
+	bool FirstBlood = false;
+
 	//bool started = false;
 
 	//GetLayer<DefaultSceneLayer>()->BeginLayer();
@@ -252,12 +256,30 @@ void Application::_Run()
 
 	soundManaging.LoadBank("fmod/Banks/Master.bank");
 	soundManaging.LoadBank("fmod/Banks/Sounds.bank");
+	soundManaging.LoadBank("fmod/Banks/Dialogue.bank");
 	soundManaging.LoadStringBank("fmod/Banks/Master.strings.bank");
 
+	// Dialogue
+	soundManaging.SetEvent("event:/Dialogue/ExitGame", "Exit");
+	soundManaging.SetEvent("event:/Dialogue/FirstBlood", "FirstBlood");
+	soundManaging.SetEvent("event:/Dialogue/GameBootup", "Bootup");
+	soundManaging.SetEvent("event:/Dialogue/MatchBegin", "BeginMatch");
+	soundManaging.SetEvent("event:/Dialogue/Options", "Options");
+	soundManaging.SetEvent("event:/Dialogue/Player1_LastKill", "P1_LastKill");
+	soundManaging.SetEvent("event:/Dialogue/Player1_Leading", "P1_Winning");
+	soundManaging.SetEvent("event:/Dialogue/Player1_Win", "P1_Win");
+	soundManaging.SetEvent("event:/Dialogue/Player2_LastKill", "P2_LastKill");
+	soundManaging.SetEvent("event:/Dialogue/Player2_Leading", "P2_Winning");
+	soundManaging.SetEvent("event:/Dialogue/Player2_Win", "P2_Win");
+	soundManaging.SetEvent("event:/Dialogue/PlayGame", "Play");
+	soundManaging.SetEvent("event:/Dialogue/VolumeAdjust", "VolumeAdjust");
+
+	// Sound Effects
 	soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
 	soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
 	soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
-	soundManaging.SetEvent("event:/GameSFX/Footsteps", "footsteps");
+	soundManaging.SetEvent("event:/GameSFX/WalkSand", "Walk_Sand");
+	soundManaging.SetEvent("event:/GameSFX/WalkGrass", "Walk_Grass");
 	soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
 
 	std::vector<MenuElement::Sptr> p1OptionItems;
@@ -324,6 +346,7 @@ void Application::_Run()
 		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
+			soundManaging.PlayEvent("Bootup");
 			GetLayer<Menu>()->RepositionUI();
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
@@ -404,6 +427,7 @@ void Application::_Run()
 
 			else if (options)
 			{
+
 				ControllerInput::Sptr thisController = CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>();
 				
 				if (downSelect && selectTime >= 0.3f)
@@ -470,7 +494,7 @@ void Application::_Run()
 
 							soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-							soundManaging.PlayEvent("Pop");
+							soundManaging.PlayEvent("VolumeAdjust");
 						}
 
 						barSelectTime = 0.0f;
@@ -484,7 +508,7 @@ void Application::_Run()
 
 							soundManaging.SetVolume(thisSoundInfo.currentVol);
 
-							soundManaging.PlayEvent("Pop");
+							soundManaging.PlayEvent("VolumeAdjust");
 						}
 
 						barSelectTime = 0.0f;
@@ -569,7 +593,7 @@ void Application::_Run()
 
 			else
 			{
-
+			
 				if (downSelect && selectTime >= 0.3f)
 				{
 					currentElement->ShrinkElement();
@@ -604,6 +628,7 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+					soundManaging.PlayEvent("Play");
 					loading = true;
 
 					soundManaging.PlayEvent("LoadScene");
@@ -611,6 +636,7 @@ void Application::_Run()
 
 				else if (currentElement == _currentScene->FindObjectByName("Options Button")->Get<MenuElement>() && confirm)
 				{
+					soundManaging.PlayEvent("Options");
 					options = true;
 
 					currentElement->ShrinkElement();
@@ -633,6 +659,19 @@ void Application::_Run()
 					currentItemInd = 0;
 				}
 
+				else if (exitting)
+				{
+					exitTime += dt;
+					if (exitTime >= 1.5)
+						exit(0);
+				}
+
+				else if (currentElement == _currentScene->FindObjectByName("Exit Button")->Get<MenuElement>() && confirm)
+				{
+					soundManaging.PlayEvent("Exit");
+					exitting = true;
+				}
+			
 				else selectTime += dt;
 			}
 		}
@@ -724,6 +763,8 @@ void Application::_Run()
 
 				player1->Get<ScoreCounter>()->ResetScore();
 				player2->Get<ScoreCounter>()->ResetScore();
+
+				soundManaging.PlayEvent("BeginMatch");
 			}
 
 			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
@@ -1233,6 +1274,57 @@ void Application::_Run()
 				}
 			}
 
+			///////////First player to last kill//////
+			
+			if (player1->Get<ScoreCounter>()->GetScore() == 4)
+			{
+				soundManaging.PlayEvent("P1_LastKill");
+			}
+			if (player2->Get<ScoreCounter>()->GetScore() == 4)
+			{
+				soundManaging.PlayEvent("P2_LastKill");
+			}
+
+			///////////Player gets First Blood////////
+			
+			if (FirstBlood == false)
+			{
+				if (player1->Get<ScoreCounter>()->GetScore() == 1 || player2->Get<ScoreCounter>()->GetScore() == 1)
+				{
+					soundManaging.PlayEvent("FirstBlood");
+					FirstBlood = true;
+				}
+			}
+
+			///////////Player overtakes other player//
+
+			if (player1->Get<ScoreCounter>()->GetScore() > player2->Get<ScoreCounter>()->GetScore() && player2->Get<ScoreCounter>()->GetScore() >= 1)
+			{
+				if (player1->Get<ScoreCounter>()->GetLead() == false)
+				{
+					soundManaging.PlayEvent("P1_Winning");
+					player1->Get<ScoreCounter>()->SetLead();
+					
+					if (player2->Get<ScoreCounter>()->GetLead() == true)
+					{
+						player2->Get<ScoreCounter>()->SetLead();
+					}
+				}
+			}
+			if (player2->Get<ScoreCounter>()->GetScore() > player1->Get<ScoreCounter>()->GetScore() && player1->Get<ScoreCounter>()->GetScore() >= 1)
+			{
+				if (player2->Get<ScoreCounter>()->GetLead() == false)
+				{
+					soundManaging.PlayEvent("P2_Winning");
+					player2->Get<ScoreCounter>()->SetLead();
+
+					if (player1->Get<ScoreCounter>()->GetLead() == true)
+					{
+						player1->Get<ScoreCounter>()->SetLead();
+					}
+				}
+			}
+
 			///////////Look for a winner//////////////
 
 			if (player1->Get<ScoreCounter>()->ReachedMaxScore())
@@ -1249,6 +1341,7 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+				soundManaging.PlayEvent("P1_Win");
 				soundManaging.StopSounds();
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
@@ -1268,6 +1361,7 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+				soundManaging.PlayEvent("P2_Win");
 				soundManaging.StopSounds();
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();

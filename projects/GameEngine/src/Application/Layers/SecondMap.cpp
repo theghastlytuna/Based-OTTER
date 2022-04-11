@@ -674,6 +674,8 @@ void SecondMap::_CreateScene() {
 
 			PlayerControl::Sptr controller = player1->Add<PlayerControl>();
 
+			controller->Map2 = true;
+
 			JumpBehaviour::Sptr jumping = player1->Add<JumpBehaviour>();
 
 			player1->AddChild(detachedCam);
@@ -720,6 +722,8 @@ void SecondMap::_CreateScene() {
 			physics->SetMass(1.f);
 
 			PlayerControl::Sptr controller = player2->Add<PlayerControl>();
+
+			controller->Map2 = true;
 
 			JumpBehaviour::Sptr jumping = player2->Add<JumpBehaviour>();
 

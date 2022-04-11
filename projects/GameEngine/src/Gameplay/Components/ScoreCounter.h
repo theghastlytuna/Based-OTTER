@@ -17,7 +17,8 @@ public:
 	void AddScore();
 	void ResetScore();
 	int GetScore();
-
+	bool GetLead();
+	void SetLead();
 	bool ReachedMaxScore();
 
 private:
@@ -25,5 +26,6 @@ private:
 	int score;
 	int maxScore;
 	bool winner;
+	bool lead = false;
 };
 

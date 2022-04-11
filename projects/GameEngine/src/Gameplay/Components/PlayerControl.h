@@ -22,6 +22,7 @@ public:
 	bool IsMoving();
 	bool IsSprinting();
 	bool GetJustThrew();
+	bool Map2 = false;
 
 public:
 	virtual void RenderImGui() override;

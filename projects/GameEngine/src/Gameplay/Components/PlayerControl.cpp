@@ -185,8 +185,16 @@ void PlayerControl::Update(float deltaTime)
 				worldMovement *= _spintVal;
 				if (_timeBetStep >= 0.4)
 				{
-					SoundManaging::Current().PlayEvent("footsteps", GetGameObject());
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 
@@ -194,8 +202,16 @@ void PlayerControl::Update(float deltaTime)
 			{
 				if (_timeBetStep >= 0.8f)
 				{
-					SoundManaging::Current().PlayEvent("footsteps", GetGameObject());
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 		}

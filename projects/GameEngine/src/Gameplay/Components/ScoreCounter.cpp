@@ -5,8 +5,9 @@
 ScoreCounter::ScoreCounter() :
 	IComponent(),
 	score(0),
-	maxScore(2),
+	maxScore(5), // First to 5 kills
 	winner(false)
+
 {}
 
 ScoreCounter::~ScoreCounter() = default;
@@ -46,6 +47,16 @@ void ScoreCounter::AddScore()
 int ScoreCounter::GetScore()
 {
 	return score;
+}
+
+bool ScoreCounter::GetLead()
+{
+	return lead;
+}
+
+void ScoreCounter::SetLead()
+{
+	lead = !lead;
 }
 
 bool ScoreCounter::ReachedMaxScore()
