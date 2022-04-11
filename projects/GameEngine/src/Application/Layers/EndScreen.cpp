@@ -176,7 +176,7 @@ void EndScreen::_CreateScene()
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y});
 
 			GuiPanel::Sptr panel = p1WinText->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p1Wins.png"));
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p1Win.png"));
 
 			panel->SetTransparency(0.0f);
 
@@ -190,7 +190,7 @@ void EndScreen::_CreateScene()
 			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
 			GuiPanel::Sptr panel = p2WinText->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p2Wins.png"));
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/p2Win.png"));
 
 			panel->SetTransparency(0.0f);
 

@@ -301,6 +301,10 @@ void DefaultSceneLayer::_CreateScene() {
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
+		Texture2D::Sptr	   boomerangTex2 = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang__2.png");
+		boomerangTex2->SetMinFilter(MinFilter::Unknown);
+		boomerangTex2->SetMagFilter(MagFilter::Nearest);
+
 		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTexture.png");
 		cactusTex->SetMinFilter(MinFilter::Unknown);
 		cactusTex->SetMagFilter(MagFilter::Nearest);
@@ -479,16 +483,17 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
 			boomerangMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
-		/*
-		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
+		
+		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			boomerangMaterial2->Name = "boomerangMaterial2";
-			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex);
+			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex2);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 			boomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
-		*/
+		
 
+		/*
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			displayBoomerangMaterial1->Name = "displayBoomerangMaterial1";
@@ -504,6 +509,7 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.0f);
 			displayBoomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
+		*/
 		/*
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(reflectiveShader);
@@ -657,7 +663,7 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		GameObject::Sptr light = scene->CreateGameObject("Light"); 
+		GameObject::Sptr light = scene->CreateGameObject("Lights"); 
 		{ 
 			light->SetPosition(glm::vec3(0.f, 0.f, 20.f)); 
  
@@ -845,7 +851,7 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(sandMaterial);
 
 
-			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(110.0f, 50.0f, 1.0f));
+			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(120.0f, 120.0f, 1.0f));
 			collider->SetPosition({ 0,-0.8,-1 });
 			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
@@ -854,7 +860,7 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider);
 
 			TriggerVolume::Sptr volume = centerGround->Add<TriggerVolume>();
-			volume->AddCollider(BoxCollider::Create(glm::vec3(110.0f, 110.0f, 1.0f)))->SetPosition({ 0,0,-1 })->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(120.0f, 120.0f, 1.0f)))->SetPosition({ 0,0,-1 })->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			centerGround->Add<TriggerVolumeEnterBehaviour>();
 
@@ -1448,6 +1454,93 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(grassMaterial);
 		}
 
+		GameObject::Sptr grass6 = scene->CreateGameObject("Grass 6");
+		{
+			// Set position in the scene
+			grass6->SetPosition(glm::vec3(-13, -1, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass6->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass6->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass7 = scene->CreateGameObject("Grass 7");
+		{
+			// Set position in the scene
+			grass7->SetPosition(glm::vec3(1, -7, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass7->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass7->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass8 = scene->CreateGameObject("Grass 8");
+		{
+			// Set position in the scene
+			grass8->SetPosition(glm::vec3(12, -15, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass8->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass8->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass9 = scene->CreateGameObject("Grass 9");
+		{
+			// Set position in the scene
+			grass9->SetPosition(glm::vec3(7, -25, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass9->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass9->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass10 = scene->CreateGameObject("Grass 10");
+		{
+			// Set position in the scene
+			grass10->SetPosition(glm::vec3(24, -25, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass10->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass10->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass11 = scene->CreateGameObject("Grass 11");
+		{
+			// Set position in the scene
+			grass11->SetPosition(glm::vec3(30, -16, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass11->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass11->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass12 = scene->CreateGameObject("Grass 12");
+		{
+			// Set position in the scene
+			grass12->SetPosition(glm::vec3(41, -21, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass12->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass12->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
 
 
 		GameObject::Sptr cactus = scene->CreateGameObject("Cactus");
@@ -1463,8 +1556,8 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(cactusMaterial);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			//collider->SetPosition(barrel1->GetPosition());
+			collider->SetScale(glm::vec3(0.5f, 3.34f, 0.5f));
+			collider->SetPosition(glm::vec3(0.0f, 3.45f, 0.0f));
 			RigidBody::Sptr physics = cactus->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(collider);
 
@@ -1484,7 +1577,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
 			collider->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			//collider->SetPosition(barrel1->GetPosition());
+			collider->SetPosition(glm::vec3(0, 1.26, 0));
+
 			RigidBody::Sptr physics = roundCactus->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(collider);
 
@@ -1578,7 +1672,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			movingPlat->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat->Add<RenderComponent>();
@@ -1610,9 +1704,9 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			movingPlat2->SetPosition(glm::vec3(-8.5f, -7.0f, 5.0f));
-			movingPlat2->SetRotation(glm::vec3(0.0f, 0.0f, 40.0f));
+			movingPlat2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat2->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat2->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat2->Add<RenderComponent>();
@@ -1622,7 +1716,7 @@ void DefaultSceneLayer::_CreateScene() {
 			TriggerVolume::Sptr volume = movingPlat2->Add<TriggerVolume>();
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(2.0f, 2.0f, 0.5f));
+			collider->SetScale(glm::vec3(1.5f, 1.5f, 1.0f));
 
 			RigidBody::Sptr physics = movingPlat2->Add<RigidBody>(RigidBodyType::Kinematic);
 			physics->AddCollider(collider);
@@ -1643,9 +1737,9 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			movingPlat3->SetPosition(glm::vec3(50.0f, -10.0f, 1.5f));
-			movingPlat3->SetRotation(glm::vec3(0.0f, 0.0f, -85.0f));
+			movingPlat3->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat3->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat3->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat3->Add<RenderComponent>();
@@ -1655,7 +1749,7 @@ void DefaultSceneLayer::_CreateScene() {
 			TriggerVolume::Sptr volume = movingPlat3->Add<TriggerVolume>();
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(2.0f, 2.0f, 0.5f));
+			collider->SetScale(glm::vec3(1.5f, 1.5f, 1.0f));
 
 			RigidBody::Sptr physics = movingPlat3->Add<RigidBody>(RigidBodyType::Kinematic);
 			physics->AddCollider(collider);
@@ -1718,7 +1812,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
 			renderer->SetMesh(boomerangMesh2);
-			renderer->SetMaterial(boomerangMaterial);
+			renderer->SetMaterial(boomerangMaterial2);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
 			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
@@ -1755,7 +1849,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial);
 
 			detachedCam->AddChild(displayBoomerang1);
 			displayBoomerang1->SetPosition(displacement);
@@ -1775,7 +1869,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang2->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial2);
 
 			detachedCam2->AddChild(displayBoomerang2);
 			displayBoomerang2->SetPosition(displacement);
@@ -1802,6 +1896,13 @@ void DefaultSceneLayer::_CreateScene() {
 
 			//Make sure to always activate an animation at the time of creation (usually idle)
 			animator->ActivateAnim("Idle");
+
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetScale(glm::vec3(1.3f, 2.0f, 1.3f));
+			collider->SetPosition(glm::vec3(0.f, 1.0f, 0.f));
+			RigidBody::Sptr physics = catcus->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider);
+
 		}
 
 		GameObject::Sptr torch = scene->CreateGameObject("Torch");
@@ -1825,7 +1926,96 @@ void DefaultSceneLayer::_CreateScene() {
 
 			//Make sure to always activate an animation at the time of creation (usually idle)
 			animator->ActivateAnim("Idle");
+
+			Light::Sptr lightComponent = torch->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+
 		}
+
+		GameObject::Sptr torch2 = scene->CreateGameObject("Torch 2");
+		{
+			// Set position in the scene
+			torch2->SetPosition(glm::vec3(-76.29f, -24.f, 2.09f));
+			torch2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch2->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch2->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch3 = scene->CreateGameObject("Torch 3");
+		{
+			// Set position in the scene
+			torch3->SetPosition(glm::vec3(102.f, -20.f, 2.f));
+			torch3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch3->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch3->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch3->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch3->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch4 = scene->CreateGameObject("Torch 4");
+		{
+			// Set position in the scene
+			torch4->SetPosition(glm::vec3(111.f, 21.f, 2.f));
+			torch4->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch4->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch4->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch4->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch4->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+
 
 		GameObject::Sptr healthPack = scene->CreateGameObject("Health Pack");
 		{
