@@ -43,7 +43,7 @@ void ColorCorrectionEffect::Apply(const Framebuffer::Sptr& gBuffer)
 
 void ColorCorrectionEffect::RenderImGui()
 {
-	LABEL_LEFT(ImGui::LabelText, "LUT", Lut1 ? Lut1->GetDebugName().c_str() : "none");
+	LABEL_LEFT(ImGui::LabelText, "LUT", Lut2 ? Lut2->GetDebugName().c_str() : "none");
 	LABEL_LEFT(ImGui::SliderFloat, "Strength", &_strength, 0, 1);
 }
 
@@ -52,7 +52,7 @@ ColorCorrectionEffect::Sptr ColorCorrectionEffect::FromJson(const nlohmann::json
 	ColorCorrectionEffect::Sptr result = std::make_shared<ColorCorrectionEffect>(false);
 	result->Enabled = JsonGet(data, "enabled", true);
 	result->_strength = JsonGet(data, "strength", result->_strength);
-	result->Lut1 = ResourceManager::Get<Texture3D>(Guid(data["lut"].get<std::string>()));
+	result->Lut2 = ResourceManager::Get<Texture3D>(Guid(data["lut"].get<std::string>()));
 	return result;
 }
 
@@ -60,7 +60,7 @@ nlohmann::json ColorCorrectionEffect::ToJson() const
 {
 	return {
 		{ "enabled", Enabled },
-		{ "lut", Lut1 != nullptr ? Lut1->GetGUID().str() : "null" }, 
+		{ "lut", Lut2 != nullptr ? Lut1->GetGUID().str() : "null" }, 
 		{ "strength", _strength }
 	};
 }

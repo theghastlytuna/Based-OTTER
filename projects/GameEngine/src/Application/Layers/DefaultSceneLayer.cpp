@@ -417,7 +417,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			boxMaterial->Name = "Box";
 			boxMaterial->Set("u_Material.AlbedoMap", boxTexture);
-			boxMaterial->Set("u_Material.Shininess", 0.1f);
+			boxMaterial->Set("u_Material.Shininess", 0.f);
 			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -425,7 +425,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			movingPlatMaterial->Name = "movingPlatMaterial";
 			movingPlatMaterial->Set("u_Material.AlbedoMap", rockTex);
-			movingPlatMaterial->Set("u_Material.Shininess", 0.1f);
+			movingPlatMaterial->Set("u_Material.Shininess", 0.f);
 			movingPlatMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -433,7 +433,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			torchMaterial->Name = "torchMaterial";
 			torchMaterial->Set("u_Material.AlbedoMap", torchTex);
-			torchMaterial->Set("u_Material.Shininess", 0.1f);
+			torchMaterial->Set("u_Material.Shininess", 0.f);
 			torchMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -441,7 +441,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			catcusMaterial->Name = "catcusMaterial";
 			catcusMaterial->Set("u_Material.AlbedoMap", catcusTex);
-			catcusMaterial->Set("u_Material.Shininess", 0.1f);
+			catcusMaterial->Set("u_Material.Shininess", 0.f);
 			catcusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -449,14 +449,14 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			healthPackMaterial->Name = "healthPackMaterial";
 			healthPackMaterial->Set("u_Material.AlbedoMap", healthPackTex);
-			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackMaterial->Set("u_Material.Shininess", 0.f);
 			healthPackMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
 		{
 			healthPackDepletedMaterial->Name = "healthPackDepletedMaterial";
 			healthPackDepletedMaterial->Set("u_Material.AlbedoMap", healthPackTex);
-			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.f);
 			healthPackDepletedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -464,7 +464,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			mainCharMaterial->Name = "mainCharMaterial";
 			mainCharMaterial->Set("u_Material.AlbedoMap", mainCharTex);
-			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial->Set("u_Material.Shininess", 0.f);
 			mainCharMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -472,7 +472,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			mainCharMaterial2->Name = "mainCharMaterial2";
 			mainCharMaterial2->Set("u_Material.AlbedoMap", mainCharTex);
-			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial2->Set("u_Material.Shininess", 0.f);
 			mainCharMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -560,7 +560,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			sandMaterial->Name = "sandMaterial";
 			sandMaterial->Set("u_Material.AlbedoMap", sandTexture);
-			sandMaterial->Set("u_Material.Shininess", 0.1f);
+			sandMaterial->Set("u_Material.Shininess", 0.f);
 			sandMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -569,7 +569,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockFloorMaterial->Name = "rockFloorMaterial";
 			rockFloorMaterial->Set("u_Material.AlbedoMap", rockFloorTexture);
-			rockFloorMaterial->Set("u_Material.Shininess", 0.1f);
+			rockFloorMaterial->Set("u_Material.Shininess", 0.f);
 			rockFloorMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -578,7 +578,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockPillarMaterial->Name = "rockPillarMaterial";
 			rockPillarMaterial->Set("u_Material.AlbedoMap", rockFormationTexture);
-			rockPillarMaterial->Set("u_Material.Shininess", 0.1f);
+			rockPillarMaterial->Set("u_Material.Shininess", 0.f);
 			rockPillarMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -587,7 +587,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockWallMaterial->Name = "rockWallMaterial";
 			rockWallMaterial->Set("u_Material.AlbedoMap", rockWallsTexture);
-			rockWallMaterial->Set("u_Material.Shininess", 0.1f);
+			rockWallMaterial->Set("u_Material.Shininess", 0.f);
 			rockWallMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -595,7 +595,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			bridgeMaterial->Name = "bridgeMaterial";
 			bridgeMaterial->Set("u_Material.AlbedoMap", bridgeTexture);
-			bridgeMaterial->Set("u_Material.Shininess", 0.1f);
+			bridgeMaterial->Set("u_Material.Shininess", 0.f);
 			bridgeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -611,7 +611,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			barrelMaterial->Name = "barrelMaterial";
 			barrelMaterial->Set("u_Material.AlbedoMap", barrelTex);
-			barrelMaterial->Set("u_Material.Shininess", 0.1f);
+			barrelMaterial->Set("u_Material.Shininess", 0.f);
 			barrelMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -619,7 +619,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			cactusMaterial->Name = "cactusMaterial";
 			cactusMaterial->Set("u_Material.AlbedoMap", cactusTex);
-			cactusMaterial->Set("u_Material.Shininess", 0.1f);
+			cactusMaterial->Set("u_Material.Shininess", 0.f);
 			cactusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -627,7 +627,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			grassMaterial->Name = "grassMaterial";
 			grassMaterial->Set("u_Material.AlbedoMap", grassTex);
-			grassMaterial->Set("u_Material.Shininess", 0.1f);
+			grassMaterial->Set("u_Material.Shininess", 0.f);
 			grassMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -635,7 +635,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			greyTreeMaterial->Name = "greyTreeMaterial";
 			greyTreeMaterial->Set("u_Material.AlbedoMap", greyTreeTex);
-			greyTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			greyTreeMaterial->Set("u_Material.Shininess", 0.f);
 			greyTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -643,7 +643,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			beigeTreeMaterial->Name = "beigeTreeMaterial";
 			beigeTreeMaterial->Set("u_Material.AlbedoMap", beigeTreeTex);
-			beigeTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			beigeTreeMaterial->Set("u_Material.Shininess", 0.f);
 			beigeTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -651,7 +651,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockMaterial->Name = "rockMaterial";
 			rockMaterial->Set("u_Material.AlbedoMap", rockTex);
-			rockMaterial->Set("u_Material.Shininess", 0.1f);
+			rockMaterial->Set("u_Material.Shininess", 0.f);
 			rockMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -659,7 +659,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			tumbleweedMaterial->Name = "tumbleweedMaterial";
 			tumbleweedMaterial->Set("u_Material.AlbedoMap", tumbleweedTex);
-			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
+			tumbleweedMaterial->Set("u_Material.Shininess", 0.f);
 			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -672,6 +672,26 @@ void DefaultSceneLayer::_CreateScene() {
 			lightComponent->SetRadius(500.f); 
 			lightComponent->SetIntensity(5.f); 
 		} 
+
+		GameObject::Sptr light2 = scene->CreateGameObject("Light 2");
+		{
+			light2->SetPosition(glm::vec3(50.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
+
+		GameObject::Sptr light3 = scene->CreateGameObject("Light 3");
+		{
+			light3->SetPosition(glm::vec3(-50.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light3->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -1763,6 +1783,12 @@ void DefaultSceneLayer::_CreateScene() {
 
 			movingPlat3->Get<MovingPlatform>()->SetMode(MovingPlatform::MovementMode::CATMULL);
 			movingPlat3->Get<MovingPlatform>()->SetNodes(nodes, 5.0f);
+		}
+
+		GameObject::Sptr particles = scene->CreateGameObject("Particles");
+		{
+			ParticleSystem::Sptr particleManager = particles->Add<ParticleSystem>();
+			particleManager->AddEmitter(glm::vec3(0.0f, 0.0f, 1), glm::vec3(0.0f, -1.0f, 10.0f), 1.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		}
 
 		GameObject::Sptr boomerang = scene->CreateGameObject("Boomerang 1");
