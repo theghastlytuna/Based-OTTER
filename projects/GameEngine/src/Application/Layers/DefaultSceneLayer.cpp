@@ -365,6 +365,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> healthPackIdle = LoadTargets(7, "HealthPackAnims/healthPack_idle_00");
 
+		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles.png", 2, 2);
+
 #pragma region Basic Texture Creation
 		Texture2DDescription singlePixelDescriptor;
 		singlePixelDescriptor.Width = singlePixelDescriptor.Height = 1;
@@ -1562,7 +1564,6 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(grassMaterial);
 		}
 
-
 		GameObject::Sptr cactus = scene->CreateGameObject("Cactus");
 		{
 			// Set position in the scene
@@ -1785,11 +1786,13 @@ void DefaultSceneLayer::_CreateScene() {
 			movingPlat3->Get<MovingPlatform>()->SetNodes(nodes, 5.0f);
 		}
 
+		/*
 		GameObject::Sptr particles = scene->CreateGameObject("Particles");
 		{
 			ParticleSystem::Sptr particleManager = particles->Add<ParticleSystem>();
 			particleManager->AddEmitter(glm::vec3(0.0f, 0.0f, 1), glm::vec3(0.0f, -1.0f, 10.0f), 1.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		}
+		*/
 
 		GameObject::Sptr boomerang = scene->CreateGameObject("Boomerang 1");
 		{
@@ -2568,13 +2571,62 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			screenSplitter->SetRenderFlag(5);
 			RectTransform::Sptr transform = screenSplitter->Add<RectTransform>();
-			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
-			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
 
 			GuiPanel::Sptr canPanel = screenSplitter->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/screenSplitter.png"));
 
 			canPanel->SetTransparency(1.0f);
+		}
+
+		GameObject::Sptr particles = scene->CreateGameObject("Particles");
+		{
+			particles->SetPosition({ -2.0f, 0.0f, 2.0f });
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = particles->Add<ParticleSystem>();
+			particleManager->AddFlag(1);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 2;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			emitter.Lifetime = 0.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 50.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.5f, 1.5f };
+
+			particleManager->AddEmitter(emitter);
+		}
+		
+		GameObject::Sptr particles2 = scene->CreateGameObject("Particles2");
+		{
+			particles2->SetPosition({ -5.0f, -5.0f, 2.0f });
+
+			//particles2->SetRenderFlag(2);
+
+			ParticleSystem::Sptr particleManager = particles2->Add<ParticleSystem>();
+			particleManager->AddFlag(2);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 1;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			emitter.Lifetime = 0.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 50.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.5f, 1.5f };
+
+			particleManager->AddEmitter(emitter);
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -2623,8 +2675,8 @@ void DefaultSceneLayer::RepositionUI()
 	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
 	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
 
-	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
-	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
+	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
 
 	//Grab pause menu elements
 	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");
