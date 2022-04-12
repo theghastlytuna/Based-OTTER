@@ -314,15 +314,19 @@ void PlayerControl::Update(float deltaTime)
 		glm::vec3 input = glm::vec3(0.0f);
 		if (moveForward) {
 			input.z += _moveSpeeds.x;
+			_isMoving = true;
 		}
 		if (moveBack) {
 			input.z -= _moveSpeeds.x;
+			_isMoving = true;
 		}
 		if (moveLeft) {
 			input.x += _moveSpeeds.y;
+			_isMoving = true;
 		}
 		if (moveRight) {
 			input.x -= _moveSpeeds.y;
+			_isMoving = true;
 		}
 
 		input *= deltaTime;
@@ -340,8 +344,16 @@ void PlayerControl::Update(float deltaTime)
 				worldMovement *= _spintVal;
 				if (_timeBetStep >= 0.4)
 				{
-					SoundManaging::Current().PlayEvent("footsteps");
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 
@@ -349,8 +361,16 @@ void PlayerControl::Update(float deltaTime)
 			{
 				if (_timeBetStep >= 0.8f)
 				{
-					SoundManaging::Current().PlayEvent("footsteps");
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 		}

@@ -387,6 +387,33 @@ void Application::_Run()
 			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::None);
 		}
 		
+		if (InputEngine::GetKeyState(GLFW_KEY_GRAVE_ACCENT) == ButtonState::Pressed && GetLayer<DefaultSceneLayer>()->IsActive())
+		{
+			CurrentScene()->FindObjectByName("Lights")->Get<Light>()->IsEnabled =
+				!CurrentScene()->FindObjectByName("Lights")->Get<Light>()->IsEnabled;
+
+			CurrentScene()->FindObjectByName("Light 2")->Get<Light>()->IsEnabled =
+				!CurrentScene()->FindObjectByName("Light 2")->Get<Light>()->IsEnabled;
+
+			CurrentScene()->FindObjectByName("Shadow Light")->Get<ShadowCamera>()->IsEnabled =
+				!CurrentScene()->FindObjectByName("Shadow Light")->Get<ShadowCamera>()->IsEnabled;
+		}
+
+		if (InputEngine::GetKeyState(GLFW_KEY_TAB) == ButtonState::Pressed && GetLayer<DefaultSceneLayer>()->IsActive())
+		{
+			ShadowCamera::Sptr shadowCam = CurrentScene()->FindObjectByName("Shadow Light")->Get<ShadowCamera>();
+
+			if (shadowCam->NormalBias == 0.0001f)
+			{
+				shadowCam->NormalBias = 0.0012f;
+			}
+
+			else
+			{
+				shadowCam->NormalBias = 0.0001f;
+			}
+		}
+
 
 		//Update the durations of all sounds (to be used to see if a sound has fully been played)
 		soundManaging.UpdateSounds(dt);
@@ -454,7 +481,7 @@ void Application::_Run()
 				leftSelect = glfwGetKey(_window, GLFW_KEY_LEFT);
 				rightSelect = glfwGetKey(_window, GLFW_KEY_RIGHT);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
-				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
+				//secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
 				back = glfwGetKey(_window, GLFW_KEY_ESCAPE);
 
 			}
