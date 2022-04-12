@@ -280,6 +280,14 @@ void Application::_Run()
 	//int numEvents1 = soundManaging.GetNumEvents1();
 	//int numEvents2 = soundManaging.GetNumEvents2();
 
+	GetLayer<Menu>()->BeginLayer();
+
+	LoadScene(GetLayer<Menu>()->GetScene());
+
+	GetLayer<Menu>()->SetActive(true);
+
+	GetLayer<Menu>()->GetScene()->IsPlaying = true;
+
 	////////////////////////////////////////////////////////////////////////
 
 		// Infinite loop as long as the application is running
@@ -315,6 +323,46 @@ void Application::_Run()
 		timing._timeSinceSceneLoad += scaledDt;
 		timing._unscaledTimeSinceSceneLoad += dt;
 
+
+		if (InputEngine::GetKeyState(GLFW_KEY_1) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(1);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_2) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(2);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_3) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(3);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_4) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(4);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_5) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(5);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_6) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(6);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_7) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->ToggleRenderFlag(7);
+		}
+
+		else if (InputEngine::GetKeyState(GLFW_KEY_ENTER) == ButtonState::Pressed)
+		{
+			GetLayer<RenderLayer>()->SetRenderFlags(RenderFlags::None);
+		}
 		
 
 		//Update the durations of all sounds (to be used to see if a sound has fully been played)
@@ -325,6 +373,9 @@ void Application::_Run()
 		//If we are on the first frame, then get some references to menu elements
 		if (firstFrame)
 		{
+			menuItems.clear();
+			optionItems.clear();
+
 			GetLayer<Menu>()->RepositionUI();
 			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
 			currentElement->GrowElement();
@@ -373,10 +424,10 @@ void Application::_Run()
 
 			else
 			{
-				downSelect = glfwGetKey(_window, GLFW_KEY_S);
-				upSelect = glfwGetKey(_window, GLFW_KEY_W);
-				leftSelect = glfwGetKey(_window, GLFW_KEY_A);
-				rightSelect = glfwGetKey(_window, GLFW_KEY_D);
+				downSelect = glfwGetKey(_window, GLFW_KEY_DOWN);
+				upSelect = glfwGetKey(_window, GLFW_KEY_UP);
+				leftSelect = glfwGetKey(_window, GLFW_KEY_LEFT);
+				rightSelect = glfwGetKey(_window, GLFW_KEY_RIGHT);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
 				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
 				back = glfwGetKey(_window, GLFW_KEY_ESCAPE);
@@ -645,18 +696,19 @@ void Application::_Run()
 			{
 				GetLayer<EndScreen>()->SetActive(false);
 
-				GetLayer<DefaultSceneLayer>()->BeginLayer();
+				GetLayer<Menu>()->BeginLayer();
 
-				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+				LoadScene(GetLayer<Menu>()->GetScene());
 
-				GetLayer<DefaultSceneLayer>()->SetActive(true);
+				GetLayer<Menu>()->SetActive(true);
 
-				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+				GetLayer<Menu>()->GetScene()->IsPlaying = true;
 
 				soundManaging.StopSounds();
 
 				started = true;
 				loading = false;
+				firstFrame = true;
 			}
 
 			else if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->IsValid())
@@ -664,7 +716,7 @@ void Application::_Run()
 				if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 				{
 					loading = true;
-					soundManaging.PlayEvent("LoadScene");
+					//soundManaging.PlayEvent("LoadScene");
 				}
 			}
 
@@ -673,7 +725,7 @@ void Application::_Run()
 				if (InputEngine::GetKeyState(GLFW_KEY_ENTER) == ButtonState::Pressed)
 				{
 					loading = true;
-					soundManaging.PlayEvent("LoadScene");
+					//soundManaging.PlayEvent("LoadScene");
 				}
 			}
 			
@@ -692,6 +744,9 @@ void Application::_Run()
 			if (started)
 			{
 				started = false;
+
+				p1OptionItems.clear();
+				p2OptionItems.clear();
 
 				GetLayer<DefaultSceneLayer>()->RepositionUI();
 				player1->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
@@ -727,7 +782,21 @@ void Application::_Run()
 				player2->Get<ScoreCounter>()->ResetScore();
 			}
 
-			if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+			bool pressedPause = false;
+
+			if (player1->Get<ControllerInput>()->IsValid())
+			{
+				if (player1->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START)) pressedPause = true;
+			}
+
+			if (player2->Get<ControllerInput>()->IsValid())
+			{
+				if (player2->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START)) pressedPause = true;
+			}
+
+			if (InputEngine::GetKeyState(GLFW_KEY_ENTER) == ButtonState::Pressed) pressedPause = true;
+
+			if (pressedPause)
 			{
 				if (paused)
 				{
@@ -757,7 +826,7 @@ void Application::_Run()
 					paused = true;
 
 					//CurrentScene()->FindObjectByName("PauseText")->Get<GuiPanel>()->SetTransparency(1.0f);
-					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.4f);
+					CurrentScene()->FindObjectByName("PauseBackground")->Get<GuiPanel>()->SetTransparency(0.1f);
 
 					CurrentScene()->FindObjectByName("Sensitivity Text1")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<GuiPanel>()->SetTransparency(1.0f);
@@ -789,10 +858,10 @@ void Application::_Run()
 
 				else
 				{
-					downSelect[0] = glfwGetKey(_window, GLFW_KEY_S);
-					upSelect[0] = glfwGetKey(_window, GLFW_KEY_W);
-					leftSelect[0] = glfwGetKey(_window, GLFW_KEY_A);
-					rightSelect[0] = glfwGetKey(_window, GLFW_KEY_D);
+					downSelect[0] = glfwGetKey(_window, GLFW_KEY_DOWN);
+					upSelect[0] = glfwGetKey(_window, GLFW_KEY_UP);
+					leftSelect[0] = glfwGetKey(_window, GLFW_KEY_LEFT);
+					rightSelect[0] = glfwGetKey(_window, GLFW_KEY_RIGHT);
 					confirm[0] = glfwGetKey(_window, GLFW_KEY_ENTER);
 				}
 
@@ -809,11 +878,11 @@ void Application::_Run()
 
 				else
 				{
-					downSelect[1] = glfwGetKey(_window, GLFW_KEY_S);
-					upSelect[1] = glfwGetKey(_window, GLFW_KEY_W);
+					downSelect[1] = glfwGetKey(_window, GLFW_KEY_DOWN);
+					upSelect[1] = glfwGetKey(_window, GLFW_KEY_UP);
 					confirm[1] = glfwGetKey(_window, GLFW_KEY_ENTER);
-					leftSelect[1] = glfwGetKey(_window, GLFW_KEY_A);
-					rightSelect[1] = glfwGetKey(_window, GLFW_KEY_D);
+					leftSelect[1] = glfwGetKey(_window, GLFW_KEY_LEFT);
+					rightSelect[1] = glfwGetKey(_window, GLFW_KEY_RIGHT);
 				}
 
 				//Player 1 pause menu control
@@ -900,10 +969,10 @@ void Application::_Run()
 				float currentLoc;
 
 				if (p1Control->IsValid())
-				//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
-				currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMin().x + 10,
-					CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMax().x - 10,
-					(p1Control->GetSensitivity() - p1Control->GetMinSensitivity()) / (p1Control->GetMaxSensitivity() - p1Control->GetMinSensitivity()));
+					//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
+					currentLoc = glm::lerp(CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMin().x + 10,
+						CurrentScene()->FindObjectByName("Sensitivity Bar1")->Get<RectTransform>()->GetMax().x - 10,
+						(p1Control->GetSensitivity() - p1Control->GetMinSensitivity()) / (p1Control->GetMaxSensitivity() - p1Control->GetMinSensitivity()));
 
 				else
 					//Lerp between the two ends of the volume bar, with the current volume being the lerp parameter
@@ -1045,7 +1114,7 @@ void Application::_Run()
 
 			//Find the current health of the player, divide it by the maximum health, lerp between the minimum and maximum health bar values using this as the interp. parameter
 			p1Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
-				player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()), 45 });
+				player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()), GetWindowSize().y - 5.0f });
 
 			p1Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
 				player1->Get<HealthManager>()->GetHealth() / player1->Get<HealthManager>()->GetMaxHealth()));
@@ -1057,7 +1126,7 @@ void Application::_Run()
 				player1->Get<HealthManager>()->GetDamageOpacity()));
 
 			p2Health->Get<RectTransform>()->SetMax({ glm::lerp(5.0f, 195.0f,
-				player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()), 45 });
+				player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()),  GetWindowSize().y - 5.0f });
 
 			p2Health->Get<GuiPanel>()->SetColor(glm::lerp(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
 				player2->Get<HealthManager>()->GetHealth() / player2->Get<HealthManager>()->GetMaxHealth()));

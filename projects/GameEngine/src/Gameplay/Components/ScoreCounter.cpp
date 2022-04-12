@@ -5,7 +5,7 @@
 ScoreCounter::ScoreCounter() :
 	IComponent(),
 	score(0),
-	maxScore(2),
+	maxScore(1),
 	winner(false)
 {}
 

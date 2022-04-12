@@ -664,7 +664,8 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Set("u_Material.Shininess", 0.f);
 			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
-
+		
+		
 		GameObject::Sptr light = scene->CreateGameObject("Lights"); 
 		{ 
 			light->SetPosition(glm::vec3(0.f, 0.f, 20.f)); 
@@ -694,6 +695,18 @@ void DefaultSceneLayer::_CreateScene() {
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
+		/*
+		GameObject::Sptr shadowCaster = scene->CreateGameObject("Shadow Light");
+		{
+			// Set position in the scene
+			shadowCaster->SetPosition(glm::vec3(3.0f, 3.0f, 5.0f));
+			shadowCaster->LookAt(glm::vec3(0.0f));
+
+			// Create and attach a renderer for the monkey
+			ShadowCamera::Sptr shadowCam = shadowCaster->Add<ShadowCamera>();
+			shadowCam->SetProjection(glm::perspective(glm::radians(120.0f), 1.0f, 0.1f, 100.0f));
+		}
+		*/
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -2082,8 +2095,8 @@ void DefaultSceneLayer::_CreateScene() {
 			healthbar1->SetRenderFlag(1);
 
 			RectTransform::Sptr transform = healthbar1->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ 200, 50 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 50 });
+			transform->SetMax({ 200, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = healthbar1->Add<GuiPanel>();
 			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
@@ -2092,8 +2105,8 @@ void DefaultSceneLayer::_CreateScene() {
 			{
 				subPanel1->SetRenderFlag(1);
 				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
-				transform->SetMin({ 5, 5 });
-				transform->SetMax({ 195, 45 });
+				transform->SetMin({ 5, app.GetWindowSize().y - 45 });
+				transform->SetMax({ 195, app.GetWindowSize().y - 5 });
 
 				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
 				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -2107,8 +2120,8 @@ void DefaultSceneLayer::_CreateScene() {
 			healthbar2->SetRenderFlag(2);
 
 			RectTransform::Sptr transform = healthbar2->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ 200, 50 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 50 });
+			transform->SetMax({ 200, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = healthbar2->Add<GuiPanel>();
 			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
@@ -2117,8 +2130,8 @@ void DefaultSceneLayer::_CreateScene() {
 			{
 				subPanel2->SetRenderFlag(2);
 				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
-				transform->SetMin({ 5, 5 });
-				transform->SetMax({ 195, 45 });
+				transform->SetMin({ 5, app.GetWindowSize().y - 45 });
+				transform->SetMax({ 195, app.GetWindowSize().y - 5 });
 
 				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
 				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -2514,7 +2527,7 @@ void DefaultSceneLayer::_CreateScene() {
 			//sensSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensSelector1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -2562,7 +2575,7 @@ void DefaultSceneLayer::_CreateScene() {
 			//sensSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensSelector2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -2665,18 +2678,32 @@ void DefaultSceneLayer::RepositionUI()
 
 	Gameplay::GameObject::Sptr screenSplitter = app.CurrentScene()->FindObjectByName("Screen Splitter");
 
+	Gameplay::GameObject::Sptr healthBack1 = app.CurrentScene()->FindObjectByName("HealthBackPanel1");
+	Gameplay::GameObject::Sptr healthBack2 = app.CurrentScene()->FindObjectByName("HealthBackPanel2");
+
+	Gameplay::GameObject::Sptr healthBar1 = app.CurrentScene()->FindObjectByName("Player1Health");
+	Gameplay::GameObject::Sptr healthBar2 = app.CurrentScene()->FindObjectByName("Player2Health");
+
 	//Reposition the elements
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
-	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
-	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
-	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
-	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 240 });
+	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y - 45 });
+	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 240 });
+	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y - 45 });
 
-	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
-	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
+	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
+	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+
+	healthBack1->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 50 });
+	healthBack1->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	healthBack2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 50 });
+	healthBack2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+
+	healthBar1->Get<RectTransform>()->SetMin({ 5, app.GetWindowSize().y - 45 });
+	healthBar2->Get<RectTransform>()->SetMin({ 5, app.GetWindowSize().y - 45 });
 
 	//Grab pause menu elements
 	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");
@@ -2697,11 +2724,11 @@ void DefaultSceneLayer::RepositionUI()
 	//Reposition the score UI elements
 	for (int i = 0; i < 10; i++)
 	{
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({30, app.GetWindowSize().y - 130 });
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({160, app.GetWindowSize().y });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({30, app.GetWindowSize().y - 175 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({160, app.GetWindowSize().y - 45 });
 
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 175 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y - 45 });
 
 		//keeping this jus in case
 		/*

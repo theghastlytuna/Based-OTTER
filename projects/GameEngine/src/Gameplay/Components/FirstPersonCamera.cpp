@@ -66,6 +66,8 @@ void FirstPersonCamera::Update(float deltaTime)
 		if (rightX > 0.2 || rightX < -0.2) _currentRot.x += static_cast<float>(rightX) * _controllerSensitivity.x;
 		if (rightY > 0.2 || rightY < -0.2) _currentRot.y += static_cast<float>(rightY) * _controllerSensitivity.y;
 
+		_currentRot.y = std::clamp(_currentRot.y, 90.0f, 270.0f);
+
 		glm::quat rotX = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 0, 1));
 		glm::quat rotY = glm::angleAxis(glm::radians(-_currentRot.y), glm::vec3(1, 0, 0));
 
@@ -98,8 +100,11 @@ void FirstPersonCamera::Update(float deltaTime)
 		if (turnUp) _currentRot.y -= static_cast<float>(0.5f) * _keyboardSensitivity.x;
 		if (turnDown) _currentRot.y += static_cast<float>(0.5f) * _keyboardSensitivity.x;
 
+		_currentRot.y = std::clamp(_currentRot.y, 90.0f, 270.0f);
+
 		glm::quat rotX = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 0, 1));
 		glm::quat rotY = glm::angleAxis(glm::radians(-_currentRot.y), glm::vec3(1, 0, 0));
+
 
 		glm::quat currentRot = rotX * rotY;
 

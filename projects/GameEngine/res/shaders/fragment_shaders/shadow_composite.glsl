@@ -4,6 +4,8 @@ layout(location = 0) in vec2 inUV;
 layout(location = 0) out vec4 outDiffuse;
 layout(location = 1) out vec4 outSpecular;
 
+uniform int u_ViewportID;
+
 // Note the use of sampler2DShadow here! This lets us perform
 // linear sampling on a depth buffer (more or less)
 layout (binding = 5) uniform sampler2DShadow s_ShadowDepth;
@@ -165,7 +167,19 @@ float PCF(vec3 fragPos, float bias) {
 
 void main() {
     // Normal of sample in view space
-    vec3 normal = GetNormal(inUV);
+    //vec3 normal = GetNormal(inUV);
+
+    vec2 uv = inUV;
+
+    if (u_ViewportID == 0){
+        uv.y /= 2;
+    }
+    else {
+        uv.y /= 2;
+        uv.y += 0.5;
+    }
+
+    vec3 normal = GetNormal(uv);
     
     // Ignore things we can't calculate light for
     if (length(normal) < 0.1) {
@@ -176,10 +190,10 @@ void main() {
     normal = normalize(normal);
 
     // Get values from the g-buffer
-    vec3 albedo = GetAlbedo(inUV);
+    vec3 albedo = GetAlbedo(uv);
 
     // Get viewspace from depth re-construction method (just to show how it works!)
-    vec3 viewPos = GetViewPos(inUV).xyz;
+    vec3 viewPos = GetViewPos(uv).xyz;
 
     // Determine the position in light clip space
 	vec4 shadowPos = u_ViewToShadow * vec4(viewPos, 1.0);  
@@ -223,7 +237,7 @@ void main() {
         }
 
         // We'll also grab specular power from the G-Buffer
-        float specularPow = texture(s_AlbedoSpec, inUV).a;
+        float specularPow = texture(s_AlbedoSpec, uv).a;
 
         // Use the structure to calculate a directional light's contribution
         CalcDirectionalLightContribution(viewPos, normal, l, specularPow, diffuse, specular);

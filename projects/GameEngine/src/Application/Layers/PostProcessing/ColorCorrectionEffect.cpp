@@ -27,13 +27,14 @@ ColorCorrectionEffect::ColorCorrectionEffect(bool defaultLut) :
 	Lut1 = ResourceManager::CreateAsset<Texture3D>("luts/Desert.cube");
 	Lut2 = ResourceManager::CreateAsset<Texture3D>("luts/Coolish.cube");
 	Lut3 = ResourceManager::CreateAsset<Texture3D>("luts/shrooms.cube");
+
+	Enabled = false;
 }
 
 ColorCorrectionEffect::~ColorCorrectionEffect() = default;
 
 void ColorCorrectionEffect::Apply(const Framebuffer::Sptr& gBuffer)
 {
-
 	_shader->Bind();
 	Lut1->Bind(1);
 	Lut2->Bind(2);

@@ -21,6 +21,8 @@ PixelizationEffect::PixelizationEffect() :
 		{ ShaderPartType::Vertex, "shaders/vertex_shaders/fullscreen_quad.glsl" },
 		{ ShaderPartType::Fragment, "shaders/fragment_shaders/post_effects/pixelization.glsl" }
 	});
+
+	Enabled = false;
 }
 
 PixelizationEffect::~PixelizationEffect() = default;
