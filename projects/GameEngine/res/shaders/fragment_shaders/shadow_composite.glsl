@@ -193,7 +193,7 @@ void main() {
     vec3 albedo = GetAlbedo(uv);
 
     // Get viewspace from depth re-construction method (just to show how it works!)
-    vec3 viewPos = GetViewPos(uv).xyz;
+    vec3 viewPos = GetViewPosition(uv);
 
     // Determine the position in light clip space
 	vec4 shadowPos = u_ViewToShadow * vec4(viewPos, 1.0);  
