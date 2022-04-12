@@ -87,7 +87,7 @@ Menu::Menu() :
 Menu::~Menu() = default;
 
 void Menu::OnAppLoad(const nlohmann::json & config) {
-	_CreateScene();
+	//_CreateScene();
 }
 
 void Menu::BeginLayer()
@@ -184,7 +184,7 @@ void Menu::_CreateScene() {
 			GuiPanel::Sptr canPanel = menuBG->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/realBG.png"));
 
-			canPanel->SetTransparency(1.0f); ///////////////Temporary
+			canPanel->SetTransparency(0.1f); ///////////////Temporary
 		}
 
 		GameObject::Sptr playDesert = scene->CreateGameObject("Play Desert");
@@ -316,7 +316,7 @@ void Menu::_CreateScene() {
 			//volumeSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = volumeSelector->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -364,7 +364,7 @@ void Menu::_CreateScene() {
 			//sensSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensSelector->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -379,11 +379,11 @@ void Menu::_CreateScene() {
 		// Save the scene to a JSON file
 		//scene->Save("scene.json");
 
-		_scene = scene;
-
+		_scene.push_back(scene);
+		currentSceneNum++;
 		// Send the scene to the application
-		app.LoadScene(scene);
-		_active = true;
+		//app.LoadScene(scene);
+		//_active = true;
 	}
 }
 
@@ -399,7 +399,7 @@ bool Menu::IsActive()
 
 Gameplay::Scene::Sptr Menu::GetScene()
 {
-	return _scene;
+	return _scene[currentSceneNum];
 }
 
 void Menu::RepositionUI()

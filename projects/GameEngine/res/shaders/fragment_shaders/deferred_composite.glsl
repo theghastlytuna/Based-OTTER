@@ -22,10 +22,24 @@ void main() {
     vec3 normal = texture(s_NormalsMetallic, inUV).rgb;
 
     if (distance(normal, vec3(0.5)) < 0.1){
-         outColor = vec4(albedo, 1.0);
+         
+         if (!IsFlagSet(FLAG_DISABLE_TEXTURES)) outColor = vec4(albedo, 1.0);
+
+         else outColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 
     else{
-	    outColor = vec4(albedo * (diffuse + specular + (emissive.rgb * emissive.a)), 1.0);
+
+        if (IsFlagSet(FLAG_DISABLE_LIGHTING))
+        {
+            outColor = vec4(albedo, 1.0);
+        }
+
+        else if (IsFlagSet(FLAG_DISABLE_TEXTURES))
+        {
+            outColor = vec4(diffuse + specular + (emissive.rgb * emissive.a), 1.0);
+        }
+
+	    else outColor = vec4(albedo * (diffuse + specular + (emissive.rgb * emissive.a)), 1.0);
     }
 }

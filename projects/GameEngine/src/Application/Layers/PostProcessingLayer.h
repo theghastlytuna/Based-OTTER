@@ -3,6 +3,7 @@
 #include "Application/ApplicationLayer.h"
 #include "Utils/Macros.h"
 #include "Graphics/VertexArrayObject.h"
+#include "Application/Layers/RenderLayer.h"
 
 /**
  * The post processing layer will handle rendering effects after the primary
@@ -112,4 +113,5 @@ protected:
 
 	std::vector<Effect::Sptr> _effects;
 	VertexArrayObject::Sptr _quadVAO;
+
 };

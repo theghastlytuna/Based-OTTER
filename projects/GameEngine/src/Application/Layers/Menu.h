@@ -29,7 +29,8 @@ public:
 
 protected:
 
-	Gameplay::Scene::Sptr _scene;
+	std::vector<Gameplay::Scene::Sptr> _scene;
+	int currentSceneNum = -1;
 
 	bool _active = true;
 

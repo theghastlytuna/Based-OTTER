@@ -352,7 +352,7 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 		// Bind the shadow camera's depth buffer and clear it
 		shadowCam->GetDepthBuffer()->Bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
+		//glViewport(0, 0, shadowCam->GetBufferResolution().x, shadowCam->GetBufferResolution().y);
 
 		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), 1);
 
@@ -360,10 +360,17 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 		});
 
 	// Restore frame level uniforms
-	_InitFrameUniforms();
+	//_InitFrameUniforms();
+
+	auto& frameData2 = _frameUniforms->GetData();
+	frameData2.u_Projection = cam->GetProjection();
+	frameData2.u_View = view;
+	frameData2.u_ViewProjection = cam->GetViewProjection();
+	frameData2.u_CameraPos = view * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_frameUniforms->Update();
 
 	_lightingFBO->Bind();
-	glViewport(0, 0, _lightingFBO->GetWidth(), _lightingFBO->GetHeight());
+	//glViewport(0, 0, _lightingFBO->GetWidth(), _lightingFBO->GetHeight());
 
 	// Bind our G-Buffer textures so that they're readable
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
@@ -393,6 +400,8 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 			shadowCam->GetProjectionMask()->Bind(6);
 		}
 
+		_shadowShader->SetUniform("u_ViewportID", ID);
+
 		//_shadowShader->SetUniformMatrix("u_ClipToShadow", clipToShadow); 
 		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow);
 
@@ -411,7 +420,7 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 
 		// Draw the fullscreen quad to accumulate the lights
 		_fullscreenQuad->Draw();
-		});
+	});
 }
 
 void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize)
@@ -551,6 +560,10 @@ void RenderLayer::SetRenderFlags(RenderFlags value) {
 
 RenderFlags RenderLayer::GetRenderFlags() const {
 	return _renderFlags;
+}
+
+void RenderLayer::ToggleRenderFlag(int bitInfo) {
+	_renderFlags = (_renderFlags ^ (1 << (bitInfo)));
 }
 
 const Framebuffer::Sptr& RenderLayer::GetLightingBuffer() const {

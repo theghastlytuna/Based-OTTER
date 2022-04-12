@@ -28,7 +28,8 @@ ColorCorrectionEffect::ColorCorrectionEffect(bool defaultLut) :
 	Lut1 = ResourceManager::CreateAsset<Texture3D>("luts/Desert.CUBE");
 	Lut2 = ResourceManager::CreateAsset<Texture3D>("luts/Coolish.CUBE");
 	Lut3 = ResourceManager::CreateAsset<Texture3D>("luts/shrooms.cube");
-	
+
+	Enabled = false;
 }
 
 ColorCorrectionEffect::~ColorCorrectionEffect() = default;

@@ -12,15 +12,10 @@ ENUM_FLAGS(RenderFlags, uint32_t,
 	None = 0,
 	EnableColorCorrection = 1 << 0,
 	DisableAllLights = 1 << 1,
-	EnableAmbient = 1 << 2,
-	EnableSpecular = 1 << 3,
-	EnableAmbSpec = 1 << 4,
-	EnableCustomShader = 1 << 5,
-	EnableDiffuseWarp = 1 << 6,
-	EnableSpecWarp = 1 << 7,
-	EnableWarm = 1 << 8,
-	EnableCool = 1 << 9,
-	EnableCustom = 1 << 10
+	DisableTextures = 1 << 2,
+	EnableWarm = 1 << 3,
+	EnableCool = 1 << 4,
+	EnableCustom = 1 << 5
 );
 
 class RenderLayer final : public ApplicationLayer {
@@ -105,6 +100,8 @@ public:
 
 	void SetRenderFlags(RenderFlags value);
 	RenderFlags GetRenderFlags() const;
+
+	void ToggleRenderFlag(int bitInfo);
 
 	const Framebuffer::Sptr& GetLightingBuffer() const;
 	const Framebuffer::Sptr& GetRenderOutput() const;

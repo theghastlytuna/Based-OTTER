@@ -17,6 +17,8 @@ NightVision::NightVision() :
 	});
 
 	_noise = ResourceManager::CreateAsset<Texture2D>("textures/noise_texture_0001.png");
+
+	Enabled = false;
 }
 
 NightVision::~NightVision() = default;
