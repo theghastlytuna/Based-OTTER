@@ -187,18 +187,32 @@ void Menu::_CreateScene() {
 			canPanel->SetTransparency(1.0f); ///////////////Temporary
 		}
 
-		GameObject::Sptr play = scene->CreateGameObject("Play Button");
+		GameObject::Sptr playDesert = scene->CreateGameObject("Play Desert");
 		{
-			play->SetRenderFlag(5);
+			playDesert->SetRenderFlag(5);
 
-			RectTransform::Sptr transform = play->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x  - 200, app.GetWindowSize().y /2 });
-			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y /2 - 100 });
+			RectTransform::Sptr transform = playDesert->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x  - 400, app.GetWindowSize().y /2 + 100 });
+			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y /2 });
 
-			play->Add<MenuElement>();
+			playDesert->Add<MenuElement>();
 
-			GuiPanel::Sptr panel = play->Add<GuiPanel>();
-			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/Play Game.png"));
+			GuiPanel::Sptr panel = playDesert->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/play_desert.png"));
+		}
+
+		GameObject::Sptr playJungle = scene->CreateGameObject("Play Jungle");
+		{
+			playJungle->SetRenderFlag(5);
+
+			RectTransform::Sptr transform = playJungle->Add<RectTransform>();
+			transform->SetMin({ app.GetWindowSize().x - 400, app.GetWindowSize().y / 2 });
+			transform->SetMax({ app.GetWindowSize().x + 200, app.GetWindowSize().y / 2 - 100 });
+
+			playJungle->Add<MenuElement>();
+
+			GuiPanel::Sptr panel = playJungle->Add<GuiPanel>();
+			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/play_jungle.png"));
 		}
 
 		GameObject::Sptr options = scene->CreateGameObject("Options Button");
@@ -395,7 +409,8 @@ void Menu::RepositionUI()
 	////////Main menu elements
 	Gameplay::GameObject::Sptr menuBG = app.CurrentScene()->FindObjectByName("Menu BG");
 	Gameplay::GameObject::Sptr logo = app.CurrentScene()->FindObjectByName("Logo");
-	Gameplay::GameObject::Sptr playBut = app.CurrentScene()->FindObjectByName("Play Button");
+	Gameplay::GameObject::Sptr playDesert = app.CurrentScene()->FindObjectByName("Play Desert");
+	Gameplay::GameObject::Sptr playJungle = app.CurrentScene()->FindObjectByName("Play Jungle");
 	Gameplay::GameObject::Sptr optionsBut = app.CurrentScene()->FindObjectByName("Options Button");
 	Gameplay::GameObject::Sptr exitBut = app.CurrentScene()->FindObjectByName("Exit Button");
 
@@ -412,16 +427,20 @@ void Menu::RepositionUI()
 	menuBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	menuBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
 
-	playBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 100, app.GetWindowSize().y / 2 + 100 });
-	playBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 300, app.GetWindowSize().y / 2 });
-	if (playBut->Get<MenuElement>()->IsSelected()) playBut->Get<MenuElement>()->GrowElement();
+	playDesert->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 100, app.GetWindowSize().y / 2 + 100 });
+	playDesert->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 300, app.GetWindowSize().y / 2 });
+	if (playDesert->Get<MenuElement>()->IsSelected()) playDesert->Get<MenuElement>()->GrowElement();
 
-	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 });
-	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 350, app.GetWindowSize().y / 2 + 100 });
+	playJungle->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 100, app.GetWindowSize().y / 2 });
+	playJungle->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 300, app.GetWindowSize().y / 2 + 100});
+	if (playJungle->Get<MenuElement>()->IsSelected()) playJungle->Get<MenuElement>()->GrowElement();
+
+	optionsBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 + 100});
+	optionsBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 350, app.GetWindowSize().y / 2 + 200 });
 	if (optionsBut->Get<MenuElement>()->IsSelected()) optionsBut->Get<MenuElement>()->GrowElement();
 
-	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 2 + 100 });
-	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 400, app.GetWindowSize().y / 2 + 200 });
+	exitBut->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2, app.GetWindowSize().y / 2 + 200 });
+	exitBut->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 400, app.GetWindowSize().y / 2 + 300 });
 	if (exitBut->Get<MenuElement>()->IsSelected()) exitBut->Get<MenuElement>()->GrowElement();
 	logo->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 6, 0});
 	logo->Get<RectTransform>()->SetMax({ app.GetWindowSize().x - (app.GetWindowSize().x / 6), app.GetWindowSize().y / 3 });

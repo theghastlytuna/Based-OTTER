@@ -224,6 +224,7 @@ void Application::_Run()
 	bool started = false;
 	bool paused = false;
 	bool loading = false;
+	bool desert = true;
 	bool options = false;
 	bool exitting = false;
 	float exitTime = 0;
@@ -349,10 +350,11 @@ void Application::_Run()
 		{
 			soundManaging.PlayEvent("Bootup");
 			GetLayer<Menu>()->RepositionUI();
-			currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
+			currentElement = _currentScene->FindObjectByName("Play Desert")->Get<MenuElement>();
 			currentElement->GrowElement();
 
-			menuItems.push_back(_currentScene->FindObjectByName("Play Button")->Get<MenuElement>());
+			menuItems.push_back(_currentScene->FindObjectByName("Play Desert")->Get<MenuElement>());
+			menuItems.push_back(_currentScene->FindObjectByName("Play Jungle")->Get<MenuElement>());
 			menuItems.push_back(_currentScene->FindObjectByName("Options Button")->Get<MenuElement>());
 			menuItems.push_back(_currentScene->FindObjectByName("Exit Button")->Get<MenuElement>());
 
@@ -389,7 +391,7 @@ void Application::_Run()
 				leftSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
 				rightSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
 				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
-				secondMapSelect = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
+				//secondMapSelect = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
 				back = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
 
 			}
@@ -412,14 +414,28 @@ void Application::_Run()
 				GetLayer<Menu>()->SetActive(false);
 				GetLayer<EndScreen>()->SetActive(false);
 
-				GetLayer<DefaultSceneLayer>()->BeginLayer();
+				if (desert)
+				{
+					GetLayer<DefaultSceneLayer>()->BeginLayer();
 
-				LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
+					LoadScene(GetLayer<DefaultSceneLayer>()->GetScene());
 
-				GetLayer<DefaultSceneLayer>()->SetActive(true);
+					GetLayer<DefaultSceneLayer>()->SetActive(true);
 
-				GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
-
+					GetLayer<DefaultSceneLayer>()->GetScene()->IsPlaying = true;
+				}
+				else
+				{
+					GetLayer<Menu>()->SetActive(false);
+					//Begin the second map (create the scene)
+					GetLayer<SecondMap>()->BeginLayer();
+					//Load the scene
+					LoadScene(GetLayer<SecondMap>()->GetScene());
+					//Set the current layer to active
+					GetLayer<SecondMap>()->SetActive(true);
+					//Start playing
+					GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
+				}
 				soundManaging.StopSounds();
 
 				started = true;
@@ -461,7 +477,8 @@ void Application::_Run()
 				{
 					currentElement->ShrinkElement();
 
-					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(1.0f);
+					CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(1.0f);
 					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(1.0f);
@@ -474,7 +491,7 @@ void Application::_Run()
 					CurrentScene()->FindObjectByName("Sensitivity Bar")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<GuiPanel>()->SetTransparency(0.0f);
 
-					currentElement = _currentScene->FindObjectByName("Play Button")->Get<MenuElement>();
+					currentElement = _currentScene->FindObjectByName("Play Desert")->Get<MenuElement>();
 					currentElement->GrowElement();
 					currentItemInd = 0;
 
@@ -572,26 +589,33 @@ void Application::_Run()
 				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
 			}
 
-			
+			/*
 			else if (secondMapSelect)
 			{
-				GetLayer<Menu>()->SetActive(false);
 
+				CurrentScene()->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+				CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				soundManaging.PlayEvent("Play");
+				soundManaging.PlayEvent("LoadScene");
+
+				GetLayer<Menu>()->SetActive(false);
 				//Begin the second map (create the scene)
 				GetLayer<SecondMap>()->BeginLayer();
-
 				//Load the scene
 				LoadScene(GetLayer<SecondMap>()->GetScene());
-
 				//Set the current layer to active
 				GetLayer<SecondMap>()->SetActive(true);
-
 				//Start playing
 				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
-
 			}
+			*/
 			
-
 			else
 			{
 			
@@ -619,11 +643,12 @@ void Application::_Run()
 					selectTime = 0.0f;
 				}
 
-				else if (currentElement == _currentScene->FindObjectByName("Play Button")->Get<MenuElement>() && confirm)
+				else if (currentElement == _currentScene->FindObjectByName("Play Desert")->Get<MenuElement>() && confirm)
 				{
 
 					CurrentScene()->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
-					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
@@ -631,7 +656,24 @@ void Application::_Run()
 
 					soundManaging.PlayEvent("Play");
 					loading = true;
+					desert = true;
+					soundManaging.PlayEvent("LoadScene");
+				}
 
+				else if (currentElement == _currentScene->FindObjectByName("Play Jungle")->Get<MenuElement>() && confirm)
+				{
+
+					CurrentScene()->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+					soundManaging.PlayEvent("Play");
+					loading = true;
+					desert = false;
 					soundManaging.PlayEvent("LoadScene");
 				}
 
@@ -642,7 +684,8 @@ void Application::_Run()
 
 					currentElement->ShrinkElement();
 
-					CurrentScene()->FindObjectByName("Play Button")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(0.0f);
+					CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
 					CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
@@ -731,8 +774,7 @@ void Application::_Run()
 			if (started)
 			{
 				started = false;
-
-				GetLayer<DefaultSceneLayer>()->RepositionUI();
+				//GetLayer<DefaultSceneLayer>()->RepositionUI();
 				player1->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
 				player2->Get<ControllerInput>()->SetSensitivity(currentSensitivity);
 
