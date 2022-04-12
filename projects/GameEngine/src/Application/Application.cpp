@@ -176,10 +176,6 @@ void Application::_Run()
 {
 	// TODO: Register layers
 	_layers.push_back(std::make_shared<GLAppLayer>());
-	_layers.push_back(std::make_shared<Menu>());
-	_layers.push_back(std::make_shared<DefaultSceneLayer>());
-	_layers.push_back(std::make_shared<SecondMap>());
-	_layers.push_back(std::make_shared<EndScreen>());
 	_layers.push_back(std::make_shared<LogicUpdateLayer>());
 	_layers.push_back(std::make_shared<RenderLayer>());
 	_layers.push_back(std::make_shared<ParticleLayer>());
@@ -190,6 +186,11 @@ void Application::_Run()
 	if (_isEditor) {
 		_layers.push_back(std::make_shared<ImGuiDebugLayer>());
 	}
+
+	_layers.push_back(std::make_shared<Menu>());
+	_layers.push_back(std::make_shared<DefaultSceneLayer>());
+	_layers.push_back(std::make_shared<SecondMap>());
+	_layers.push_back(std::make_shared<EndScreen>());
 
 	// Either load the settings, or use the defaults
 	_ConfigureSettings();

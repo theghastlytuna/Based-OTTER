@@ -301,6 +301,10 @@ void DefaultSceneLayer::_CreateScene() {
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
 
+		Texture2D::Sptr	   boomerangTex2 = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang__2.png");
+		boomerangTex2->SetMinFilter(MinFilter::Unknown);
+		boomerangTex2->SetMagFilter(MagFilter::Nearest);
+
 		Texture2D::Sptr    cactusTex = ResourceManager::CreateAsset<Texture2D>("textures/cactusTexture.png");
 		cactusTex->SetMinFilter(MinFilter::Unknown);
 		cactusTex->SetMagFilter(MagFilter::Nearest);
@@ -361,6 +365,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> healthPackIdle = LoadTargets(7, "HealthPackAnims/healthPack_idle_00");
 
+		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles.png", 2, 2);
+
 #pragma region Basic Texture Creation
 		Texture2DDescription singlePixelDescriptor;
 		singlePixelDescriptor.Width = singlePixelDescriptor.Height = 1;
@@ -413,7 +419,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			boxMaterial->Name = "Box";
 			boxMaterial->Set("u_Material.AlbedoMap", boxTexture);
-			boxMaterial->Set("u_Material.Shininess", 0.1f);
+			boxMaterial->Set("u_Material.Shininess", 0.f);
 			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -421,7 +427,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			movingPlatMaterial->Name = "movingPlatMaterial";
 			movingPlatMaterial->Set("u_Material.AlbedoMap", rockTex);
-			movingPlatMaterial->Set("u_Material.Shininess", 0.1f);
+			movingPlatMaterial->Set("u_Material.Shininess", 0.f);
 			movingPlatMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -429,7 +435,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			torchMaterial->Name = "torchMaterial";
 			torchMaterial->Set("u_Material.AlbedoMap", torchTex);
-			torchMaterial->Set("u_Material.Shininess", 0.1f);
+			torchMaterial->Set("u_Material.Shininess", 0.f);
 			torchMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -437,7 +443,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			catcusMaterial->Name = "catcusMaterial";
 			catcusMaterial->Set("u_Material.AlbedoMap", catcusTex);
-			catcusMaterial->Set("u_Material.Shininess", 0.1f);
+			catcusMaterial->Set("u_Material.Shininess", 0.f);
 			catcusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -445,14 +451,14 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			healthPackMaterial->Name = "healthPackMaterial";
 			healthPackMaterial->Set("u_Material.AlbedoMap", healthPackTex);
-			healthPackMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackMaterial->Set("u_Material.Shininess", 0.f);
 			healthPackMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
 		{
 			healthPackDepletedMaterial->Name = "healthPackDepletedMaterial";
 			healthPackDepletedMaterial->Set("u_Material.AlbedoMap", healthPackTex);
-			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.1f);
+			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.f);
 			healthPackDepletedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -460,7 +466,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			mainCharMaterial->Name = "mainCharMaterial";
 			mainCharMaterial->Set("u_Material.AlbedoMap", mainCharTex);
-			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial->Set("u_Material.Shininess", 0.f);
 			mainCharMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -468,7 +474,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			mainCharMaterial2->Name = "mainCharMaterial2";
 			mainCharMaterial2->Set("u_Material.AlbedoMap", mainCharTex);
-			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial2->Set("u_Material.Shininess", 0.f);
 			mainCharMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -479,16 +485,17 @@ void DefaultSceneLayer::_CreateScene() {
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
 			boomerangMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
-		/*
-		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
+		
+		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			boomerangMaterial2->Name = "boomerangMaterial2";
-			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex);
+			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex2);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 			boomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
-		*/
+		
 
+		/*
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			displayBoomerangMaterial1->Name = "displayBoomerangMaterial1";
@@ -504,6 +511,7 @@ void DefaultSceneLayer::_CreateScene() {
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.0f);
 			displayBoomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
+		*/
 		/*
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(reflectiveShader);
@@ -554,7 +562,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			sandMaterial->Name = "sandMaterial";
 			sandMaterial->Set("u_Material.AlbedoMap", sandTexture);
-			sandMaterial->Set("u_Material.Shininess", 0.1f);
+			sandMaterial->Set("u_Material.Shininess", 0.f);
 			sandMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -563,7 +571,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockFloorMaterial->Name = "rockFloorMaterial";
 			rockFloorMaterial->Set("u_Material.AlbedoMap", rockFloorTexture);
-			rockFloorMaterial->Set("u_Material.Shininess", 0.1f);
+			rockFloorMaterial->Set("u_Material.Shininess", 0.f);
 			rockFloorMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -572,7 +580,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockPillarMaterial->Name = "rockPillarMaterial";
 			rockPillarMaterial->Set("u_Material.AlbedoMap", rockFormationTexture);
-			rockPillarMaterial->Set("u_Material.Shininess", 0.1f);
+			rockPillarMaterial->Set("u_Material.Shininess", 0.f);
 			rockPillarMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -581,7 +589,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockWallMaterial->Name = "rockWallMaterial";
 			rockWallMaterial->Set("u_Material.AlbedoMap", rockWallsTexture);
-			rockWallMaterial->Set("u_Material.Shininess", 0.1f);
+			rockWallMaterial->Set("u_Material.Shininess", 0.f);
 			rockWallMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -589,7 +597,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			bridgeMaterial->Name = "bridgeMaterial";
 			bridgeMaterial->Set("u_Material.AlbedoMap", bridgeTexture);
-			bridgeMaterial->Set("u_Material.Shininess", 0.1f);
+			bridgeMaterial->Set("u_Material.Shininess", 0.f);
 			bridgeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -605,7 +613,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			barrelMaterial->Name = "barrelMaterial";
 			barrelMaterial->Set("u_Material.AlbedoMap", barrelTex);
-			barrelMaterial->Set("u_Material.Shininess", 0.1f);
+			barrelMaterial->Set("u_Material.Shininess", 0.f);
 			barrelMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -613,7 +621,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			cactusMaterial->Name = "cactusMaterial";
 			cactusMaterial->Set("u_Material.AlbedoMap", cactusTex);
-			cactusMaterial->Set("u_Material.Shininess", 0.1f);
+			cactusMaterial->Set("u_Material.Shininess", 0.f);
 			cactusMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -621,7 +629,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			grassMaterial->Name = "grassMaterial";
 			grassMaterial->Set("u_Material.AlbedoMap", grassTex);
-			grassMaterial->Set("u_Material.Shininess", 0.1f);
+			grassMaterial->Set("u_Material.Shininess", 0.f);
 			grassMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -629,7 +637,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			greyTreeMaterial->Name = "greyTreeMaterial";
 			greyTreeMaterial->Set("u_Material.AlbedoMap", greyTreeTex);
-			greyTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			greyTreeMaterial->Set("u_Material.Shininess", 0.f);
 			greyTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -637,7 +645,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			beigeTreeMaterial->Name = "beigeTreeMaterial";
 			beigeTreeMaterial->Set("u_Material.AlbedoMap", beigeTreeTex);
-			beigeTreeMaterial->Set("u_Material.Shininess", 0.1f);
+			beigeTreeMaterial->Set("u_Material.Shininess", 0.f);
 			beigeTreeMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -645,7 +653,7 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			rockMaterial->Name = "rockMaterial";
 			rockMaterial->Set("u_Material.AlbedoMap", rockTex);
-			rockMaterial->Set("u_Material.Shininess", 0.1f);
+			rockMaterial->Set("u_Material.Shininess", 0.f);
 			rockMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
@@ -653,11 +661,11 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			tumbleweedMaterial->Name = "tumbleweedMaterial";
 			tumbleweedMaterial->Set("u_Material.AlbedoMap", tumbleweedTex);
-			tumbleweedMaterial->Set("u_Material.Shininess", 0.1f);
+			tumbleweedMaterial->Set("u_Material.Shininess", 0.f);
 			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		GameObject::Sptr light = scene->CreateGameObject("Light"); 
+		GameObject::Sptr light = scene->CreateGameObject("Lights"); 
 		{ 
 			light->SetPosition(glm::vec3(0.f, 0.f, 20.f)); 
  
@@ -666,6 +674,26 @@ void DefaultSceneLayer::_CreateScene() {
 			lightComponent->SetRadius(500.f); 
 			lightComponent->SetIntensity(5.f); 
 		} 
+
+		GameObject::Sptr light2 = scene->CreateGameObject("Light 2");
+		{
+			light2->SetPosition(glm::vec3(50.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
+
+		GameObject::Sptr light3 = scene->CreateGameObject("Light 3");
+		{
+			light3->SetPosition(glm::vec3(-50.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light3->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -845,7 +873,7 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(sandMaterial);
 
 
-			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(110.0f, 50.0f, 1.0f));
+			BoxCollider::Sptr collider = BoxCollider::Create(glm::vec3(120.0f, 120.0f, 1.0f));
 			collider->SetPosition({ 0,-0.8,-1 });
 			collider->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
@@ -854,7 +882,7 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider);
 
 			TriggerVolume::Sptr volume = centerGround->Add<TriggerVolume>();
-			volume->AddCollider(BoxCollider::Create(glm::vec3(110.0f, 110.0f, 1.0f)))->SetPosition({ 0,0,-1 })->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			volume->AddCollider(BoxCollider::Create(glm::vec3(120.0f, 120.0f, 1.0f)))->SetPosition({ 0,0,-1 })->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			centerGround->Add<TriggerVolumeEnterBehaviour>();
 
@@ -1448,7 +1476,93 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(grassMaterial);
 		}
 
+		GameObject::Sptr grass6 = scene->CreateGameObject("Grass 6");
+		{
+			// Set position in the scene
+			grass6->SetPosition(glm::vec3(-13, -1, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass6->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass6->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass7 = scene->CreateGameObject("Grass 7");
+		{
+			// Set position in the scene
+			grass7->SetPosition(glm::vec3(1, -7, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass7->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass7->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass8 = scene->CreateGameObject("Grass 8");
+		{
+			// Set position in the scene
+			grass8->SetPosition(glm::vec3(12, -15, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass8->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass8->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+
+		GameObject::Sptr grass9 = scene->CreateGameObject("Grass 9");
+		{
+			// Set position in the scene
+			grass9->SetPosition(glm::vec3(7, -25, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass9->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass9->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass10 = scene->CreateGameObject("Grass 10");
+		{
+			// Set position in the scene
+			grass10->SetPosition(glm::vec3(24, -25, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass10->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass10->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass11 = scene->CreateGameObject("Grass 11");
+		{
+			// Set position in the scene
+			grass11->SetPosition(glm::vec3(30, -16, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass11->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass11->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
+		GameObject::Sptr grass12 = scene->CreateGameObject("Grass 12");
+		{
+			// Set position in the scene
+			grass12->SetPosition(glm::vec3(41, -21, -1));
+			//grass5->SetScale(glm::vec3(30.0f, 30.0f, 30.0f));
+			grass12->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = grass12->Add<RenderComponent>();
+			renderer->SetMesh(grassMesh);
+			renderer->SetMaterial(grassMaterial);
+		}
 
 		GameObject::Sptr cactus = scene->CreateGameObject("Cactus");
 		{
@@ -1463,8 +1577,8 @@ void DefaultSceneLayer::_CreateScene() {
 			renderer->SetMaterial(cactusMaterial);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			//collider->SetPosition(barrel1->GetPosition());
+			collider->SetScale(glm::vec3(0.5f, 3.34f, 0.5f));
+			collider->SetPosition(glm::vec3(0.0f, 3.45f, 0.0f));
 			RigidBody::Sptr physics = cactus->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(collider);
 
@@ -1484,7 +1598,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
 			collider->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			//collider->SetPosition(barrel1->GetPosition());
+			collider->SetPosition(glm::vec3(0, 1.26, 0));
+
 			RigidBody::Sptr physics = roundCactus->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(collider);
 
@@ -1578,7 +1693,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			movingPlat->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat->Add<RenderComponent>();
@@ -1610,9 +1725,9 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			movingPlat2->SetPosition(glm::vec3(-8.5f, -7.0f, 5.0f));
-			movingPlat2->SetRotation(glm::vec3(0.0f, 0.0f, 40.0f));
+			movingPlat2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat2->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat2->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat2->Add<RenderComponent>();
@@ -1622,7 +1737,7 @@ void DefaultSceneLayer::_CreateScene() {
 			TriggerVolume::Sptr volume = movingPlat2->Add<TriggerVolume>();
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(2.0f, 2.0f, 0.5f));
+			collider->SetScale(glm::vec3(1.5f, 1.5f, 1.0f));
 
 			RigidBody::Sptr physics = movingPlat2->Add<RigidBody>(RigidBodyType::Kinematic);
 			physics->AddCollider(collider);
@@ -1643,9 +1758,9 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			// Set position in the scene
 			movingPlat3->SetPosition(glm::vec3(50.0f, -10.0f, 1.5f));
-			movingPlat3->SetRotation(glm::vec3(0.0f, 0.0f, -85.0f));
+			movingPlat3->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 			// Scale down the plane
-			movingPlat3->SetScale(glm::vec3(1.0f, 1.0f, 0.5f));
+			movingPlat3->SetScale(glm::vec3(1.5f, 1.0f, 1.5f));
 
 			// Create and attach a render component
 			RenderComponent::Sptr renderer = movingPlat3->Add<RenderComponent>();
@@ -1655,7 +1770,7 @@ void DefaultSceneLayer::_CreateScene() {
 			TriggerVolume::Sptr volume = movingPlat3->Add<TriggerVolume>();
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetScale(glm::vec3(2.0f, 2.0f, 0.5f));
+			collider->SetScale(glm::vec3(1.5f, 1.5f, 1.0f));
 
 			RigidBody::Sptr physics = movingPlat3->Add<RigidBody>(RigidBodyType::Kinematic);
 			physics->AddCollider(collider);
@@ -1670,6 +1785,14 @@ void DefaultSceneLayer::_CreateScene() {
 			movingPlat3->Get<MovingPlatform>()->SetMode(MovingPlatform::MovementMode::CATMULL);
 			movingPlat3->Get<MovingPlatform>()->SetNodes(nodes, 5.0f);
 		}
+
+		/*
+		GameObject::Sptr particles = scene->CreateGameObject("Particles");
+		{
+			ParticleSystem::Sptr particleManager = particles->Add<ParticleSystem>();
+			particleManager->AddEmitter(glm::vec3(0.0f, 0.0f, 1), glm::vec3(0.0f, -1.0f, 10.0f), 1.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		}
+		*/
 
 		GameObject::Sptr boomerang = scene->CreateGameObject("Boomerang 1");
 		{
@@ -1718,7 +1841,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = boomerang2->Add<RenderComponent>();
 			renderer->SetMesh(boomerangMesh2);
-			renderer->SetMaterial(boomerangMaterial);
+			renderer->SetMaterial(boomerangMaterial2);
 
 			BoxCollider::Sptr collider = BoxCollider::Create();
 			collider->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
@@ -1755,7 +1878,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial);
 
 			detachedCam->AddChild(displayBoomerang1);
 			displayBoomerang1->SetPosition(displacement);
@@ -1775,7 +1898,7 @@ void DefaultSceneLayer::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang2->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial2);
 
 			detachedCam2->AddChild(displayBoomerang2);
 			displayBoomerang2->SetPosition(displacement);
@@ -1802,6 +1925,13 @@ void DefaultSceneLayer::_CreateScene() {
 
 			//Make sure to always activate an animation at the time of creation (usually idle)
 			animator->ActivateAnim("Idle");
+
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetScale(glm::vec3(1.3f, 2.0f, 1.3f));
+			collider->SetPosition(glm::vec3(0.f, 1.0f, 0.f));
+			RigidBody::Sptr physics = catcus->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider);
+
 		}
 
 		GameObject::Sptr torch = scene->CreateGameObject("Torch");
@@ -1825,7 +1955,96 @@ void DefaultSceneLayer::_CreateScene() {
 
 			//Make sure to always activate an animation at the time of creation (usually idle)
 			animator->ActivateAnim("Idle");
+
+			Light::Sptr lightComponent = torch->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+
 		}
+
+		GameObject::Sptr torch2 = scene->CreateGameObject("Torch 2");
+		{
+			// Set position in the scene
+			torch2->SetPosition(glm::vec3(-76.29f, -24.f, 2.09f));
+			torch2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch2->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch2->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch3 = scene->CreateGameObject("Torch 3");
+		{
+			// Set position in the scene
+			torch3->SetPosition(glm::vec3(102.f, -20.f, 2.f));
+			torch3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch3->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch3->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch3->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch3->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch4 = scene->CreateGameObject("Torch 4");
+		{
+			// Set position in the scene
+			torch4->SetPosition(glm::vec3(111.f, 21.f, 2.f));
+			torch4->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch4->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch4->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch4->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch4->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+
 
 		GameObject::Sptr healthPack = scene->CreateGameObject("Health Pack");
 		{
@@ -2352,13 +2571,62 @@ void DefaultSceneLayer::_CreateScene() {
 		{
 			screenSplitter->SetRenderFlag(5);
 			RectTransform::Sptr transform = screenSplitter->Add<RectTransform>();
-			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
-			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
 
 			GuiPanel::Sptr canPanel = screenSplitter->Add<GuiPanel>();
 			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/screenSplitter.png"));
 
 			canPanel->SetTransparency(1.0f);
+		}
+
+		GameObject::Sptr particles = scene->CreateGameObject("Particles");
+		{
+			particles->SetPosition({ -2.0f, 0.0f, 2.0f });
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = particles->Add<ParticleSystem>();
+			particleManager->AddFlag(1);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 2;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			emitter.Lifetime = 0.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 50.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.5f, 1.5f };
+
+			particleManager->AddEmitter(emitter);
+		}
+		
+		GameObject::Sptr particles2 = scene->CreateGameObject("Particles2");
+		{
+			particles2->SetPosition({ -5.0f, -5.0f, 2.0f });
+
+			//particles2->SetRenderFlag(2);
+
+			ParticleSystem::Sptr particleManager = particles2->Add<ParticleSystem>();
+			particleManager->AddFlag(2);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 1;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+			emitter.Lifetime = 0.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 50.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.5f, 1.5f };
+
+			particleManager->AddEmitter(emitter);
 		}
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
@@ -2407,8 +2675,8 @@ void DefaultSceneLayer::RepositionUI()
 	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
 	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
 
-	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
-	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
+	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
 
 	//Grab pause menu elements
 	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");

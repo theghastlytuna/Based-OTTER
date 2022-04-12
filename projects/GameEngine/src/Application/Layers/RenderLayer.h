@@ -118,6 +118,9 @@ public:
 	virtual void OnPostRender() override;
 	virtual void OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize) override;
 
+	UniformBuffer<InstanceLevelUniforms>::Sptr GetInstanceUniforms();
+	UniformBuffer<FrameLevelUniforms>::Sptr GetFrameUniforms();
+
 protected:
 	Framebuffer::Sptr   _primaryFBO;
 	Framebuffer::Sptr   _lightingFBO;

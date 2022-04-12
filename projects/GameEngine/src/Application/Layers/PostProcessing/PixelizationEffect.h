@@ -8,7 +8,8 @@ class PixelizationEffect : public PostProcessingLayer::Effect
 {
 public:
 	MAKE_PTRS(PixelizationEffect);
-	int Pixels;
+	int PixelsX;
+	int PixelsY;
 	float Power;
 
 	PixelizationEffect();
