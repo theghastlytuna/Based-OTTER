@@ -4,7 +4,7 @@
 #include "Gameplay/Scene.h"
 #include "Utils/ImGuiHelper.h"
 #include "BoomerangBehavior.h"
-
+#include "Application/SoundManaging.h"
 
 HealthManager::HealthManager()
 	: IComponent()
@@ -62,6 +62,7 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 	//LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
 	if (trigger->GetGameObject()->Name == "Boomerang " + std::to_string(_enemyID))
 	{
+		SoundManaging::Current().PlayEvent("NormalHit");
 		_loseHealth = true;
 		std::cout << GetGameObject()->Name << " lost health, now down to " << std::to_string(_healthVal - 1) << std::endl;
 
@@ -96,6 +97,10 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 
 		_damage = damageScaler;
 		
+		if (_damage >= 0.9)
+		{
+			SoundManaging::Current().PlayEvent("CriticalHit");
+		}
 		
 	}
 

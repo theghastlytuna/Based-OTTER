@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{dbee6495-1afe-441a-aeb5-48aeca964416}">
+		<property name="assetPath">
+			<value>Loyalty_Freak_Music_-_04_-_Cant_Stop_My_Feet_.mp3</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>185.67836734693878</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{6dad0bed-8a7c-4576-a3cb-817e4d34cad4}</destination>
+		</relationship>
+	</object>
+</objects>
