@@ -255,7 +255,7 @@ void SecondMap::_CreateScene() {
 #pragma region Skybox
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
-		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
+		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/sky/sky.jpg");
 		ShaderProgram::Sptr      skyboxShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/skybox_vert.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/skybox_frag.glsl" }
@@ -452,20 +452,20 @@ void SecondMap::_CreateScene() {
 #pragma region Lights
 		GameObject::Sptr light = scene->CreateGameObject("Lights");
 		{
-			light->SetPosition(glm::vec3(0.f, 0.f, 20.f));
+			light->SetPosition(glm::vec3(50.f, 0.f, 20.f));
 
 			Light::Sptr lightComponent = light->Add<Light>();
-			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetColor({ 1,0.9,0.9 });
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
 
 		GameObject::Sptr light2 = scene->CreateGameObject("Light 2");
 		{
-			light2->SetPosition(glm::vec3(50.f, 0.f, 20.f));
+			light2->SetPosition(glm::vec3(0.f, 0.f, 20.f));
 
 			Light::Sptr lightComponent = light2->Add<Light>();
-			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetColor({ 0.7,1,0.7 });
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
@@ -970,7 +970,7 @@ void SecondMap::_CreateScene() {
 		{
 			// Set position in the scene
 			healthPack->SetPosition(glm::vec3(22.f, -22.f, 3.f));
-			healthPack->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
+			healthPack->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
 			healthPack->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer for the monkey
