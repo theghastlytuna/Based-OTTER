@@ -14,15 +14,15 @@ PixelizationEffect::PixelizationEffect() :
 	_format = RenderTargetType::ColorRgb8;
 
 	//memset(Pixels, 0, sizeof(float) * 25);
-	PixelsX = 480;
-	PixelsY = 220;
-	Power = 0.5;
+	PixelsX = 640;
+	PixelsY = 480;
+	Power = 1;
 	_shader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 		{ ShaderPartType::Vertex, "shaders/vertex_shaders/fullscreen_quad.glsl" },
 		{ ShaderPartType::Fragment, "shaders/fragment_shaders/post_effects/pixelization.glsl" }
 	});
 
-	Enabled = false;
+	Enabled = true;
 }
 
 PixelizationEffect::~PixelizationEffect() = default;

@@ -365,7 +365,7 @@ void SecondMap::_CreateScene() {
 			camera->LookAt(glm::vec3(0.0f));
 
 			camera->Add<SimpleCameraControl>();
-
+			
 			Camera::Sptr cam = camera->Add<Camera>();
 			// Make sure that the camera is set as the scene's main camera!
 

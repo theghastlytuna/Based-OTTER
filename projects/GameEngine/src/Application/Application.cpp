@@ -88,7 +88,7 @@ Application::Application() :
 	_window(nullptr),
 	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
 	_isRunning(false),
-	_isEditor(false),
+	_isEditor(true),
 	_windowTitle("Boomerangers"),
 	_currentScene(nullptr),
 	_targetScene(nullptr)
