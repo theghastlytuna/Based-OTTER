@@ -228,6 +228,7 @@ void Application::_Run()
 	bool exitting = false;
 	float exitTime = 0;
 	bool FirstBlood = false;
+	bool LastKill = false;
 
 	//bool started = false;
 
@@ -278,10 +279,17 @@ void Application::_Run()
 	// Sound Effects
 	soundManaging.SetEvent("event:/MenuSFX/pop", "Pop");
 	soundManaging.SetEvent("event:/MenuSFX/CD_Drive", "LoadScene");
-	soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Jump");
+	soundManaging.SetEvent("event:/GameSFX/Cartoon_Boing", "Boing"); //Not in the game anymore
+	soundManaging.SetEvent("event:/GameSFX/Jump", "Jump");
+	soundManaging.SetEvent("event:/GameSFX/Death", "Death");
+	soundManaging.SetEvent("event:/GameSFX/NormalHit", "NormalHit");
+	soundManaging.SetEvent("event:/GameSFX/CriticalHit", "CriticalHit");
+	soundManaging.SetEvent("event:/GameSFX/Throw", "Throw");
 	soundManaging.SetEvent("event:/GameSFX/WalkSand", "Walk_Sand");
 	soundManaging.SetEvent("event:/GameSFX/WalkGrass", "Walk_Grass");
-	soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music");
+	soundManaging.SetEvent("event:/Music/BackgroundMusic", "Map1Music"); //Not in the game anymore
+	soundManaging.SetEvent("event:/Music/FinalKillMusic", "FinalKillMusic");
+	soundManaging.SetEvent("event:/Music/GameMusic", "GameMusic");
 
 	std::vector<MenuElement::Sptr> p1OptionItems;
 	std::vector<MenuElement::Sptr> p2OptionItems;
@@ -755,7 +763,7 @@ void Application::_Run()
 				barSelectTimes[0] = 0.2f;
 				barSelectTimes[1] = 0.2f;
 
-				soundManaging.PlayEvent("Map1Music");
+				soundManaging.PlayEvent("GameMusic");
 
 				soundManaging.SetListenerObjects(player1, player2);
 
@@ -1139,6 +1147,7 @@ void Application::_Run()
 
 				else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
 				{
+					soundManaging.PlayEvent("Death");
 					Respawn(player1);
 					p1Dying = false;
 				}
@@ -1222,6 +1231,7 @@ void Application::_Run()
 
 				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
 				{
+					soundManaging.PlayEvent("Death");
 					Respawn(player2);
 					p2Dying = false;
 				}
@@ -1272,6 +1282,18 @@ void Application::_Run()
 					{
 						player2->Get<MorphAnimator>()->ActivateAnim("Idle");
 					}
+				}
+			}
+
+			///////////Activate Last Kill Music///////
+
+			if (LastKill == false)
+			{
+				if (player1->Get<ScoreCounter>()->GetScore() == 4 || player2->Get<ScoreCounter>()->GetScore() == 4)
+				{
+					soundManaging.StopSounds();
+					soundManaging.PlayEvent("LastKillMusic");
+					LastKill = true;
 				}
 			}
 
@@ -1342,8 +1364,8 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
-				soundManaging.PlayEvent("P1_Win");
 				soundManaging.StopSounds();
+				soundManaging.PlayEvent("P1_Win");
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}
@@ -1362,8 +1384,8 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
-				soundManaging.PlayEvent("P2_Win");
 				soundManaging.StopSounds();
+				soundManaging.PlayEvent("P2_Win");
 
 				//GetLayer<DefaultSceneLayer>()->~DefaultSceneLayer();
 			}
