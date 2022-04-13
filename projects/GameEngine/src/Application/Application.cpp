@@ -168,6 +168,9 @@ void Respawn(GameObject::Sptr player)
 								glm::vec3(-18.5, -4.0, 0.5),
 								glm::vec3(8.0, -5.0, 7.0) };
 	int selection = rand() % 4;
+	if (player->GetScene()->NumObjects() < 70) {
+		selection = 3;
+	}
 	player->SetPosition(spawnPoints[selection]);
 	player->Get<HealthManager>()->ResetHealth();
 }

@@ -54,6 +54,7 @@
 #include "Gameplay/Components/ScoreCounter.h"
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
+#include "Gameplay/Components/Light.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -141,24 +142,20 @@ void SecondMap::_CreateScene() {
 #pragma region EnvironmentalMeshes
 
 		MeshResource::Sptr northWestMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/North West.obj");
+		MeshResource::Sptr nWestDirtMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/North West Dirt.obj");
 		MeshResource::Sptr southMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/South.obj");
 		MeshResource::Sptr eastMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/East.obj");
 		MeshResource::Sptr redMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Red.obj");
 		MeshResource::Sptr blueMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue.obj");
-		MeshResource::Sptr blueTreeMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue Tree.obj");
 		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Ground.obj");
+
 		MeshResource::Sptr leavesMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/leaves.obj");
-		MeshResource::Sptr nWestDirtMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/North West Dirt.obj");
-		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Raised Plat.obj");
-		MeshResource::Sptr redTreeMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Red Tree.obj");
+		MeshResource::Sptr redTreeMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Red_Tree.obj");
+		MeshResource::Sptr blueTreeMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue_Tree.obj");
 		MeshResource::Sptr treePlatsMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Tree Platforms.obj");
-		/*
-		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Grass.obj");
-		MeshResource::Sptr wallMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Canyon_Walls.obj");
-		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Health_Pick_Up.obj");
-		MeshResource::Sptr treeBaseMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Trees.obj");
-		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Raised_Platorm.obj");
-		*/
+
+		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Raised Platform.obj");
+
 #pragma endregion
 #pragma region CharacterMeshes
 		MeshResource::Sptr mainCharMesh = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
@@ -211,6 +208,10 @@ void SecondMap::_CreateScene() {
 		Texture2D::Sptr	   boomerangTex = ResourceManager::CreateAsset<Texture2D>("textures/boomerwang.png");
 		boomerangTex->SetMinFilter(MinFilter::Unknown);
 		boomerangTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   leafTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Leaf2.png");
+		leafTex->SetMinFilter(MinFilter::Unknown);
+		leafTex->SetMagFilter(MagFilter::Nearest);
 
 		// Loading in a color lookup table
 		Texture3D::Sptr lut = ResourceManager::CreateAsset<Texture3D>("luts/cool.CUBE");
@@ -281,6 +282,14 @@ void SecondMap::_CreateScene() {
 			grassMat->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
+		Material::Sptr leafMat = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			leafMat->Name = "leafMat";
+			leafMat->Set("u_Material.AlbedoMap", leafTex);
+			leafMat->Set("u_Material.Shininess", 0.1f);
+			leafMat->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
 		Material::Sptr wallMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			wallMat->Name = "wallMat";
@@ -343,33 +352,6 @@ void SecondMap::_CreateScene() {
 			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
-		*/
-
-#pragma endregion
-#pragma region createLights
-
-		/*
-		// Create some lights for our scene
-		scene->Lights.resize(4);
-
-		scene->Lights[0].Position = glm::vec3(10.0f, 10.0f, 10.0f);
-		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 40.0f;
-
-		scene->Lights[0].Position = glm::vec3(9.0f, 1.0f, 50.0f);
-		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 1000.0f;
-
-		scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
-		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
-
-		scene->Lights[2].Position = glm::vec3(9.0f, 1.0f, 50.0f);
-		scene->Lights[2].Color = glm::vec3(1.0f, 0.57f, 0.1f);
-		scene->Lights[2].Range = 200.0f;
-
-		scene->Lights[3].Position = glm::vec3(-67.73f, 15.73f, 3.5f);
-		scene->Lights[3].Color = glm::vec3(0.81f, 0.62f, 0.61f);
-		scene->Lights[3].Range = 200.0f;
 		*/
 
 #pragma endregion
@@ -440,11 +422,33 @@ void SecondMap::_CreateScene() {
 		}
 
 #pragma endregion
+#pragma region Lights
+		GameObject::Sptr light = scene->CreateGameObject("Lights");
+		{
+			light->SetPosition(glm::vec3(0.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
+
+		GameObject::Sptr light2 = scene->CreateGameObject("Light 2");
+		{
+			light2->SetPosition(glm::vec3(50.f, 0.f, 20.f));
+
+			Light::Sptr lightComponent = light2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetRadius(500.f);
+			lightComponent->SetIntensity(5.f);
+		}
+#pragma endregion
+
 #pragma region environmentalObjects
 #pragma region groundObjs
 		GameObject::Sptr MapDaddy = scene->CreateGameObject("Map Daddy"); 
 
-		GameObject::Sptr groundBlueObj = scene->CreateGameObject("Blue Team Ground");
+		GameObject::Sptr groundBlueObj = scene->CreateGameObject("Ground");
 		{
 			// Set position in the scene
 			groundBlueObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -457,14 +461,23 @@ void SecondMap::_CreateScene() {
 			renderer->SetMaterial(grassMat);
 
 			RigidBody::Sptr physics = groundBlueObj->Add<RigidBody>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0.5f,0 });
+			collider->SetScale({ 100,1,100 });
 			physics->AddCollider(collider);
 			physics->SetMass(0);
 			MapDaddy->AddChild(groundBlueObj);
+
+			TriggerVolume::Sptr volume = groundBlueObj->Add<TriggerVolume>();
+			BoxCollider::Sptr collider2 = BoxCollider::Create();
+			collider2->SetPosition({ 0,0.5f,0 });
+			collider2->SetScale({ 100,1,100 });
+			volume->AddCollider(collider2);
+			groundBlueObj->Add<TriggerVolumeEnterBehaviour>();
 		}
 #pragma endregion
 #pragma region wallObjs
-		GameObject::Sptr northWallObj = scene->CreateGameObject("North West Platform Wall");
+		GameObject::Sptr northWallObj = scene->CreateGameObject("Ground");
 		{
 			// Set position in the scene
 			northWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -476,6 +489,27 @@ void SecondMap::_CreateScene() {
 			renderer->SetMesh(northWestMesh);
 			renderer->SetMaterial(wallMat);
 
+			RigidBody::Sptr physics = northWallObj->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ -15, 5, -15 });
+			collider->SetScale({ 16, 6, 16 });
+			physics->AddCollider(collider);
+			BoxCollider::Sptr collider2 = BoxCollider::Create();
+			collider2->SetPosition({ -14, 20, -14 });
+			collider2->SetRotation({ 0,45,0 });
+			collider2->SetScale({ 20, 10, 1 });
+			physics->AddCollider(collider2);
+			SphereCollider::Sptr collider3 = SphereCollider::Create();
+			collider3->SetPosition({ -22,17,-10 });
+			collider3->SetRadius(6);
+			physics->SetMass(0);
+
+			TriggerVolume::Sptr volume = northWallObj->Add<TriggerVolume>();
+			BoxCollider::Sptr acollider = BoxCollider::Create();
+			acollider->SetPosition({ -15, 5, -15 });
+			acollider->SetScale({ 16, 6, 16 });
+			volume->AddCollider(acollider);
+			northWallObj->Add<TriggerVolumeEnterBehaviour>();
 			
 			MapDaddy->AddChild(northWallObj);
 		}
@@ -493,12 +527,13 @@ void SecondMap::_CreateScene() {
 
 			RigidBody::Sptr physics = southWallObj->Add<RigidBody>();
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetPosition(glm::vec3(0, 3.0f, 21.0f));
-			collider->SetScale({ 21, 24, 1 });
+			collider->SetPosition({ 0,20,29.89f });
+			collider->SetScale({ 30,17,1 });
+			SphereCollider::Sptr collider2 = SphereCollider::Create();
+			collider2->SetPosition({ -22,3,29.89 });
+			collider2->SetRadius(6);
 			physics->AddCollider(collider);
-			SphereCollider::Sptr coolider2 = SphereCollider::Create();
-			coolider2->SetPosition({ -17, 3.75, 22 });
-			coolider2->SetRadius(5);
+			physics->AddCollider(collider2);
 			physics->SetMass(0);
 			MapDaddy->AddChild(southWallObj);
 		}
@@ -516,8 +551,9 @@ void SecondMap::_CreateScene() {
 
 			RigidBody::Sptr physics = eastWallObj->Add<RigidBody>();
 			BoxCollider::Sptr collider = BoxCollider::Create();
-			collider->SetPosition({ 19,10,0 });
-			collider->SetScale({ 1,20,25 });
+			collider->SetPosition({ 28, 20, 0 });
+			collider->SetRotation({ 0,5,0 });
+			collider->SetScale({ 1, 17, 30 });
 			physics->AddCollider(collider);
 			physics->SetMass(0);
 			MapDaddy->AddChild(eastWallObj);
@@ -559,24 +595,248 @@ void SecondMap::_CreateScene() {
 			MapDaddy->AddChild(redWallObj);
 		}
 #pragma endregion
+#pragma region Obstacles
+
 		GameObject::Sptr blueTreeObj = scene->CreateGameObject("Blue Tree");
 		{
 			// Set position in the scene
-			redWallObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-			redWallObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
-			redWallObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			blueTreeObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			blueTreeObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			blueTreeObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 			// Create and attach a renderer
-			RenderComponent::Sptr renderer = redWallObj->Add<RenderComponent>();
-			renderer->SetMesh(redMesh);
-			renderer->SetMaterial(wallMat);
+			RenderComponent::Sptr renderer = blueTreeObj->Add<RenderComponent>();
+			renderer->SetMesh(blueTreeMesh);
+			renderer->SetMaterial(treeMat);
 
-			RigidBody::Sptr physics = redWallObj->Add<RigidBody>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			physics->AddCollider(collider);
+			MapDaddy->AddChild(blueTreeObj);
+
+			RigidBody::Sptr physics = blueTreeObj->Add<RigidBody>();
 			physics->SetMass(0);
-			MapDaddy->AddChild(redWallObj);
+			CylinderCollider::Sptr collider = CylinderCollider::Create();
+			collider->SetPosition({ 13, 12, -12 });
+			collider->SetRotation({ -90, 0,0 });
+			collider->SetScale({ 8,1,10 });
+			physics->AddCollider(collider);
 		}
+
+		GameObject::Sptr redTreeObj = scene->CreateGameObject("Red Tree");
+		{
+			// Set position in the scene
+			redTreeObj->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+			redTreeObj->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			redTreeObj->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = redTreeObj->Add<RenderComponent>();
+			renderer->SetMesh(redTreeMesh);
+			renderer->SetMaterial(treeMat);
+
+			MapDaddy->AddChild(redTreeObj);
+
+			RigidBody::Sptr physics = redTreeObj->Add<RigidBody>();
+			physics->SetMass(0);
+			CylinderCollider::Sptr collider = CylinderCollider::Create();
+			collider->SetPosition({ -17, 12, 14 });
+			collider->SetRotation({ -90, 0,0 });
+			collider->SetScale({ 8,1,10 });
+			physics->AddCollider(collider);
+		}
+
+		GameObject::Sptr leaves = scene->CreateGameObject("Leaves");
+		{
+			leaves->SetPosition({ 0,0,-2 });
+			leaves->SetScale({ 1,1,1 });
+			leaves->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = leaves->Add<RenderComponent>();
+			renderer->SetMesh(leavesMesh);
+			renderer->SetMaterial(leafMat);
+
+			MapDaddy->AddChild(leaves);
+
+			RigidBody::Sptr physics = leaves->Add<RigidBody>();
+		}
+
+		GameObject::Sptr treePlats = scene->CreateGameObject("Ground");
+		{
+			treePlats->SetPosition({ 7,13,8 });
+			treePlats->SetScale({ 1,1,1 });
+			treePlats->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats);
+
+			RigidBody::Sptr physics = treePlats->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr treePlats2 = scene->CreateGameObject("Ground");
+		{
+			treePlats2->SetPosition({ 13,19,6 });
+			treePlats2->SetScale({ 1,1,1 });
+			treePlats2->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats2->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats2);
+
+			RigidBody::Sptr physics = treePlats2->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats2->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats2->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr treePlats3 = scene->CreateGameObject("Ground");
+		{
+			treePlats3->SetPosition({ 19,13,4 });
+			treePlats3->SetScale({ 1,1,1 });
+			treePlats3->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats3->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats3);
+
+			RigidBody::Sptr physics = treePlats3->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats3->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats3->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr treePlats4 = scene->CreateGameObject("Ground");
+		{
+			treePlats4->SetPosition({ -17,-9,8 });
+			treePlats4->SetScale({ 1,1,1 });
+			treePlats4->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats4->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats4);
+
+			RigidBody::Sptr physics = treePlats4->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats4->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats4->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr treePlats5 = scene->CreateGameObject("Ground");
+		{
+			treePlats5->SetPosition({ -23,-14,6 });
+			treePlats5->SetScale({ 1,1,1 });
+			treePlats5->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats5->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats5);
+
+			RigidBody::Sptr physics = treePlats5->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats5->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats5->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr treePlats6 = scene->CreateGameObject("Ground");
+		{
+			treePlats6->SetPosition({ -18,-20,4 });
+			treePlats6->SetScale({ 1,1,1 });
+			treePlats6->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = treePlats6->Add<RenderComponent>();
+			renderer->SetMesh(treePlatsMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(treePlats6);
+
+			RigidBody::Sptr physics = treePlats6->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 0,0,0 });
+			collider->SetScale({ 2.4,0.3,2.4 });
+			physics->AddCollider(collider);
+
+			BoxCollider::Sptr vcollider = BoxCollider::Create();
+			vcollider->SetPosition({ 0,0,0 });
+			vcollider->SetScale({ 2.4,0.3,2.4 });
+			TriggerVolume::Sptr volume = treePlats6->Add<TriggerVolume>();
+			volume->AddCollider(vcollider);
+			treePlats6->Add<TriggerVolumeEnterBehaviour>();
+		}
+		/*GameObject::Sptr raisedPlat = scene->CreateGameObject("Ground");
+		{
+			raisedPlat->SetPosition({ 0,0,0 });
+			raisedPlat->SetScale({ 1,1,1 });
+			raisedPlat->SetRotation({ 90,0,0 });
+
+			RenderComponent::Sptr renderer = raisedPlat->Add<RenderComponent>();
+			renderer->SetMesh(raisedPlatMesh);
+			renderer->SetMaterial(platformMat);
+
+			MapDaddy->AddChild(raisedPlat);
+
+			RigidBody::Sptr physics = raisedPlat->Add<RigidBody>();
+			BoxCollider::Sptr collider = BoxCollider::Create();
+			collider->SetPosition({ 16,13,20 });
+			collider->SetScale({ 11,0.3,11 });
+			physics->AddCollider(collider);
+			TriggerVolume::Sptr volume = raisedPlat->Add<TriggerVolume>();
+			BoxCollider::Sptr collider4 = BoxCollider::Create();
+			collider4->SetPosition({ 16,13,20 });
+			collider4->SetScale({ 11,0.3,11 });
+			volume->AddCollider(collider4);
+			raisedPlat->Add<TriggerVolumeEnterBehaviour>();
+		}*/
 
 #pragma endregion
 #pragma region Entities
@@ -779,8 +1039,8 @@ void SecondMap::_CreateScene() {
 			healthbar1->SetRenderFlag(1);
 
 			RectTransform::Sptr transform = healthbar1->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ 200, 50 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 50 });
+			transform->SetMax({ 200, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = healthbar1->Add<GuiPanel>();
 			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
@@ -789,8 +1049,8 @@ void SecondMap::_CreateScene() {
 			{
 				subPanel1->SetRenderFlag(1);
 				RectTransform::Sptr transform = subPanel1->Add<RectTransform>();
-				transform->SetMin({ 5, 5 });
-				transform->SetMax({ 195, 45 });
+				transform->SetMin({ 5, app.GetWindowSize().y - 45 });
+				transform->SetMax({ 195, app.GetWindowSize().y - 5 });
 
 				GuiPanel::Sptr panel = subPanel1->Add<GuiPanel>();
 				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -804,8 +1064,8 @@ void SecondMap::_CreateScene() {
 			healthbar2->SetRenderFlag(2);
 
 			RectTransform::Sptr transform = healthbar2->Add<RectTransform>();
-			transform->SetMin({ 0, 0 });
-			transform->SetMax({ 200, 50 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 50 });
+			transform->SetMax({ 200, app.GetWindowSize().y });
 
 			GuiPanel::Sptr canPanel = healthbar2->Add<GuiPanel>();
 			canPanel->SetColor(glm::vec4(0.467f, 0.498f, 0.549f, 1.0f));
@@ -814,8 +1074,8 @@ void SecondMap::_CreateScene() {
 			{
 				subPanel2->SetRenderFlag(2);
 				RectTransform::Sptr transform = subPanel2->Add<RectTransform>();
-				transform->SetMin({ 5, 5 });
-				transform->SetMax({ 195, 45 });
+				transform->SetMin({ 5, app.GetWindowSize().y - 45 });
+				transform->SetMax({ 195, app.GetWindowSize().y - 5 });
 
 				GuiPanel::Sptr panel = subPanel2->Add<GuiPanel>();
 				panel->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -879,8 +1139,8 @@ void SecondMap::_CreateScene() {
 			scoreCounter1->SetRenderFlag(1);
 
 			RectTransform::Sptr transform = scoreCounter1->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x, 5 });
-			transform->SetMax({ app.GetWindowSize().x - 20, 100 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 240 });
+			transform->SetMax({ 200, app.GetWindowSize().y - 45 });
 
 			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
@@ -1010,8 +1270,8 @@ void SecondMap::_CreateScene() {
 			scoreCounter2->SetRenderFlag(2);
 
 			RectTransform::Sptr transform = scoreCounter2->Add<RectTransform>();
-			transform->SetMin({ 2 * app.GetWindowSize().x - 280, 5 });
-			transform->SetMax({ 2 * app.GetWindowSize().x - 100, 100 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 240 });
+			transform->SetMax({ 200, app.GetWindowSize().y - 45 });
 
 			GuiPanel::Sptr panel = scoreCounter2->Add<GuiPanel>();
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
@@ -1179,7 +1439,7 @@ void SecondMap::_CreateScene() {
 			sensText1->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -1195,7 +1455,7 @@ void SecondMap::_CreateScene() {
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -1211,7 +1471,7 @@ void SecondMap::_CreateScene() {
 			//sensSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensSelector1->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -1227,7 +1487,7 @@ void SecondMap::_CreateScene() {
 			sensText2->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensText2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityText.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/sensitivityTextFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -1243,7 +1503,7 @@ void SecondMap::_CreateScene() {
 			//sensBar->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensBar2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBar.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeBarFinal.png"));
 
 			canPanel->SetTransparency(0.0f);
 		}
@@ -1259,9 +1519,22 @@ void SecondMap::_CreateScene() {
 			//sensSelector->Add<MenuElement>();
 
 			GuiPanel::Sptr canPanel = sensSelector2->Add<GuiPanel>();
-			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelect.png"));
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/volumeSelector.png"));
 
 			canPanel->SetTransparency(0.0f);
+		}
+
+		GameObject::Sptr screenSplitter = scene->CreateGameObject("Screen Splitter");
+		{
+			screenSplitter->SetRenderFlag(5);
+			RectTransform::Sptr transform = screenSplitter->Add<RectTransform>();
+			transform->SetMin({ 0, app.GetWindowSize().y / 2 - 1 });
+			transform->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 1 });
+
+			GuiPanel::Sptr canPanel = screenSplitter->Add<GuiPanel>();
+			canPanel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/screenSplitter.png"));
+
+			canPanel->SetTransparency(1.0f);
 		}
 #pragma endregion	
 #pragma endregion
@@ -1303,15 +1576,34 @@ void SecondMap::RepositionUI()
 	Gameplay::GameObject::Sptr killUI = app.CurrentScene()->FindObjectByName("Score Counter 1");
 	Gameplay::GameObject::Sptr killUI2 = app.CurrentScene()->FindObjectByName("Score Counter 2");
 
+	Gameplay::GameObject::Sptr screenSplitter = app.CurrentScene()->FindObjectByName("Screen Splitter");
+
+	Gameplay::GameObject::Sptr healthBack1 = app.CurrentScene()->FindObjectByName("HealthBackPanel1");
+	Gameplay::GameObject::Sptr healthBack2 = app.CurrentScene()->FindObjectByName("HealthBackPanel2");
+
+	Gameplay::GameObject::Sptr healthBar1 = app.CurrentScene()->FindObjectByName("Player1Health");
+	Gameplay::GameObject::Sptr healthBar2 = app.CurrentScene()->FindObjectByName("Player2Health");
+
 	//Reposition the elements
 	crosshair->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
 	crosshair2->Get<RectTransform>()->SetMin({ app.GetWindowSize().x / 2 - 50, app.GetWindowSize().y / 2 - 50 });
 	crosshair2->Get<RectTransform>()->SetMax({ app.GetWindowSize().x / 2 + 50, app.GetWindowSize().y / 2 + 50 });
-	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
-	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
-	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 195 });
-	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	killUI->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 240 });
+	killUI->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y - 45 });
+	killUI2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 240 });
+	killUI2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y - 45 });
+
+	screenSplitter->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y / 2 - 3 });
+	screenSplitter->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y / 2 + 3 });
+
+	healthBack1->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 50 });
+	healthBack1->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+	healthBack2->Get<RectTransform>()->SetMin({ 0, app.GetWindowSize().y - 50 });
+	healthBack2->Get<RectTransform>()->SetMax({ 200, app.GetWindowSize().y });
+
+	healthBar1->Get<RectTransform>()->SetMin({ 5, app.GetWindowSize().y - 45 });
+	healthBar2->Get<RectTransform>()->SetMin({ 5, app.GetWindowSize().y - 45 });
 
 	//Grab pause menu elements
 	Gameplay::GameObject::Sptr sensText1 = app.CurrentScene()->FindObjectByName("Sensitivity Text1");
@@ -1332,11 +1624,11 @@ void SecondMap::RepositionUI()
 	//Reposition the score UI elements
 	for (int i = 0; i < 10; i++)
 	{
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
-		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 175 });
+		app.CurrentScene()->FindObjectByName("1-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y - 45 });
 
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 130 });
-		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMin({ 30, app.GetWindowSize().y - 175 });
+		app.CurrentScene()->FindObjectByName("2-" + std::to_string(i))->Get<RectTransform>()->SetMax({ 160, app.GetWindowSize().y - 45 });
 
 		//keeping this jus in case
 		/*
@@ -1353,5 +1645,4 @@ void SecondMap::RepositionUI()
 
 	pauseBG->Get<RectTransform>()->SetMin({ 0, 0 });
 	pauseBG->Get<RectTransform>()->SetMax({ app.GetWindowSize().x, app.GetWindowSize().y });
-
 }
