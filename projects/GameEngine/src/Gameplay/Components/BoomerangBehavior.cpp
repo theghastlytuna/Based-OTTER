@@ -90,6 +90,10 @@ void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 	glm::vec3 cameraLocalRot = glm::vec3(_camera->GetView()[0][2], _camera->GetView()[1][2], _camera->GetView()[2][2]);
 	_targetPoint = _player->GetPosition() + glm::vec3(0.0f, 0.0f, 1.5f) + glm::normalize(cameraLocalRot) * -_distance;
 	//std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
+
+	if (_distance < -1) {
+		makeBoomerangInactive();
+	}
 }
 
 void BoomerangBehavior::returnBoomerang()
@@ -140,6 +144,7 @@ void BoomerangBehavior::makeBoomerangInactive()
 	_boomerangEntity->SetPosition(_inactivePosition);
 	_state = boomerangState::INACTIVE;
 	_rigidBody->SetLinearVelocity(glm::vec3(0, 0, 0));
+	_rigidBody->SetAngularVelocity({ 0,0,0 });
 }
 
 nlohmann::json BoomerangBehavior::ToJson() const {
