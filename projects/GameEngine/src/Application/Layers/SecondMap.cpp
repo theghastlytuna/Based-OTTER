@@ -568,13 +568,9 @@ void SecondMap::_CreateScene() {
 
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = redWallObj->Add<RenderComponent>();
-			renderer->SetMesh(redMesh);
-			renderer->SetMaterial(wallMat);
+			renderer->SetMesh(blueTreeMesh);
+			renderer->SetMaterial(treeMat);
 
-			RigidBody::Sptr physics = redWallObj->Add<RigidBody>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			physics->AddCollider(collider);
-			physics->SetMass(0);
 			MapDaddy->AddChild(redWallObj);
 		}
 
