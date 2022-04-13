@@ -969,7 +969,7 @@ void SecondMap::_CreateScene() {
 		GameObject::Sptr healthPack = scene->CreateGameObject("Health Pack");
 		{
 			// Set position in the scene
-			healthPack->SetPosition(glm::vec3(22.f, -22.f, 4.f));
+			healthPack->SetPosition(glm::vec3(22.f, -22.f, 3.f));
 			healthPack->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
 			healthPack->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
