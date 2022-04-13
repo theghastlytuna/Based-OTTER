@@ -645,7 +645,7 @@ void SecondMap::_CreateScene() {
 			CylinderCollider::Sptr collider = CylinderCollider::Create();
 			collider->SetPosition({ 13, 12, -12 });
 			collider->SetRotation({ -90, 0,0 });
-			collider->SetScale({ 8,1,10 });
+			collider->SetScale({ 8,8,25 });
 			physics->AddCollider(collider);
 		}
 
@@ -668,7 +668,7 @@ void SecondMap::_CreateScene() {
 			CylinderCollider::Sptr collider = CylinderCollider::Create();
 			collider->SetPosition({ -17, 12, 14 });
 			collider->SetRotation({ -90, 0,0 });
-			collider->SetScale({ 8,1,10 });
+			collider->SetScale({ 8,8,25 });
 			physics->AddCollider(collider);
 		}
 
