@@ -92,12 +92,12 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 		float dot = cameraLocalForward.x * playerToWang.x + cameraLocalForward.y * playerToWang.y + cameraLocalForward.z * playerToWang.z;
 		float divisor = glm::length(playerToWang) * glm::length(cameraLocalForward);
 		float angle = glm::acos(dot / divisor);
-		float damageScaler = (-0.55 * glm::cos(angle)) + 0.65;
+		float damageScaler = 2 * ((-0.4 * glm::cos(angle)) + 0.65);
 
 
 		_damage = damageScaler;
 		
-		if (_damage >= 0.9)
+		if (_damage >= 1.3)
 		{
 			SoundManaging::Current().PlayEvent("CriticalHit");
 		}

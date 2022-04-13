@@ -371,7 +371,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> healthPackIdle = LoadTargets(7, "HealthPackAnims/healthPack_idle_00");
 
-		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles.png", 2, 2);
+		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles4.png", 2, 2);
 
 #pragma region Basic Texture Creation
 		Texture2DDescription singlePixelDescriptor;
@@ -2325,8 +2325,8 @@ void DefaultSceneLayer::_CreateScene() {
 			scoreCounter1->SetRenderFlag(1);
 
 			RectTransform::Sptr transform = scoreCounter1->Add<RectTransform>();
-			transform->SetMin({ app.GetWindowSize().x, 5 });
-			transform->SetMax({ app.GetWindowSize().x - 20, 100 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 240 });
+			transform->SetMax({ 200, app.GetWindowSize().y - 45 });
 
 			GuiPanel::Sptr panel = scoreCounter1->Add<GuiPanel>();
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
@@ -2456,8 +2456,8 @@ void DefaultSceneLayer::_CreateScene() {
 			scoreCounter2->SetRenderFlag(2);
 
 			RectTransform::Sptr transform = scoreCounter2->Add<RectTransform>();
-			transform->SetMin({ 2 * app.GetWindowSize().x - 280, 5 });
-			transform->SetMax({ 2 * app.GetWindowSize().x - 100, 100 });
+			transform->SetMin({ 0, app.GetWindowSize().y - 240 });
+			transform->SetMax({ 200, app.GetWindowSize().y - 45 });
 
 			GuiPanel::Sptr panel = scoreCounter2->Add<GuiPanel>();
 			panel->SetTexture(ResourceManager::CreateAsset<Texture2D>("textures/ScoreUI.png"));
@@ -2959,18 +2959,17 @@ void DefaultSceneLayer::_CreateScene() {
 			emitter.Type = ParticleType::SphereEmitter;
 			emitter.TexID = 4;
 			emitter.Position = glm::vec3(0.0f);
-			emitter.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			emitter.Color = glm::vec4(0.9f, 0.8f, 0.8f, 1.0f);
 
-			emitter.SphereEmitterData.Timer = 1.0f / 20.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
 			emitter.SphereEmitterData.Velocity = 0.5f;
 			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.SphereEmitterData.Radius = 1.0f;
 			emitter.SphereEmitterData.SizeRange = { 0.2f, 0.7f };
-			
 
 			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
 			emitter.ConeEmitterData.Angle = 0.f;
-			emitter.ConeEmitterData.Timer = 1.0f / 2.0f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
 			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
 			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };
@@ -2994,9 +2993,9 @@ void DefaultSceneLayer::_CreateScene() {
 			emitter.Type = ParticleType::SphereEmitter;
 			emitter.TexID = 4;
 			emitter.Position = glm::vec3(0.0f);
-			emitter.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			emitter.Color = glm::vec4(0.9f, 0.8f, 0.8f, 1.0f);
 
-			emitter.SphereEmitterData.Timer = 1.0f / 20.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
 			emitter.SphereEmitterData.Velocity = 0.5f;
 			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.SphereEmitterData.Radius = 1.0f;
@@ -3005,7 +3004,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
 			emitter.ConeEmitterData.Angle = 0.f;
-			emitter.ConeEmitterData.Timer = 1.0f / 2.0f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
 			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
 			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };;
@@ -3027,11 +3026,11 @@ void DefaultSceneLayer::_CreateScene() {
 
 			ParticleSystem::ParticleData emitter;
 			emitter.Type = ParticleType::SphereEmitter;
-			emitter.TexID = 4;
+			emitter.TexID = 2;
 			emitter.Position = glm::vec3(0.0f);
-			emitter.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			emitter.Color = glm::vec4(0.48f, 0.46f, 0.72f, 1.0f);
 
-			emitter.SphereEmitterData.Timer = 1.0f / 20.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
 			emitter.SphereEmitterData.Velocity = 0.5f;
 			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.SphereEmitterData.Radius = 1.0f;
@@ -3040,7 +3039,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
 			emitter.ConeEmitterData.Angle = 0.f;
-			emitter.ConeEmitterData.Timer = 1.0f / 2.0f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
 			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
 			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };
@@ -3062,11 +3061,11 @@ void DefaultSceneLayer::_CreateScene() {
 
 			ParticleSystem::ParticleData emitter;
 			emitter.Type = ParticleType::SphereEmitter;
-			emitter.TexID = 4;
+			emitter.TexID = 2;
 			emitter.Position = glm::vec3(0.0f);
-			emitter.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+			emitter.Color = glm::vec4(0.48f, 0.46f, 0.72f, 1.0f);
 
-			emitter.SphereEmitterData.Timer = 1.0f / 20.0f;
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
 			emitter.SphereEmitterData.Velocity = 0.5f;
 			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.SphereEmitterData.Radius = 1.0f;
@@ -3075,7 +3074,7 @@ void DefaultSceneLayer::_CreateScene() {
 
 			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
 			emitter.ConeEmitterData.Angle = 0.f;
-			emitter.ConeEmitterData.Timer = 1.0f / 2.0f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
 			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
 			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
 			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };

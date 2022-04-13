@@ -1272,13 +1272,13 @@ void Application::_Run()
 						enemyUIColour.x, enemyUIColour.y, enemyUIColour.z, 0.0f));
 
 					player1->Get<MorphAnimator>()->ActivateAnim("Die");
+					soundManaging.PlayEvent("Death");
 					p1Dying = true;
 				}
 
 
 				else if (p1Dying && player1->Get<MorphAnimator>()->IsEndOfClip())
 				{
-					soundManaging.PlayEvent("Death");
 					Respawn(player1);
 					p1Dying = false;
 				}
@@ -1357,12 +1357,12 @@ void Application::_Run()
 
 
 					player2->Get<MorphAnimator>()->ActivateAnim("Die");
+					soundManaging.PlayEvent("Death");
 					p2Dying = true;
 				}
 
 				else if (p2Dying && player2->Get<MorphAnimator>()->IsEndOfClip())
 				{
-					soundManaging.PlayEvent("Death");
 					Respawn(player2);
 					p2Dying = false;
 				}
@@ -1423,20 +1423,20 @@ void Application::_Run()
 				if (player1->Get<ScoreCounter>()->GetScore() == 4 || player2->Get<ScoreCounter>()->GetScore() == 4)
 				{
 					soundManaging.StopSounds();
-					soundManaging.PlayEvent("LastKillMusic");
+					soundManaging.PlayEvent("FinalKillMusic");
+
+					if (player1->Get<ScoreCounter>()->GetScore() == 4)
+					{
+						soundManaging.PlayEvent("P1_LastKill");
+					}
+
+					else if (player2->Get<ScoreCounter>()->GetScore() == 4)
+					{
+						soundManaging.PlayEvent("P2_LastKill");
+					}
+
 					LastKill = true;
 				}
-			}
-
-			///////////First player to last kill//////
-			
-			if (player1->Get<ScoreCounter>()->GetScore() == 4)
-			{
-				soundManaging.PlayEvent("P1_LastKill");
-			}
-			if (player2->Get<ScoreCounter>()->GetScore() == 4)
-			{
-				soundManaging.PlayEvent("P2_LastKill");
 			}
 
 			///////////Player gets First Blood////////
@@ -1452,7 +1452,8 @@ void Application::_Run()
 
 			///////////Player overtakes other player//
 
-			if (player1->Get<ScoreCounter>()->GetScore() > player2->Get<ScoreCounter>()->GetScore() && player2->Get<ScoreCounter>()->GetScore() >= 1)
+			if (player1->Get<ScoreCounter>()->GetScore() > player2->Get<ScoreCounter>()->GetScore() && player2->Get<ScoreCounter>()->GetScore() >= 1
+				&& player1->Get<ScoreCounter>()->GetScore() < 4)
 			{
 				if (player1->Get<ScoreCounter>()->GetLead() == false)
 				{
@@ -1465,7 +1466,8 @@ void Application::_Run()
 					}
 				}
 			}
-			if (player2->Get<ScoreCounter>()->GetScore() > player1->Get<ScoreCounter>()->GetScore() && player1->Get<ScoreCounter>()->GetScore() >= 1)
+			if (player2->Get<ScoreCounter>()->GetScore() > player1->Get<ScoreCounter>()->GetScore() && player1->Get<ScoreCounter>()->GetScore() >= 1
+				&& player2->Get<ScoreCounter>()->GetScore() < 4)
 			{
 				if (player2->Get<ScoreCounter>()->GetLead() == false)
 				{
@@ -1495,6 +1497,9 @@ void Application::_Run()
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P1 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
 
+				LastKill = false;
+				FirstBlood = false;
+
 				soundManaging.StopSounds();
 				soundManaging.PlayEvent("P1_Win");
 
@@ -1514,6 +1519,9 @@ void Application::_Run()
 				GetLayer<EndScreen>()->GetScene()->IsPlaying = true;
 
 				GetLayer<EndScreen>()->GetScene()->FindObjectByName("P2 Wins Text")->Get<GuiPanel>()->SetTransparency(1.0f);
+
+				LastKill = false;
+				FirstBlood = false;
 
 				soundManaging.StopSounds();
 				soundManaging.PlayEvent("P2_Win");

@@ -91,7 +91,7 @@ void BoomerangBehavior::updateTrackingPoint(float deltaTime)
 	_targetPoint = _player->GetPosition() + glm::vec3(0.0f, 0.0f, 1.5f) + glm::normalize(cameraLocalRot) * -_distance;
 	//std::cout << "X: " << _targetPoint.x << " Y: " << _targetPoint.y << " Z: " << _targetPoint.z << std::endl;
 
-	if (_distance < -1) {
+	if (glm::abs(_distance) < -0.01f) {
 		makeBoomerangInactive();
 	}
 }

@@ -25,9 +25,9 @@ ColorCorrectionEffect::ColorCorrectionEffect(bool defaultLut) :
 		{ ShaderPartType::Fragment, "shaders/fragment_shaders/post_effects/color_correction.glsl" }
 	});
 	
-	Lut1 = ResourceManager::CreateAsset<Texture3D>("luts/Desert.CUBE");
-	Lut2 = ResourceManager::CreateAsset<Texture3D>("luts/Coolish.CUBE");
-	Lut3 = ResourceManager::CreateAsset<Texture3D>("luts/shrooms.cube");
+	Lut1 = ResourceManager::CreateAsset<Texture3D>("luts/boomeranger.CUBE");
+	Lut2 = ResourceManager::CreateAsset<Texture3D>("luts/Desert.CUBE");
+	Lut3 = ResourceManager::CreateAsset<Texture3D>("luts/Coolish.CUBE");
 
 	Enabled = false;
 }
