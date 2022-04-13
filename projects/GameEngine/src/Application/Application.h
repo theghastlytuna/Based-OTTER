@@ -124,6 +124,10 @@ public:
 	int currentCam = 1;
 	
 	Score scoreFunc;
+
+	float matchTime;
+
+	std::string playerName;
 protected:
 	// The GL driver layer is a special friend that can access our protected members (mainly window info)
 	friend class GLAppLayer;

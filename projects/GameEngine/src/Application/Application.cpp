@@ -477,7 +477,7 @@ void Application::_Run()
 				leftSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
 				rightSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
 				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
-				scoreboard = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
+				scoreboard = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_BACK);
 				back = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
 
 			}
@@ -677,7 +677,14 @@ void Application::_Run()
 
 			else if (scoreboard)
 			{
-				scoreFunc.addScore("Deez", 6.9f);
+				auto scoreCard = scoreFunc.readScores();
+
+				std::cout << scoreCard[0].name << "|" << scoreCard[0].time << std::endl;
+				std::cout << scoreCard[1].name << "|" << scoreCard[1].time << std::endl;
+				std::cout << scoreCard[2].name << "|" << scoreCard[2].time << std::endl;
+
+				std::string bsp;
+				std::cin >> bsp;
 			}
 			
 			else
@@ -808,7 +815,14 @@ void Application::_Run()
 
 			else if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->IsValid())
 			{
-				if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
+				if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_BACK))
+				{
+					std::cin >> playerName;
+					scoreFunc.addScore(playerName, timing.TimeSinceSceneLoad());
+
+				}
+
+				else if (CurrentScene()->FindObjectByName("Menu Control")->Get<ControllerInput>()->GetButtonPressed(GLFW_GAMEPAD_BUTTON_START))
 				{
 					loading = true;
 					//soundManaging.PlayEvent("LoadScene");
@@ -876,6 +890,7 @@ void Application::_Run()
 				player2->Get<ScoreCounter>()->ResetScore();
 
 				soundManaging.PlayEvent("BeginMatch");
+
 			}
 
 			bool pressedPause = false;
