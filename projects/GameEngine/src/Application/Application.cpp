@@ -1259,7 +1259,7 @@ void Application::_Run()
 					enemy->Get<ScoreCounter>()->AddScore();
 
 					std::cout << "Player " << enemyNum << "'s score: "
-						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
+						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore() << std::endl;
 
 					glm::vec4 enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->GetColor();
 
@@ -1343,7 +1343,7 @@ void Application::_Run()
 					enemy->Get<ScoreCounter>()->AddScore();
 
 					std::cout << "Player " << enemyNum << "'s score: "
-						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore();
+						<< _currentScene->FindObjectByName("Player " + enemyNum)->Get<ScoreCounter>()->GetScore() << std::endl;
 
 					glm::vec4 enemyUIColour = _currentScene->FindObjectByName(enemyNum + "-" + std::to_string(enemy->Get<ScoreCounter>()->GetScore()))->Get<GuiPanel>()->GetColor();
 
