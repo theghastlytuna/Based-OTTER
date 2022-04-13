@@ -75,6 +75,7 @@
 #include "Gameplay/InputEngine.h"
 
 #include "Application/Application.h"
+#include "Gameplay/Components/ParticleSystem.h"
 
 std::vector<Gameplay::MeshResource::Sptr>LoadTargets2(int numTargets, std::string path)
 {
@@ -337,6 +338,7 @@ void SecondMap::_CreateScene() {
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 			boomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
+		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles4.png", 2, 2);
 
 		/*
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
@@ -1030,6 +1032,145 @@ void SecondMap::_CreateScene() {
 
 			detachedCam2->AddChild(displayBoomerang2);
 			displayBoomerang2->SetPosition(displacement);
+		}
+
+		GameObject::Sptr tBoomSmoke1 = scene->CreateGameObject("tBoomSmoke1");
+		{
+			tBoomSmoke1->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = tBoomSmoke1->Add<ParticleSystem>();
+			particleManager->AddFlag(1);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 4;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.9f, 0.8f, 0.8f, 1.0f);
+
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.2f, 0.7f };
+
+			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
+			emitter.ConeEmitterData.Angle = 0.f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
+			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
+			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };
+
+
+			particleManager->AddEmitter(emitter);
+
+			boomerang->AddChild(tBoomSmoke1);
+		}
+
+		GameObject::Sptr bBoomSmoke1 = scene->CreateGameObject("bBoomSmoke1");
+		{
+			tBoomSmoke1->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = bBoomSmoke1->Add<ParticleSystem>();
+			particleManager->AddFlag(2);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 4;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.9f, 0.8f, 0.8f, 1.0f);
+
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.2f, 0.7f };
+
+
+			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
+			emitter.ConeEmitterData.Angle = 0.f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
+			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
+			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };;
+
+
+			particleManager->AddEmitter(emitter);
+
+			boomerang->AddChild(bBoomSmoke1);
+		}
+
+		GameObject::Sptr tBoomSmoke2 = scene->CreateGameObject("tBoomSmoke2");
+		{
+			tBoomSmoke2->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = tBoomSmoke2->Add<ParticleSystem>();
+			particleManager->AddFlag(1);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 2;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.48f, 0.46f, 0.72f, 1.0f);
+
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.2f, 0.7f };
+
+
+			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
+			emitter.ConeEmitterData.Angle = 0.f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
+			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
+			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };
+
+
+			particleManager->AddEmitter(emitter);
+
+			boomerang2->AddChild(tBoomSmoke2);
+		}
+
+		GameObject::Sptr bBoomSmoke2 = scene->CreateGameObject("bBoomSmoke2");
+		{
+			bBoomSmoke2->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+			//particles->SetRenderFlag(1);
+
+			ParticleSystem::Sptr particleManager = bBoomSmoke2->Add<ParticleSystem>();
+			particleManager->AddFlag(2);
+			particleManager->Atlas = particleTex;
+
+			ParticleSystem::ParticleData emitter;
+			emitter.Type = ParticleType::SphereEmitter;
+			emitter.TexID = 2;
+			emitter.Position = glm::vec3(0.0f);
+			emitter.Color = glm::vec4(0.48f, 0.46f, 0.72f, 1.0f);
+
+			emitter.SphereEmitterData.Timer = 1.0f / 100.0f;
+			emitter.SphereEmitterData.Velocity = 0.5f;
+			emitter.SphereEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.SphereEmitterData.Radius = 1.0f;
+			emitter.SphereEmitterData.SizeRange = { 0.2f, 0.7f };
+
+
+			emitter.ConeEmitterData.Velocity = glm::vec3(0, 0, 2.f);
+			emitter.ConeEmitterData.Angle = 0.f;
+			emitter.ConeEmitterData.Timer = 1.0f / 100.0f;
+			emitter.ConeEmitterData.SizeRange = { 0.5, 1.5 };
+			emitter.ConeEmitterData.LifeRange = { 1.0f, 4.0f };
+			emitter.ConeEmitterData.LifeRange = { 0.5f, 2.0f };
+
+
+			particleManager->AddEmitter(emitter);
+
+			boomerang2->AddChild(bBoomSmoke2);
 		}
 
 #pragma endregion
