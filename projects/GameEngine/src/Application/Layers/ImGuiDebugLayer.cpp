@@ -33,8 +33,8 @@ void ImGuiDebugLayer::OnAppLoad(const nlohmann::json& config)
 	Application& app = Application::Get();
 
 	// Register our windows
-	RegisterWindow<HierarchyWindow>();
-	RegisterWindow<InspectorWindow>();
+	//RegisterWindow<HierarchyWindow>();
+	//RegisterWindow<InspectorWindow>();
 	//RegisterWindow<MaterialsWindow>();
 	//RegisterWindow<TextureWindow>();
 	RegisterWindow<DebugWindow>();
