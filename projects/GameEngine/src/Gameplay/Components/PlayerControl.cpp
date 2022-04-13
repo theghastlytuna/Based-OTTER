@@ -90,13 +90,13 @@ void PlayerControl::Update(float deltaTime)
 		std::cout << "Angle: " << angle << " Distance: " << distance << std::endl;*/
 
 		if (angle < 0.1) {
-			_controllerSensitivity *= 0.2f;
+			_controllerSensitivity *= 0.6f;
 		}
 		else if (angle < 0.3) {
-			_controllerSensitivity *= 0.5f;
+			_controllerSensitivity *= 0.8f;
 		}
 		else if (angle < 0.5) {
-			_controllerSensitivity *= 0.7f;
+			_controllerSensitivity *= 0.9f;
 		}
 
 		_isMoving = false;
