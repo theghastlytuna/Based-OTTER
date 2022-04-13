@@ -12,6 +12,7 @@ struct userScore {
 
 class Score
 {
+public:
 	Score();
 	~Score();
 

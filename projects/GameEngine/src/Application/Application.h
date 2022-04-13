@@ -5,6 +5,7 @@
 #include "Utils/Macros.h"
 #include "Application/ApplicationLayer.h"
 #include "Gameplay/Scene.h"
+#include "Application/Score.h"
 
 struct GLFWwindow;
 
@@ -121,7 +122,8 @@ public:
 	void SaveSettings();
 
 	int currentCam = 1;
-
+	
+	Score scoreFunc;
 protected:
 	// The GL driver layer is a special friend that can access our protected members (mainly window info)
 	friend class GLAppLayer;

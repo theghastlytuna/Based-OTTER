@@ -430,7 +430,7 @@ void Application::_Run()
 			bool leftSelect;
 			bool rightSelect;
 			bool confirm;
-			bool secondMapSelect;
+			bool scoreboard;
 			bool back;
 
 
@@ -442,7 +442,7 @@ void Application::_Run()
 				leftSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) < -0.2f;
 				rightSelect = menuControl->GetAxisValue(GLFW_GAMEPAD_AXIS_LEFT_X) > 0.2f;
 				confirm = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_A);
-				//secondMapSelect = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
+				scoreboard = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);
 				back = menuControl->GetButtonDown(GLFW_GAMEPAD_BUTTON_B);
 
 			}
@@ -454,7 +454,7 @@ void Application::_Run()
 				leftSelect = glfwGetKey(_window, GLFW_KEY_LEFT);
 				rightSelect = glfwGetKey(_window, GLFW_KEY_RIGHT);
 				confirm = glfwGetKey(_window, GLFW_KEY_ENTER);
-				secondMapSelect = glfwGetKey(_window, GLFW_KEY_TAB);
+				scoreboard = glfwGetKey(_window, GLFW_KEY_TAB);
 				back = glfwGetKey(_window, GLFW_KEY_ESCAPE);
 
 			}
@@ -640,32 +640,10 @@ void Application::_Run()
 				CurrentScene()->FindObjectByName("Sensitivity Selector")->Get<RectTransform>()->SetMax({ currentLoc + 10, GetWindowSize().y / 2 });
 			}
 
-			/*
-			else if (secondMapSelect)
+			else if (scoreboard)
 			{
-
-				CurrentScene()->FindObjectByName("Menu BG")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Play Desert")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Play Jungle")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Options Button")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Exit Button")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Logo")->Get<GuiPanel>()->SetTransparency(0.0f);
-				CurrentScene()->FindObjectByName("Loading Screen")->Get<GuiPanel>()->SetTransparency(1.0f);
-
-				soundManaging.PlayEvent("Play");
-				soundManaging.PlayEvent("LoadScene");
-
-				GetLayer<Menu>()->SetActive(false);
-				//Begin the second map (create the scene)
-				GetLayer<SecondMap>()->BeginLayer();
-				//Load the scene
-				LoadScene(GetLayer<SecondMap>()->GetScene());
-				//Set the current layer to active
-				GetLayer<SecondMap>()->SetActive(true);
-				//Start playing
-				GetLayer<SecondMap>()->GetScene()->IsPlaying = true;
+				scoreFunc.addScore("Deez", 6.9f);
 			}
-			*/
 			
 			else
 			{
