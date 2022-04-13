@@ -77,10 +77,10 @@
 #include "Layers/PostProcessingLayer.h" 
 
 Application* Application::_singleton = nullptr;
-std::string Application::_applicationName = "INFR-2350U - DEMO";
+std::string Application::_applicationName = "Boomerangers";
 
-#define DEFAULT_WINDOW_WIDTH 800
-#define DEFAULT_WINDOW_HEIGHT 600
+#define DEFAULT_WINDOW_WIDTH 1600
+#define DEFAULT_WINDOW_HEIGHT 900
 
 using namespace Gameplay;
 
@@ -88,8 +88,8 @@ Application::Application() :
 	_window(nullptr),
 	_windowSize({DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT}),
 	_isRunning(false),
-	_isEditor(true),
-	_windowTitle("INFR - 2350U"),
+	_isEditor(false),
+	_windowTitle("Boomerangers"),
 	_currentScene(nullptr),
 	_targetScene(nullptr)
 { }

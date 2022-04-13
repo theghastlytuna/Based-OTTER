@@ -37,7 +37,7 @@ void HealthManager::Update(float deltaTime)
 	if (_loseHealth && _iFrames < 0)
 	{
 		_healthVal -= _damage;
-		_iFrames = 3.0f;
+		_iFrames = 1.0f;
 	}
 
 	if (_gotHit)
@@ -95,7 +95,7 @@ void HealthManager::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::Tr
 		float damageScaler = 2 * ((-0.4 * glm::cos(angle)) + 0.65);
 
 
-		_damage = damageScaler;
+		_damage = 1.3 * damageScaler;
 		
 		if (_damage >= 1.3)
 		{
