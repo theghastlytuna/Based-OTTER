@@ -127,12 +127,12 @@ void SecondMap::_CreateScene() {
 		// This shader handles our basic materials without reflections (cause they expensive)
 		ShaderProgram::Sptr basicShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/basic.glsl" },
-			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/deferred_forward.glsl" }
 		});
 
 		ShaderProgram::Sptr animShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
-			{ ShaderPartType::Fragment, "shaders/fragment_shaders/animFrag.glsl" }
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/deferred_forward.glsl" }
 		});
 
 #pragma endregion
@@ -143,12 +143,22 @@ void SecondMap::_CreateScene() {
 		MeshResource::Sptr groundRedMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/GroundRed.obj");
 		MeshResource::Sptr groundBlueMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/GroundBlue.obj");
 
+
+
 		MeshResource::Sptr northWestMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/North West.obj");
 		MeshResource::Sptr southMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/South.obj");
 		MeshResource::Sptr eastMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/East.obj");
 		MeshResource::Sptr redMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Red.obj");
 		MeshResource::Sptr blueMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue.obj");
-
+		MeshResource::Sptr blueTreeMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Blue Tree.obj");
+		MeshResource::Sptr grassMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Grass.obj");
+		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/Ground.obj");
+		MeshResource::Sptr healthBaseMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Health_Pick_Up.obj");
+		MeshResource::Sptr leavesMesh = ResourceManager::CreateAsset <MeshResource>("Jungle/leaves.obj");
+		MeshResource::Sptr nWestDirtMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/North West Dirt.obj");
+		MeshResource::Sptr raisedPlatMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Raised Plat.obj");
+		MeshResource::Sptr redTreeMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Red Tree.obj");
+		MeshResource::Sptr treePlatsMesh = ResourceManager::CreateAsset<MeshResource>("Jungle/Tree Platforms.obj");
 		/*
 		MeshResource::Sptr groundMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Grass.obj");
 		MeshResource::Sptr wallMesh = ResourceManager::CreateAsset<MeshResource>("stage2Objs/Canyon_Walls.obj");
@@ -181,19 +191,27 @@ void SecondMap::_CreateScene() {
 #pragma endregion
 #pragma region loadTextures
 
-		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Grass_Texture.png");
+		Texture2D::Sptr    grassTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Grass.png");
 		grassTex->SetMinFilter(MinFilter::Unknown);
 		grassTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    wallTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Canyon_Walls.png");
+		Texture2D::Sptr    dirtTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Dirt.png");
+		dirtTex->SetMinFilter(MinFilter::Unknown);
+		dirtTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr    platformTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Platform.png");
+		platformTex->SetMinFilter(MinFilter::Unknown);
+		platformTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr    wallTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Walls.png");
 		wallTex->SetMinFilter(MinFilter::Unknown);
 		wallTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    healthTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Health_Spot.png");
+		Texture2D::Sptr    healthTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Health_Spot.png");
 		healthTex->SetMinFilter(MinFilter::Unknown);
 		healthTex->SetMagFilter(MagFilter::Nearest);
 
-		Texture2D::Sptr    treeTex = ResourceManager::CreateAsset<Texture2D>("textures/Map2/Tree.png");
+		Texture2D::Sptr    treeTex = ResourceManager::CreateAsset<Texture2D>("Jungle/Tree.png");
 		treeTex->SetMinFilter(MinFilter::Unknown);
 		treeTex->SetMagFilter(MagFilter::Nearest);
 
@@ -210,6 +228,27 @@ void SecondMap::_CreateScene() {
 
 		// Configure the color correction LUT
 		scene->SetColorLUT(lut);
+
+		Texture2DDescription singlePixelDescriptor;
+		singlePixelDescriptor.Width = singlePixelDescriptor.Height = 1;
+		singlePixelDescriptor.Format = InternalFormat::RGB8;
+
+		float normalMapDefaultData[3] = { 0.5f, 0.5f, 1.0f };
+		Texture2D::Sptr normalMapDefault = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		normalMapDefault->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, normalMapDefaultData);
+
+		float solidGrey[3] = { 0.5f, 0.5f, 0.5f };
+		float solidBlack[3] = { 0.0f, 0.0f, 0.0f };
+		float solidWhite[3] = { 1.0f, 1.0f, 1.0f };
+
+		Texture2D::Sptr solidBlackTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidBlackTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidBlack);
+
+		Texture2D::Sptr solidGreyTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidGreyTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidGrey);
+
+		Texture2D::Sptr solidWhiteTex = ResourceManager::CreateAsset<Texture2D>(singlePixelDescriptor);
+		solidWhiteTex->LoadData(1, 1, PixelFormat::RGB, PixelType::Float, solidWhite);
 
 #pragma endregion
 #pragma region Skybox
@@ -229,62 +268,87 @@ void SecondMap::_CreateScene() {
 #pragma endregion
 #pragma region createMaterials
 
+		Material::Sptr platformMat = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			platformMat->Name = "platformMat";
+			platformMat->Set("u_Material.AlbedoMap", platformTex);
+			platformMat->Set("u_Material.Shininess", 0.1f);
+			platformMat->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr dirtMat = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			dirtMat->Name = "platformMat";
+			dirtMat->Set("u_Material.AlbedoMap", dirtTex);
+			dirtMat->Set("u_Material.Shininess", 0.1f);
+			dirtMat->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
 		Material::Sptr grassMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			grassMat->Name = "Box";
-			grassMat->Set("u_Material.Diffuse", grassTex);
+			grassMat->Name = "grassMat";
+			grassMat->Set("u_Material.AlbedoMap", grassTex);
 			grassMat->Set("u_Material.Shininess", 0.1f);
+			grassMat->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr wallMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			wallMat->Name = "Box";
-			wallMat->Set("u_Material.Diffuse", wallTex);
+			wallMat->Name = "wallMat";
+			wallMat->Set("u_Material.AlbedoMap", wallTex);
 			wallMat->Set("u_Material.Shininess", 0.1f);
+			wallMat->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr healthMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			healthMat->Name = "Box";
-			healthMat->Set("u_Material.Diffuse", healthTex);
+			healthMat->Name = "healthMat";
+			healthMat->Set("u_Material.AlbedoMap", healthTex);
 			healthMat->Set("u_Material.Shininess", 0.1f);
+			healthMat->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr treeMat = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			treeMat->Name = "Box";
-			treeMat->Set("u_Material.Diffuse", treeTex);
+			treeMat->Name = "treeMat";
+			treeMat->Set("u_Material.AlbedoMap", treeTex);
 			treeMat->Set("u_Material.Shininess", 0.1f);
+			treeMat->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr mainCharMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			mainCharMaterial->Name = "MainCharacter";
-			mainCharMaterial->Set("u_Material.Diffuse", mainCharTex);
-			mainCharMaterial->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial->Name = "mainCharMaterial";
+			mainCharMaterial->Set("u_Material.AlbedoMap", mainCharTex);
+			mainCharMaterial->Set("u_Material.Shininess", 0.f);
+			mainCharMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr mainCharMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			mainCharMaterial2->Name = "MainCharacter2";
-			mainCharMaterial2->Set("u_Material.Diffuse", mainCharTex);
-			mainCharMaterial2->Set("u_Material.Shininess", 0.1f);
+			mainCharMaterial2->Name = "mainCharMaterial2";
+			mainCharMaterial2->Set("u_Material.AlbedoMap", mainCharTex);
+			mainCharMaterial2->Set("u_Material.Shininess", 0.f);
+			mainCharMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr boomerangMaterial = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			boomerangMaterial->Name = "Boomerang1";
-			boomerangMaterial->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial->Name = "boomerangMaterial";
+			boomerangMaterial->Set("u_Material.AlbedoMap", boomerangTex);
 			boomerangMaterial->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr boomerangMaterial2 = ResourceManager::CreateAsset<Material>(animShader);
 		{
-			boomerangMaterial2->Name = "Boomerang2";
-			boomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
+			boomerangMaterial2->Name = "boomerangMaterial2";
+			boomerangMaterial2->Set("u_Material.AlbedoMap", boomerangTex);
 			boomerangMaterial2->Set("u_Material.Shininess", 0.1f);
+			boomerangMaterial2->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
+		/*
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			displayBoomerangMaterial1->Name = "Display Boomerang1";
@@ -298,6 +362,7 @@ void SecondMap::_CreateScene() {
 			displayBoomerangMaterial2->Set("u_Material.Diffuse", boomerangTex);
 			displayBoomerangMaterial2->Set("u_Material.Shininess", 0.1f);
 		}
+		*/
 
 #pragma endregion
 #pragma region createLights
@@ -827,7 +892,7 @@ void SecondMap::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang1->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial);
 
 			detachedCam->AddChild(displayBoomerang1);
 			displayBoomerang1->SetPosition(displacement);
@@ -847,7 +912,7 @@ void SecondMap::_CreateScene() {
 			// Create and attach a renderer
 			RenderComponent::Sptr renderer = displayBoomerang2->Add<RenderComponent>();
 			renderer->SetMesh(displayBoomerangMesh);
-			renderer->SetMaterial(displayBoomerangMaterial1);
+			renderer->SetMaterial(boomerangMaterial2);
 
 			detachedCam2->AddChild(displayBoomerang2);
 			displayBoomerang2->SetPosition(displacement);

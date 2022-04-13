@@ -27,5 +27,5 @@ void main() {
     if (lum < 0.8)
       image *= 4.0; 
 
-    outColor.rgb = (image * visionColor);
+    outColor.rgb = (image + n * 0.2) * visionColor;
 }
