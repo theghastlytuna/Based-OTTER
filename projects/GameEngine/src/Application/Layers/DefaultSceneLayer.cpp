@@ -238,6 +238,8 @@ void DefaultSceneLayer::_CreateScene() {
 
 		MeshResource::Sptr bigRocksMesh = ResourceManager::CreateAsset<MeshResource>("big_rocks.obj");
 
+		MeshResource::Sptr crateMesh = ResourceManager::CreateAsset<MeshResource>("stageObjs/Crate.obj");
+
 		// Load in some textures
 		Texture2D::Sptr    boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
 
@@ -256,6 +258,10 @@ void DefaultSceneLayer::_CreateScene() {
 		Texture2D::Sptr	   mainCharTex = ResourceManager::CreateAsset<Texture2D>("textures/Char.png");
 		mainCharTex->SetMinFilter(MinFilter::Unknown);
 		mainCharTex->SetMagFilter(MagFilter::Nearest);
+
+		Texture2D::Sptr	   crateTex = ResourceManager::CreateAsset<Texture2D>("textures/Crate_Texture.png");
+		crateTex->SetMinFilter(MinFilter::Unknown);
+		crateTex->SetMagFilter(MagFilter::Nearest);
 
 		// Loading in a 1D LUT
 		Texture1D::Sptr toonLut = ResourceManager::CreateAsset<Texture1D>("luts/toon-1D.png"); 
@@ -421,6 +427,14 @@ void DefaultSceneLayer::_CreateScene() {
 			boxMaterial->Set("u_Material.AlbedoMap", boxTexture);
 			boxMaterial->Set("u_Material.Shininess", 0.f);
 			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr crateMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			crateMaterial->Name = "Crate";
+			crateMaterial->Set("u_Material.AlbedoMap", crateTex);
+			crateMaterial->Set("u_Material.Shininess", 0.f);
+			crateMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr movingPlatMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -665,7 +679,6 @@ void DefaultSceneLayer::_CreateScene() {
 			tumbleweedMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 		
-		
 		GameObject::Sptr light = scene->CreateGameObject("Lights"); 
 		{ 
 			light->SetPosition(glm::vec3(0.f, 0.f, 20.f)); 
@@ -685,7 +698,7 @@ void DefaultSceneLayer::_CreateScene() {
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
-
+		/*
 		GameObject::Sptr light3 = scene->CreateGameObject("Light 3");
 		{
 			light3->SetPosition(glm::vec3(-50.f, 0.f, 20.f));
@@ -694,17 +707,6 @@ void DefaultSceneLayer::_CreateScene() {
 			lightComponent->SetColor(glm::vec3(1.0f));
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
-		}
-		/*
-		GameObject::Sptr shadowCaster = scene->CreateGameObject("Shadow Light");
-		{
-			// Set position in the scene
-			shadowCaster->SetPosition(glm::vec3(3.0f, 3.0f, 5.0f));
-			shadowCaster->LookAt(glm::vec3(0.0f));
-
-			// Create and attach a renderer for the monkey
-			ShadowCamera::Sptr shadowCam = shadowCaster->Add<ShadowCamera>();
-			shadowCam->SetProjection(glm::perspective(glm::radians(120.0f), 1.0f, 0.1f, 100.0f));
 		}
 		*/
 
@@ -716,6 +718,246 @@ void DefaultSceneLayer::_CreateScene() {
 		MeshResource::Sptr sphere = ResourceManager::CreateAsset<MeshResource>();
 		sphere->AddParam(MeshBuilderParam::CreateIcoSphere(ZERO, ONE, 5));
 		sphere->GenerateMesh();
+		
+		GameObject::Sptr torch = scene->CreateGameObject("Torch");
+		{
+			// Set position in the scene
+			torch->SetPosition(glm::vec3(-68.29f, 14.35f, 2.09f));
+			torch->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+
+			
+			Light::Sptr lightComponent = torch->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+			
+		}
+
+		GameObject::Sptr torch2 = scene->CreateGameObject("Torch 2");
+		{
+			// Set position in the scene
+			torch2->SetPosition(glm::vec3(-76.29f, -24.f, 2.09f));
+			torch2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch2->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch2->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch2->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch3 = scene->CreateGameObject("Torch 3");
+		{
+			// Set position in the scene
+			torch3->SetPosition(glm::vec3(102.f, -20.f, 2.f));
+			torch3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch3->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch3->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch3->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			Light::Sptr lightComponent = torch3->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+		}
+
+		GameObject::Sptr torch4 = scene->CreateGameObject("Torch 4");
+		{
+			// Set position in the scene
+			torch4->SetPosition(glm::vec3(111.f, 21.f, 2.f));
+			torch4->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+			torch4->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = torch4->Add<RenderComponent>();
+			renderer->SetMesh(torchMesh);
+			renderer->SetMaterial(torchMaterial);
+
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = torch4->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(torchIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
+			
+			Light::Sptr lightComponent = torch4->Add<Light>();
+			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
+			lightComponent->SetRadius(70.f);
+			lightComponent->SetIntensity(20.f);
+			
+		}
+		
+		GameObject::Sptr shadowCaster2 = scene->CreateGameObject("Shadow Light");
+		{
+			// Set position in the scene
+			shadowCaster2->SetPosition(glm::vec3(2.f, 2.f, 15.f));
+			shadowCaster2->LookAt(glm::vec3(0.0f));
+
+			// Create and attach a renderer for the monkey
+			ShadowCamera::Sptr shadowCam = shadowCaster2->Add<ShadowCamera>();
+			shadowCam->SetProjection(glm::perspective(glm::radians(120.0f), 1.0f, 0.1f, 100.0f));
+
+			shadowCam->IsEnabled = false;
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate1 = scene->CreateGameObject("Crate 1");
+		{
+			// Set position in the scene
+			crate1->SetPosition(glm::vec3(-57.3f, 14.35f, 0.35f));
+			crate1->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+			crate1->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate1->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate1->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate2 = scene->CreateGameObject("Crate 2");
+		{
+			// Set position in the scene
+			crate2->SetPosition(glm::vec3(-59.45f, 16.26f, -0.17f));
+			crate2->SetScale(glm::vec3(0.6f, 0.6f, 0.6f));
+			crate2->SetRotation(glm::vec3(90.0f, 0.0f, -53.f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate2->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate2->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate3 = scene->CreateGameObject("Crate 3");
+		{
+			// Set position in the scene
+			crate3->SetPosition(glm::vec3(-57.46f, 17.15f, -0.04f));
+			crate3->SetScale(glm::vec3(0.7f, 0.7f, 0.7f));
+			crate3->SetRotation(glm::vec3(90.0f, 0.0f, 25.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate3->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate3->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate4 = scene->CreateGameObject("Crate 4");
+		{
+			// Set position in the scene
+			crate4->SetPosition(glm::vec3(102.59f, 21.f, 0.11f));
+			crate4->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+			crate4->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate4->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate4->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate5 = scene->CreateGameObject("Crate 5");
+		{
+			// Set position in the scene
+			crate5->SetPosition(glm::vec3(104.99f, 19.66f, 0.11f));
+			crate5->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+			crate5->SetRotation(glm::vec3(90.0f, 0.0f, -36.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate5->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate5->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
+
+		//Stage Mesh - bridge
+		GameObject::Sptr crate6 = scene->CreateGameObject("Crate 6");
+		{
+			// Set position in the scene
+			crate6->SetPosition(glm::vec3(103.59f, 19.95f, 2.f));
+			crate6->SetScale(glm::vec3(0.6f, 0.6f, 0.6f));
+			crate6->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer
+			RenderComponent::Sptr renderer = crate6->Add<RenderComponent>();
+			renderer->SetMesh(crateMesh);
+			renderer->SetMaterial(crateMaterial);
+
+			BoxCollider::Sptr collider1 = BoxCollider::Create();
+
+			RigidBody::Sptr physics = crate6->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(collider1);
+		}
 
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
@@ -1946,118 +2188,6 @@ void DefaultSceneLayer::_CreateScene() {
 			physics->AddCollider(collider);
 
 		}
-
-		GameObject::Sptr torch = scene->CreateGameObject("Torch");
-		{
-			// Set position in the scene
-			torch->SetPosition(glm::vec3(-68.29f, 14.35f, 2.09f));
-			torch->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-			torch->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = torch->Add<RenderComponent>();
-			renderer->SetMesh(torchMesh);
-			renderer->SetMaterial(torchMaterial);
-
-
-			//Only add an animator when you have a clip to add.
-			MorphAnimator::Sptr animator = torch->Add<MorphAnimator>();
-
-			//Add the walking clip
-			animator->AddClip(torchIdle, 0.5f, "Idle");
-
-			//Make sure to always activate an animation at the time of creation (usually idle)
-			animator->ActivateAnim("Idle");
-
-			Light::Sptr lightComponent = torch->Add<Light>();
-			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
-			lightComponent->SetRadius(70.f);
-			lightComponent->SetIntensity(20.f);
-
-		}
-
-		GameObject::Sptr torch2 = scene->CreateGameObject("Torch 2");
-		{
-			// Set position in the scene
-			torch2->SetPosition(glm::vec3(-76.29f, -24.f, 2.09f));
-			torch2->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-			torch2->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = torch2->Add<RenderComponent>();
-			renderer->SetMesh(torchMesh);
-			renderer->SetMaterial(torchMaterial);
-
-
-			//Only add an animator when you have a clip to add.
-			MorphAnimator::Sptr animator = torch2->Add<MorphAnimator>();
-
-			//Add the walking clip
-			animator->AddClip(torchIdle, 0.5f, "Idle");
-
-			//Make sure to always activate an animation at the time of creation (usually idle)
-			animator->ActivateAnim("Idle");
-			Light::Sptr lightComponent = torch2->Add<Light>();
-			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
-			lightComponent->SetRadius(70.f);
-			lightComponent->SetIntensity(20.f);
-		}
-
-		GameObject::Sptr torch3 = scene->CreateGameObject("Torch 3");
-		{
-			// Set position in the scene
-			torch3->SetPosition(glm::vec3(102.f, -20.f, 2.f));
-			torch3->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-			torch3->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = torch3->Add<RenderComponent>();
-			renderer->SetMesh(torchMesh);
-			renderer->SetMaterial(torchMaterial);
-
-
-			//Only add an animator when you have a clip to add.
-			MorphAnimator::Sptr animator = torch3->Add<MorphAnimator>();
-
-			//Add the walking clip
-			animator->AddClip(torchIdle, 0.5f, "Idle");
-
-			//Make sure to always activate an animation at the time of creation (usually idle)
-			animator->ActivateAnim("Idle");
-			Light::Sptr lightComponent = torch3->Add<Light>();
-			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
-			lightComponent->SetRadius(70.f);
-			lightComponent->SetIntensity(20.f);
-		}
-
-		GameObject::Sptr torch4 = scene->CreateGameObject("Torch 4");
-		{
-			// Set position in the scene
-			torch4->SetPosition(glm::vec3(111.f, 21.f, 2.f));
-			torch4->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
-			torch4->SetRotation(glm::vec3(90.0f, 0.0f, 180.0f));
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = torch4->Add<RenderComponent>();
-			renderer->SetMesh(torchMesh);
-			renderer->SetMaterial(torchMaterial);
-
-
-			//Only add an animator when you have a clip to add.
-			MorphAnimator::Sptr animator = torch4->Add<MorphAnimator>();
-
-			//Add the walking clip
-			animator->AddClip(torchIdle, 0.5f, "Idle");
-
-			//Make sure to always activate an animation at the time of creation (usually idle)
-			animator->ActivateAnim("Idle");
-			Light::Sptr lightComponent = torch4->Add<Light>();
-			lightComponent->SetColor(glm::vec3(0.87f, 0.65f, 0.16));
-			lightComponent->SetRadius(70.f);
-			lightComponent->SetIntensity(20.f);
-		}
-
-
 
 		GameObject::Sptr healthPack = scene->CreateGameObject("Health Pack");
 		{

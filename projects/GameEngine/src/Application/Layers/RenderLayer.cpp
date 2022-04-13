@@ -357,7 +357,7 @@ void RenderLayer::_AccumulateLightingViewport(Gameplay::Camera::Sptr cam, glm::i
 		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), 1);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		});
+	});
 
 	// Restore frame level uniforms
 	//_InitFrameUniforms();

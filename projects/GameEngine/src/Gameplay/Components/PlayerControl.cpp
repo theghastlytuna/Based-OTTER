@@ -90,13 +90,13 @@ void PlayerControl::Update(float deltaTime)
 		std::cout << "Angle: " << angle << " Distance: " << distance << std::endl;*/
 
 		if (angle < 0.1) {
-			_controllerSensitivity *= 0.2f;
+			_controllerSensitivity *= 0.6f;
 		}
 		else if (angle < 0.3) {
-			_controllerSensitivity *= 0.5f;
+			_controllerSensitivity *= 0.8f;
 		}
 		else if (angle < 0.5) {
-			_controllerSensitivity *= 0.7f;
+			_controllerSensitivity *= 0.9f;
 		}
 
 		_isMoving = false;
@@ -314,15 +314,19 @@ void PlayerControl::Update(float deltaTime)
 		glm::vec3 input = glm::vec3(0.0f);
 		if (moveForward) {
 			input.z += _moveSpeeds.x;
+			_isMoving = true;
 		}
 		if (moveBack) {
 			input.z -= _moveSpeeds.x;
+			_isMoving = true;
 		}
 		if (moveLeft) {
 			input.x += _moveSpeeds.y;
+			_isMoving = true;
 		}
 		if (moveRight) {
 			input.x -= _moveSpeeds.y;
+			_isMoving = true;
 		}
 
 		input *= deltaTime;
@@ -340,8 +344,16 @@ void PlayerControl::Update(float deltaTime)
 				worldMovement *= _spintVal;
 				if (_timeBetStep >= 0.4)
 				{
-					SoundManaging::Current().PlayEvent("footsteps");
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 
@@ -349,8 +361,16 @@ void PlayerControl::Update(float deltaTime)
 			{
 				if (_timeBetStep >= 0.8f)
 				{
-					SoundManaging::Current().PlayEvent("footsteps");
-					_timeBetStep = 0.0f;
+					if (Map2)
+					{
+						SoundManaging::Current().PlayEvent("Walk_Grass", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
+					else
+					{
+						SoundManaging::Current().PlayEvent("Walk_Sand", GetGameObject());
+						_timeBetStep = 0.0f;
+					}
 				}
 			}
 		}
