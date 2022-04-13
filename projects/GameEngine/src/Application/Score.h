@@ -21,6 +21,6 @@ public:
 
 	std::string _filename;
 	std::ofstream _writeFile;
-	std::ifstream _inFile;
+	std::ifstream _readFile;
 
 };
