@@ -55,6 +55,7 @@
 #include "Gameplay/Components/ControllerInput.h"
 #include "Gameplay/Components/MenuElement.h"
 #include "Gameplay/Components/Light.h"
+#include "Gameplay/Components/PickUpBehaviour.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -137,6 +138,11 @@ void SecondMap::_CreateScene() {
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/deferred_forward.glsl" }
 		});
 
+		ShaderProgram::Sptr animShaderDepleted = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
+			{ ShaderPartType::Vertex, "shaders/vertex_shaders/morphAnim.glsl" },
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/depleteditem_vertlighting_frag.glsl" }
+		});
+
 #pragma endregion
 #pragma region loadMeshes
 
@@ -163,6 +169,7 @@ void SecondMap::_CreateScene() {
 		MeshResource::Sptr mainCharMesh2 = ResourceManager::CreateAsset<MeshResource>("mainChar.obj");
 		MeshResource::Sptr boomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
 		MeshResource::Sptr displayBoomerangMesh = ResourceManager::CreateAsset<MeshResource>("BoomerangAnims/Boomerang_Active_000.obj");
+		MeshResource::Sptr healthPackMesh = ResourceManager::CreateAsset<MeshResource>("HealthPackAnims/healthPack_idle_000.obj");
 
 		std::vector<MeshResource::Sptr> mainIdle = LoadTargets2(3, "MainCharacterAnims/Idle/Char_Idle_00");
 
@@ -176,7 +183,7 @@ void SecondMap::_CreateScene() {
 
 		std::vector<MeshResource::Sptr> mainAttack = LoadTargets2(5, "MainCharacterAnims/Attack/Char_Throw_00");
 
-		//std::vector<MeshResource::Sptr> boomerangSpin = LoadTargets2(4, "BoomerangAnims/Boomerang_Active_00");
+		std::vector<MeshResource::Sptr> healthPackIdle = LoadTargets2(7, "HealthPackAnims/healthPack_idle_00");
 #pragma endregion
 
 #pragma endregion
@@ -214,6 +221,10 @@ void SecondMap::_CreateScene() {
 		leafTex->SetMinFilter(MinFilter::Unknown);
 		leafTex->SetMagFilter(MagFilter::Nearest);
 
+		Texture2D::Sptr	   healthPackTex = ResourceManager::CreateAsset<Texture2D>("textures/vegemiteTex.png");
+		healthPackTex->SetMinFilter(MinFilter::Unknown);
+		healthPackTex->SetMagFilter(MagFilter::Nearest);
+
 		// Loading in a color lookup table
 		Texture3D::Sptr lut = ResourceManager::CreateAsset<Texture3D>("luts/cool.CUBE");
 
@@ -245,7 +256,7 @@ void SecondMap::_CreateScene() {
 #pragma region Skybox
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
-		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
+		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/sky2/sky.jpg");
 		ShaderProgram::Sptr      skyboxShader = ResourceManager::CreateAsset<ShaderProgram>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/skybox_vert.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/skybox_frag.glsl" }
@@ -340,6 +351,22 @@ void SecondMap::_CreateScene() {
 		}
 		Texture2DArray::Sptr particleTex = ResourceManager::CreateAsset<Texture2DArray>("textures/particles4.png", 2, 2);
 
+		Material::Sptr healthPackMaterial = ResourceManager::CreateAsset<Material>(animShader);
+		{
+			healthPackMaterial->Name = "healthPackMaterial";
+			healthPackMaterial->Set("u_Material.AlbedoMap", healthPackTex);
+			healthPackMaterial->Set("u_Material.Shininess", 0.f);
+			healthPackMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr healthPackDepletedMaterial = ResourceManager::CreateAsset<Material>(animShaderDepleted);
+		{
+			healthPackDepletedMaterial->Name = "healthPackDepletedMaterial";
+			healthPackDepletedMaterial->Set("u_Material.AlbedoMap", healthPackTex);
+			healthPackDepletedMaterial->Set("u_Material.Shininess", 0.f);
+			healthPackDepletedMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
 		/*
 		Material::Sptr displayBoomerangMaterial1 = ResourceManager::CreateAsset<Material>(basicShader);
 		{
@@ -427,20 +454,20 @@ void SecondMap::_CreateScene() {
 #pragma region Lights
 		GameObject::Sptr light = scene->CreateGameObject("Lights");
 		{
-			light->SetPosition(glm::vec3(0.f, 0.f, 20.f));
+			light->SetPosition(glm::vec3(50.f, 0.f, 20.f));
 
 			Light::Sptr lightComponent = light->Add<Light>();
-			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetColor({ 1,0.9,0.9 });
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
 
 		GameObject::Sptr light2 = scene->CreateGameObject("Light 2");
 		{
-			light2->SetPosition(glm::vec3(50.f, 0.f, 20.f));
+			light2->SetPosition(glm::vec3(0.f, 0.f, 20.f));
 
 			Light::Sptr lightComponent = light2->Add<Light>();
-			lightComponent->SetColor(glm::vec3(1.0f));
+			lightComponent->SetColor({ 0.7,1,0.7 });
 			lightComponent->SetRadius(500.f);
 			lightComponent->SetIntensity(5.f);
 		}
@@ -939,6 +966,36 @@ void SecondMap::_CreateScene() {
 			player2->Add<ScoreCounter>();
 
 			player2->SetRenderFlag(1);
+		}
+
+		GameObject::Sptr healthPack = scene->CreateGameObject("Health Pack");
+		{
+			// Set position in the scene
+			healthPack->SetPosition(glm::vec3(22.f, -22.f, 3.f));
+			healthPack->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
+			healthPack->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = healthPack->Add<RenderComponent>();
+			renderer->SetMesh(healthPackMesh);
+			renderer->SetMaterial(healthPackMaterial);
+
+			BoxCollider::Sptr colliderTrigger = BoxCollider::Create();
+			colliderTrigger->SetScale(glm::vec3(0.4f, 0.4f, 0.2f));
+			TriggerVolume::Sptr volume = healthPack->Add<TriggerVolume>();
+			volume->AddCollider(colliderTrigger);
+			PickUpBehaviour::Sptr pickUp = healthPack->Add<PickUpBehaviour>();
+			pickUp->DefaultMaterial = healthPackMaterial;
+			pickUp->DepletedMaterial = healthPackDepletedMaterial;
+
+			//Only add an animator when you have a clip to add.
+			MorphAnimator::Sptr animator = healthPack->Add<MorphAnimator>();
+
+			//Add the walking clip
+			animator->AddClip(healthPackIdle, 0.5f, "Idle");
+
+			//Make sure to always activate an animation at the time of creation (usually idle)
+			animator->ActivateAnim("Idle");
 		}
 
 		GameObject::Sptr boomerang = scene->CreateGameObject("Boomerang 1");
