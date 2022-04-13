@@ -3,14 +3,14 @@
 Score::Score()
 {
 	_filename = "highscores.txt";
-	_outFile.open(_filename);
-	_inFile.open(_filename);
+	_writeFile.open(_filename, std::ios::app);
+	_readFile.open(_filename);
 }
 
 Score::~Score()
 {
-	_inFile.close();
-	_outFile.close();
+	_readFile.close();
+	_writeFile.close();
 }
 
 std::vector<userScore> Score::readScores()
@@ -19,10 +19,10 @@ std::vector<userScore> Score::readScores()
 	std::vector<userScore> scores;
 	userScore newScore;
 
-	if (_inFile.is_open()) {
-		while (_inFile >> input) {
+	if (_readFile.is_open()) {
+		while (_readFile >> input) {
 			newScore.name = input;
-			_inFile >> input;
+			_readFile >> input;
 			newScore.time = std::stof(input);
 			scores.push_back(newScore);
 		}
@@ -47,8 +47,8 @@ std::vector<userScore> Score::readScores()
 
 void Score::addScore(std::string name, float time)
 {
-	if (_outFile.is_open()) {
-		_outFile << name << " " << time;
+	if (_writeFile.is_open()) {
+		_writeFile << name << " " << time;
 	}
 	else {
 		std::cout << "Error: Unable to open highscore file. What the fuck did you do?" << std::endl;

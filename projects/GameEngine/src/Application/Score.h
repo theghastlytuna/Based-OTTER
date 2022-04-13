@@ -20,7 +20,7 @@ public:
 	void addScore(std::string name, float time);
 
 	std::string _filename;
-	std::ofstream _outFile;
+	std::ofstream _writeFile;
 	std::ifstream _inFile;
 
 };
